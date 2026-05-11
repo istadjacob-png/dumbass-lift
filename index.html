@@ -10,6 +10,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>DUMBASS v1.7 · SWISS — For people who think they can do better</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Crect%20width%3D%2724%27%20height%3D%2724%27%20fill%3D%27%23000%27%2F%3E%3Cpolygon%20points%3D%274.5%2C6.5%2019.5%2C6.5%2012%2C19.5%27%20fill%3D%27%23FF3300%27%2F%3E%3C%2Fsvg%3E">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-title" content="DUMBASS">
+<meta name="application-name" content="DUMBASS">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -744,6 +750,11 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .vol-bar .fill{border-radius:0!important}
 .modal-bg{background:rgba(0,0,0,.4)!important}
 
+/* ===== V-TAPER LOGO MARK ===== */
+.logo-mark{width:26px;height:26px;display:inline-block;vertical-align:-5px;margin-right:8px;flex-shrink:0}
+.logo{display:inline-flex;align-items:center}
+.intro-mark{width:88px;height:88px;display:block;margin:0 auto 18px}
+
 /* ===== PROGRAM PICKER ===== */
 .program-card{
   background:#FFF;border:1px solid #000;border-left:4px solid #000;
@@ -821,6 +832,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <body>
 
 <div class="intro" id="intro">
+  <svg class="intro-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#000"/><polygon points="4.5,6.5 19.5,6.5 12,19.5" fill="#FF3300"/></svg>
   <div class="logo-big">DUMBASS</div>
   <div class="intro-tag">v1.7·SWISS · 8 Splits · Custom Sets & Reps</div>
   <div class="intro-title">AESTHETIC <span class="accent">PHYSIQUE</span></div>
@@ -832,7 +844,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="app">
 
   <div class="header">
-    <div class="logo">DUMBASS<span class="ver">v1.7·SWI</span></div>
+    <div class="logo"><svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#000"/><polygon points="4.5,6.5 19.5,6.5 12,19.5" fill="#FF3300"/></svg>DUMBASS<span class="ver">v1.7·SWI</span></div>
     <div class="avatar" onclick="avatarTap()" id="avatar-btn">J</div>
   </div>
 
