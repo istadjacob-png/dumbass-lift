@@ -384,30 +384,32 @@ input,textarea{user-select:text}
 .hist-lifts{display:flex;flex-wrap:wrap;gap:6px}
 .hist-lift{padding:4px 8px;background:var(--steel-dark);border:1px solid var(--border);border-radius:5px;font-family:'Oswald',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:.05em;font-weight:500}
 .hist-lift b{color:var(--text);font-weight:700}
-/* LAST SESSION HERO */
-.hist-hero{
-  background:linear-gradient(135deg,var(--cobalt-deep) 0%,var(--cobalt) 45%,var(--steel-dark) 100%);
-  border:1px solid var(--cobalt-bright);border-radius:14px;
-  padding:18px 18px 16px;margin-bottom:16px;
-  box-shadow:0 8px 30px var(--cobalt-glow);
-  color:#fff;position:relative;overflow:hidden;
-}
-.hist-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 22px,rgba(255,255,255,.04) 22px 23px);pointer-events:none}
-.hist-hero .hh-eyebrow{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.4em;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;position:relative}
-.hist-hero .hh-when{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;letter-spacing:.005em;margin-top:4px;position:relative}
-.hist-hero .hh-day{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;color:rgba(255,255,255,.85);text-transform:uppercase;font-weight:600;margin-top:6px;position:relative}
-.hist-hero .hh-day b{color:#fff;font-weight:700}
-.hist-hero .hh-stats{display:flex;gap:14px;margin-top:12px;position:relative}
-.hist-hero .hh-stat{flex:1;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 10px}
-.hist-hero .hh-stat .l{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.3em;color:rgba(255,255,255,.7);text-transform:uppercase;font-weight:700}
-.hist-hero .hh-stat .v{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:.02em;margin-top:2px}
-.hist-hero .hh-stat.pr .v{color:#FFD84D}
-.hist-hero .hh-lifts{display:flex;flex-direction:column;gap:4px;margin-top:12px;position:relative}
-.hist-hero .hh-lift{display:flex;justify-content:space-between;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.92);text-transform:uppercase;font-weight:500;padding:5px 0;border-top:1px solid rgba(255,255,255,.12)}
-.hist-hero .hh-lift:first-child{border-top:none}
-.hist-hero .hh-lift b{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.02em;color:#fff;font-weight:400}
-.hist-hero .hh-lift.is-pr b{color:#FFD84D}
-.hist-section-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.35em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+/* LAST SESSION (mini) */
+.hist-last{background:var(--steel);border:1px solid var(--border);border-left:3px solid var(--cobalt-bright);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.hist-last .hl-eyebrow{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.35em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.hist-last .hl-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.02em;color:var(--text);line-height:1.05}
+.hist-last .hl-lifts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hist-last .hl-lift{font-family:'Oswald',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:.06em;background:var(--steel-dark);border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-weight:500}
+.hist-last .hl-lift b{color:var(--text);font-weight:700}
+.hist-last .hl-lift.is-pr{border-color:var(--cobalt-bright)}
+.hist-last .hl-lift.is-pr b{color:var(--cobalt-bright)}
+
+/* SIMPLE DATE LIST */
+.hist-row{display:flex;justify-content:space-between;align-items:center;background:var(--steel);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:6px;cursor:pointer;transition:background .12s}
+.hist-row:active{background:var(--steel-dark)}
+.hist-row.open{border-color:var(--cobalt);border-left:3px solid var(--cobalt-bright)}
+.hist-row .hr-date{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.02em;color:var(--text);min-width:78px}
+.hist-row .hr-day{flex:1;font-family:'Oswald',sans-serif;font-size:11px;color:var(--text-mid);letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:0 10px}
+.hist-row .hr-meta{font-family:'Oswald',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:.15em;text-transform:uppercase;font-weight:600}
+.hist-row .hr-meta b{color:var(--cobalt-bright);font-weight:700;margin-left:4px}
+.hist-detail{background:var(--steel-dark);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:10px 14px 12px;margin-top:-6px;margin-bottom:8px}
+.hist-detail .hd-lift{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border);font-family:'Oswald',sans-serif;font-size:11px;color:var(--text-mid);letter-spacing:.05em;text-transform:uppercase;font-weight:500}
+.hist-detail .hd-lift:last-child{border-bottom:none}
+.hist-detail .hd-lift .n{flex:1}
+.hist-detail .hd-lift .v{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.02em;color:var(--text);font-weight:400}
+.hist-detail .hd-lift .t{font-size:9px;color:var(--text-faint);letter-spacing:.15em;margin-right:6px}
+.hist-detail .hd-lift.is-pr .v{color:var(--cobalt-bright)}
+.hist-section-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.35em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin:12px 0 8px}
 .empty-state{text-align:center;padding:50px 20px;color:var(--text-faint);font-family:'Oswald',sans-serif;letter-spacing:.15em;text-transform:uppercase;font-size:11px;font-weight:500}
 
 /* PROGRESS */
@@ -727,6 +729,29 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .program-card .pc-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:#FF3300;font-weight:700;flex-shrink:0;border:1px solid #FF3300;padding:2px 6px}
 .program-card .pc-author{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7A7A7A;letter-spacing:.05em;margin-bottom:8px}
 .program-card .pc-desc{font-family:'Inter',sans-serif;font-size:13px;color:#3A3A3A;line-height:1.55}
+.program-card.add-custom{border-style:dashed;background:#FFF}
+.program-card.add-custom .pc-name{color:#FF3300}
+.program-card .pc-del{font-size:22px;line-height:1;color:#888;font-weight:400;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #DDD;border-radius:50%}
+.program-card .pc-del:active{color:#FFF;background:#FF3300;border-color:#FF3300}
+
+/* SPLIT BUILDER */
+.sb-label{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.3em;color:#7A7A7A;text-transform:uppercase;font-weight:700;margin-bottom:6px;display:block}
+.sb-field{margin-bottom:6px}
+.sb-day{display:flex;align-items:center;gap:8px;background:#FFF;border:1px solid #DDD;border-left:3px solid #000;border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.sb-day.rest{border-left-color:#FF3300;background:#FFF6F2}
+.sb-day-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#000;min-width:22px;text-align:center}
+.sb-day.rest .sb-day-num{color:#FF3300}
+.sb-day-name{flex:1;font-family:'Oswald',sans-serif;font-size:13px;color:#000;background:transparent;border:none;outline:none;text-transform:uppercase;letter-spacing:.05em;font-weight:600;min-width:0}
+.sb-day-name:focus{outline:1px solid #000;outline-offset:2px}
+.sb-rest-toggle{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;background:#FFF;border:1px solid #000;color:#000;padding:5px 8px;cursor:pointer;font-weight:700}
+.sb-rest-toggle.on{background:#FF3300;color:#FFF;border-color:#FF3300}
+.sb-day-rm{width:26px;height:26px;border:1px solid #DDD;background:#FFF;color:#888;font-size:18px;line-height:1;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sb-day-rm:active{background:#FF3300;color:#FFF;border-color:#FF3300}
+.sb-actions-row{display:flex;gap:8px;margin:10px 0 14px}
+.sb-add-btn{flex:1;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;color:#000;background:#FFF;border:1px dashed #000;padding:10px;cursor:pointer;text-transform:uppercase;font-weight:700}
+.sb-add-btn.rest{color:#FF3300;border-color:#FF3300}
+.sb-add-btn:active{background:#F0F0F0}
+.sb-footer{display:flex;gap:10px;align-items:center;margin-top:8px}
 
 /* ===== INLINE SETS/REPS EDITOR ===== */
 .sets-edit{
@@ -1020,6 +1045,27 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <h2>CHOOSE YOUR <span class="accent">SPLIT</span></h2>
     <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">The most-trusted routines in lifting. Pick one. Run it 12 weeks. Then judge.</div>
     <div id="program-results"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="split-builder-modal" onclick="if(event.target.id==='split-builder-modal')closeSplitBuilder()">
+  <div class="modal">
+    <h2>BUILD YOUR <span class="accent">SPLIT</span></h2>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Name your days. Toggle REST for rest days. You'll add exercises from Today after.</div>
+    <div class="sb-field">
+      <label class="sb-label">Split Name</label>
+      <input class="modal-input" id="sb-name" type="text" placeholder="e.g. My Push Pull Legs" oninput="updateBuilderName(this.value)">
+    </div>
+    <div class="sb-label" style="margin-top:8px">Days</div>
+    <div id="sb-days"></div>
+    <div class="sb-actions-row">
+      <button class="sb-add-btn" onclick="addBuilderDay(false)">+ Training Day</button>
+      <button class="sb-add-btn rest" onclick="addBuilderDay(true)">+ Rest Day</button>
+    </div>
+    <div class="sb-footer">
+      <button class="btn-ghost" onclick="closeSplitBuilder()" style="color:var(--text-dim)">CANCEL</button>
+      <button class="btn-primary" onclick="saveCustomSplit()" style="flex:1">CREATE SPLIT</button>
+    </div>
   </div>
 </div>
 
@@ -1505,7 +1551,16 @@ const PROGRAMS=[
 ];
 
 // Map of programId → schedule, with state overrides applied. Filled lazily in load().
-function getProgramDef(id){return PROGRAMS.find(p=>p.id===id)||PROGRAMS[0];}
+function getProgramDef(id){
+  if(state.customPrograms){
+    const c=state.customPrograms.find(p=>p.id===id);
+    if(c)return c;
+  }
+  return PROGRAMS.find(p=>p.id===id)||PROGRAMS[0];
+}
+function getAllPrograms(){
+  return [...PROGRAMS,...(state.customPrograms||[])];
+}
 function getActiveSchedule(){
   const id=state.activeProgramId||PROGRAMS[0].id;
   if(state.programs&&state.programs[id])return state.programs[id];
@@ -1517,7 +1572,7 @@ function getActiveSchedule(){
 }
 function getActiveProgram(){return getProgramDef(state.activeProgramId||PROGRAMS[0].id);}
 
-let state={activeProgramId:'aesthetic-6',programs:{},currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[]};
+let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[]};
 
 function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},done:false,note:''}))};save();}
 
@@ -1665,6 +1720,7 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){cons
   }else{localStorage.removeItem('dumbass_state');}}}catch(e){}
   if(!state.activeProgramId)state.activeProgramId='aesthetic-6';
   if(!state.programs)state.programs={};
+  if(!Array.isArray(state.customPrograms))state.customPrograms=[];
   if(!state.today)loadDay(state.currentDayIdx||0);
   state._v=10;
   if(state.history.length===0&&!state.introSeen){seedDemoData();}
@@ -2112,113 +2168,78 @@ function completeWorkout(){
   toast(msg);
 }
 
-function daysAgoLabel(iso){
-  const d=new Date(iso);
-  const today=new Date();today.setHours(0,0,0,0);
-  const that=new Date(d);that.setHours(0,0,0,0);
-  const diff=Math.round((today-that)/(1000*60*60*24));
-  if(diff<=0)return'TODAY';
-  if(diff===1)return'YESTERDAY';
-  if(diff<7)return`${diff} DAYS AGO`;
-  if(diff<14)return'1 WEEK AGO';
-  if(diff<31)return`${Math.floor(diff/7)} WEEKS AGO`;
-  return`${Math.floor(diff/30)} MONTH${Math.floor(diff/30)===1?'':'S'} AGO`;
-}
-
 function renderProgHistory(){
   const c=document.getElementById('prog-tab-history');
   if(!c)return;
   if(state.history.length===0){c.innerHTML='<div class="empty-state">No sessions logged yet<br><br>Complete your first workout.</div>';return;}
 
   if(!state.historySearch)state.historySearch='';
+  if(!state.historyOpen)state.historyOpen='';
   const q=state.historySearch.toLowerCase();
 
   const sorted=[...state.history].reverse();
+  const last=sorted[0];
+  const lastPrSet=new Set((last.prs||[]).map(p=>p.name));
+  const lastLifts=last.exercises
+    .filter(ex=>ex.topSet&&ex.topSet.kg)
+    .map(ex=>{
+      const isPr=lastPrSet.has(ex.name);
+      return `<div class="hl-lift${isPr?' is-pr':''}">${ex.name} · <b>${ex.topSet.kg}×${ex.topSet.reps}</b></div>`;
+    }).join('');
+  const lastD=new Date(last.date);
+  const lastDateStr=lastD.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
+  const lastHtml=`<div class="hist-last">
+    <div class="hl-eyebrow">Last Session · ${lastDateStr}</div>
+    <div class="hl-title">DAY ${last.dayNum} · ${last.name.toUpperCase()}</div>
+    <div class="hl-lifts">${lastLifts}</div>
+  </div>`;
+
+  // Compact list — every session including the last one (so search/scrub works for everything)
   const filtered=q
     ?sorted.filter(h=>{
         if(h.name.toLowerCase().includes(q))return true;
         const d=new Date(h.date);
-        const dateStr=d.toLocaleDateString('en',{weekday:'long',month:'short',day:'numeric'}).toLowerCase();
+        const dateStr=d.toLocaleDateString('en',{weekday:'long',month:'short',day:'numeric',year:'numeric'}).toLowerCase();
         if(dateStr.includes(q))return true;
         return h.exercises.some(ex=>ex.name.toLowerCase().includes(q));
       })
     :sorted;
 
-  // Last session hero — always pinned to most recent, regardless of search
-  const last=sorted[0];
-  const lastD=new Date(last.date);
-  const prSet=new Set((last.prs||[]).map(p=>p.name));
-  const heroLifts=last.exercises
-    .filter(ex=>ex.topSet&&ex.topSet.kg)
-    .map(ex=>{
-      const isPr=prSet.has(ex.name);
-      return `<div class="hh-lift${isPr?' is-pr':''}"><span>${ex.name}${isPr?' · PR':''}</span><b>${ex.topSet.kg}KG × ${ex.topSet.reps}</b></div>`;
-    }).join('');
-  const heroPrCount=(last.prs||[]).length;
-  let heroVolume=last.totalVolume||0;
-  if(!heroVolume){
-    last.exercises.forEach(ex=>{
-      if(ex.topSet){
-        const kg=parseFloat(ex.topSet.kg)||0;
-        const reps=parseInt(ex.topSet.reps)||0;
-        heroVolume+=kg*reps*(ex.targetSets||0);
-      }
-    });
-    heroVolume=Math.round(heroVolume);
-  }
-  const heroHtml=`<div class="hist-hero">
-    <div class="hh-eyebrow">Last Session</div>
-    <div class="hh-when">${daysAgoLabel(last.date)}</div>
-    <div class="hh-day"><b>DAY ${last.dayNum}</b> · ${last.name.toUpperCase()} · ${lastD.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}).toUpperCase()}</div>
-    <div class="hh-stats">
-      <div class="hh-stat"><div class="l">Sets</div><div class="v">${last.totalSets}</div></div>
-      <div class="hh-stat"><div class="l">Volume</div><div class="v">${heroVolume.toLocaleString()}<span style="font-size:11px;letter-spacing:.15em;color:rgba(255,255,255,.6);margin-left:3px">KG</span></div></div>
-      ${heroPrCount>0?`<div class="hh-stat pr"><div class="l">PRs</div><div class="v">${heroPrCount}</div></div>`:''}
-    </div>
-    <div class="hh-lifts">${heroLifts}</div>
-  </div>`;
-
-  // Older sessions list (everything except the hero, then filtered by search)
-  const older=sorted.slice(1);
-  const olderFiltered=q
-    ?older.filter(h=>{
-        if(h.name.toLowerCase().includes(q))return true;
+  const rowsHtml=filtered.length===0
+    ?'<div class="empty-state">No sessions match "'+state.historySearch+'"</div>'
+    :filtered.map(h=>{
         const d=new Date(h.date);
-        const dateStr=d.toLocaleDateString('en',{weekday:'long',month:'short',day:'numeric'}).toLowerCase();
-        if(dateStr.includes(q))return true;
-        return h.exercises.some(ex=>ex.name.toLowerCase().includes(q));
-      })
-    :older;
-
-  const olderHtml=olderFiltered.length===0
-    ?(q?'<div class="empty-state">No earlier sessions match "'+state.historySearch+'"</div>':'<div class="empty-state">No earlier sessions yet</div>')
-    :olderFiltered.map(h=>{
-        const d=new Date(h.date);
-        const dateStr=d.toLocaleDateString('en',{month:'short',day:'numeric'});
+        const dateStr=d.toLocaleDateString('en',{month:'short',day:'numeric'}).toUpperCase();
+        const isOpen=state.historyOpen===h.date;
         const hasPr=h.prs&&h.prs.length>0;
-        const prBadge=hasPr?` · <b>${h.prs.length} PR</b>`:'';
-        const liftSummary=h.exercises.slice(0,5).map(ex=>{
-          if(!ex.topSet||!ex.topSet.kg)return'';
-          return `<div class="hist-lift">${ex.name.substring(0,14)} · <b>${ex.topSet.kg}×${ex.topSet.reps}</b></div>`;
-        }).join('');
-        return `<div class="hist-day${hasPr?' has-pr':''}">
-          <div class="hist-day-head">
-            <div>
-              <div class="hist-day-date">${daysAgoLabel(h.date)}</div>
-              <div style="font-family:'Oswald',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:.15em;margin-top:2px">${dateStr} · DAY ${h.dayNum} · ${h.name}</div>
-            </div>
-            <div class="hist-day-meta"><b>${h.totalSets}</b> SETS${prBadge}</div>
-          </div>
-          <div class="hist-lifts">${liftSummary}</div>
+        const prSet=new Set((h.prs||[]).map(p=>p.name));
+        const meta=hasPr?`<b>${h.prs.length}</b> PR`:`${h.totalSets} SETS`;
+        const row=`<div class="hist-row${isOpen?' open':''}" onclick="toggleHistoryRow('${h.date}')">
+          <div class="hr-date">${dateStr}</div>
+          <div class="hr-day">Day ${h.dayNum} · ${h.name}</div>
+          <div class="hr-meta">${meta}</div>
         </div>`;
+        if(!isOpen)return row;
+        const lifts=h.exercises
+          .filter(ex=>ex.topSet&&ex.topSet.kg)
+          .map(ex=>{
+            const isPr=prSet.has(ex.name);
+            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${ex.name}${isPr?' · PR':''}</span><span class="t">${ex.targetSets}×${ex.targetReps}</span><span class="v">${ex.topSet.kg}KG × ${ex.topSet.reps}</span></div>`;
+          }).join('');
+        return row+`<div class="hist-detail">${lifts||'<div style="color:var(--text-faint);font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase">No lifts logged</div>'}</div>`;
       }).join('');
 
   c.innerHTML=`
-    ${heroHtml}
-    <input type="text" class="search-input" id="history-search" placeholder="Search earlier sessions..." value="${state.historySearch}" oninput="updateHistorySearch(this.value)">
-    <div class="hist-section-label">Earlier Sessions · ${older.length}</div>
-    ${olderHtml}
+    ${lastHtml}
+    <input type="text" class="search-input" id="history-search" placeholder="Search by date, day, or lift..." value="${state.historySearch}" oninput="updateHistorySearch(this.value)">
+    <div class="hist-section-label">All Sessions · ${filtered.length}${q?' / '+sorted.length:''}</div>
+    ${rowsHtml}
   `;
+}
+
+function toggleHistoryRow(date){
+  state.historyOpen=state.historyOpen===date?'':date;
+  renderProgHistory();
 }
 
 function updateHistorySearch(val){
@@ -2443,22 +2464,124 @@ function closeModalBg(e){if(e.target.classList.contains('modal-bg'))e.target.cla
 function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=LIBRARY.filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const handler=libMode==='swap'?'swapLibEx':'addLibExToToday';const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>`<div class="modal-row" onclick="${handler}('${e.id}')"><div><div class="name">${e.name}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div>`).join('');}
 function openProgramPicker(){
   const active=state.activeProgramId;
-  document.getElementById('program-results').innerHTML=PROGRAMS.map(p=>{
+  const all=getAllPrograms();
+  const cards=all.map(p=>{
     const trainDays=p.schedule.filter(d=>d.type==='train').length;
     const restDays=p.schedule.filter(d=>d.type==='rest').length;
     const isActive=p.id===active;
-    return `<div class="program-card${isActive?' active':''}" onclick="switchProgram('${p.id}')">
+    const isCustom=(state.customPrograms||[]).some(c=>c.id===p.id);
+    const deleteBtn=isCustom?`<span class="pc-del" onclick="event.stopPropagation();deleteCustomSplit('${p.id}')" title="Delete">×</span>`:'';
+    return `<div class="program-card${isActive?' active':''}${isCustom?' custom':''}" onclick="switchProgram('${p.id}')">
       <div class="pc-head">
         <div class="pc-name">${p.name}</div>
-        ${isActive?'<div class="pc-badge">ACTIVE</div>':''}
+        <div style="display:flex;gap:8px;align-items:center">
+          ${isActive?'<div class="pc-badge">ACTIVE</div>':''}
+          ${deleteBtn}
+        </div>
       </div>
       <div class="pc-author">${p.author} · ${trainDays} training days · ${restDays} rest</div>
       <div class="pc-desc">${p.description}</div>
     </div>`;
   }).join('');
+  const addCard=`<div class="program-card add-custom" onclick="openSplitBuilder()">
+    <div class="pc-head"><div class="pc-name">+ ADD CUSTOM SPLIT</div></div>
+    <div class="pc-author">Build your own · name your days · pick rest days</div>
+  </div>`;
+  document.getElementById('program-results').innerHTML=cards+addCard;
   document.getElementById('program-modal').classList.add('open');
 }
 function closeProgramModalBg(e){if(e.target.id==='program-modal')document.getElementById('program-modal').classList.remove('open');}
+
+let splitBuilder={name:'',days:[]};
+function openSplitBuilder(){
+  splitBuilder={name:'My Split',days:[
+    {name:'CHEST & BACK',rest:false},
+    {name:'SHOULDERS & ARMS',rest:false},
+    {name:'LEGS',rest:false},
+    {name:'REST',rest:true},
+  ]};
+  document.getElementById('program-modal').classList.remove('open');
+  document.getElementById('split-builder-modal').classList.add('open');
+  renderSplitBuilder();
+}
+function closeSplitBuilder(){
+  document.getElementById('split-builder-modal').classList.remove('open');
+}
+function renderSplitBuilder(){
+  document.getElementById('sb-name').value=splitBuilder.name;
+  const list=document.getElementById('sb-days');
+  list.innerHTML=splitBuilder.days.map((d,i)=>`<div class="sb-day${d.rest?' rest':''}">
+    <div class="sb-day-num">${i+1}</div>
+    <input class="sb-day-name" type="text" value="${(d.name||'').replace(/"/g,'&quot;')}" placeholder="Day name" oninput="splitBuilder.days[${i}].name=this.value">
+    <button class="sb-rest-toggle${d.rest?' on':''}" onclick="toggleBuilderRest(${i})" title="Toggle rest day">REST</button>
+    <button class="sb-day-rm" onclick="removeBuilderDay(${i})" title="Remove">×</button>
+  </div>`).join('');
+}
+function addBuilderDay(rest){
+  splitBuilder.days.push({name:rest?'REST':'NEW DAY',rest:!!rest});
+  renderSplitBuilder();
+}
+function toggleBuilderRest(i){
+  const d=splitBuilder.days[i];
+  d.rest=!d.rest;
+  if(d.rest&&!/rest/i.test(d.name))d.name='REST';
+  renderSplitBuilder();
+}
+function removeBuilderDay(i){
+  if(splitBuilder.days.length<=1){toast('Need at least one day');return;}
+  splitBuilder.days.splice(i,1);
+  renderSplitBuilder();
+}
+function updateBuilderName(v){splitBuilder.name=v;}
+function saveCustomSplit(){
+  const name=(splitBuilder.name||'').trim();
+  if(!name){toast('Give your split a name');return;}
+  const trainCount=splitBuilder.days.filter(d=>!d.rest).length;
+  if(trainCount<1){toast('Need at least one training day');return;}
+  const id='custom-'+Date.now().toString(36);
+  const schedule=splitBuilder.days.map((d,i)=>({
+    dayNum:i+1,
+    name:(d.name||(d.rest?'REST':'DAY '+(i+1))).toUpperCase(),
+    muscles:d.rest?'Recovery':'',
+    subtitle:'',
+    type:d.rest?'rest':'train',
+    exercises:[]
+  }));
+  const restCount=splitBuilder.days.filter(d=>d.rest).length;
+  const prog={
+    id,name:name.toUpperCase(),
+    author:'YOU',
+    description:`Your custom split · ${trainCount} training day${trainCount===1?'':'s'}${restCount?' · '+restCount+' rest':''}. Add exercises from Today.`,
+    schedule
+  };
+  if(!Array.isArray(state.customPrograms))state.customPrograms=[];
+  state.customPrograms.push(prog);
+  state.activeProgramId=id;
+  state.currentDayIdx=0;
+  if(state.programs)delete state.programs[id];
+  loadDay(0);
+  save();
+  closeSplitBuilder();
+  renderToday();renderProgram();
+  toast(`${name.toUpperCase()} created`);
+  showView('today');
+}
+function deleteCustomSplit(id){
+  const p=(state.customPrograms||[]).find(x=>x.id===id);
+  if(!p)return;
+  if(!confirm(`Delete "${p.name}"? History stays.`))return;
+  state.customPrograms=state.customPrograms.filter(x=>x.id!==id);
+  if(state.programs)delete state.programs[id];
+  if(state.activeProgramId===id){
+    state.activeProgramId=PROGRAMS[0].id;
+    state.currentDayIdx=0;
+    loadDay(0);
+  }
+  save();
+  openProgramPicker();
+  renderToday();renderProgram();
+  toast('Split deleted');
+}
 
 function addLibExToToday(libId){const libEx=LIBRARY.find(e=>e.id===libId);if(!libEx)return;if(state.today.type==='rest'){toast('Not a training day');return;}state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:3,targetReps:'8-10',primary:false,tag:null,topSet:{kg:'',reps:''},done:false,note:''});syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`${libEx.name} added`);}
 function swapLibEx(libId){const libEx=LIBRARY.find(e=>e.id===libId);if(!libEx)return;const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur)return;state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:cur.targetSets||3,targetReps:cur.targetReps||'8-10',primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},done:false,note:''};syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`Swapped to ${libEx.name}`);}
