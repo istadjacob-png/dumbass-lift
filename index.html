@@ -130,14 +130,33 @@ input,textarea{user-select:text}
 .ex-meta{font-size:11px;color:var(--text-dim);font-family:'Oswald',sans-serif;letter-spacing:.08em}
 .ex-meta b{color:var(--cobalt-bright);font-weight:700}
 
-.ex-remove{
-  width:36px;height:36px;flex-shrink:0;border-radius:50%;
+.ex-edit,.ex-remove{
+  width:34px;height:34px;flex-shrink:0;border-radius:50%;
   background:transparent;border:1px solid var(--steel-light);
-  color:var(--text-dim);font-size:20px;line-height:1;font-weight:500;
+  color:var(--text-dim);font-size:16px;line-height:1;font-weight:500;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
+  padding:0;font-family:inherit;
   transition:background .15s,border-color .15s,color .15s,transform .15s cubic-bezier(.2,.8,.2,1);
 }
+.ex-remove{font-size:20px}
+.ex-edit:active{background:var(--cobalt);color:#fff;border-color:var(--cobalt);transform:scale(.9)}
 .ex-remove:active{background:var(--red);color:#fff;border-color:var(--red);transform:scale(.9)}
+
+/* SET DOTS — set counter under exercise meta */
+.ex-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--cobalt-bright);letter-spacing:.05em}
+.set-dots{display:inline-flex;gap:5px;align-items:center}
+.set-dot{
+  width:14px;height:14px;border-radius:50%;
+  background:transparent;border:1.5px solid var(--steel-light);
+  cursor:pointer;flex-shrink:0;
+  transition:background .12s,border-color .12s,transform .1s;
+}
+.set-dot:active{transform:scale(.85)}
+.set-dot.filled{background:var(--cobalt);border-color:var(--cobalt-bright);box-shadow:0 0 6px var(--cobalt-glow)}
+.ex-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.05em;font-weight:600}
+.ex-top{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;font-weight:600}
+.ex-top b{color:var(--cobalt-bright);font-weight:700}
 
 .add-ex-btn{width:100%;padding:14px;background:transparent;border:1px dashed var(--cobalt);border-radius:10px;color:var(--cobalt-bright);font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;margin-top:8px;margin-bottom:20px;font-weight:700}
 .add-ex-btn:active{background:var(--cobalt-soft)}
@@ -783,11 +802,14 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .sets-edit .se-input::-webkit-outer-spin-button,.sets-edit .se-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .sets-edit .se-x{font-family:'Inter',sans-serif;font-weight:900;font-size:20px;color:#000}
 
-.edit-hint{
-  font-family:'JetBrains Mono',monospace;font-size:9px;color:#B0B0B0;
-  letter-spacing:.15em;text-transform:uppercase;margin-left:8px;font-weight:500;
-}
-.ex-meta{cursor:pointer}
+/* Swiss/print overrides for set dots and edit button */
+.set-dot{border:1.5px solid #000!important;background:#FFF!important}
+.set-dot.filled{background:#000!important;border-color:#000!important;box-shadow:none!important}
+.exercise.current .set-dot{border-color:#FFF!important;background:#000!important}
+.exercise.current .set-dot.filled{background:#FFF!important;border-color:#FFF!important}
+.ex-edit{background:#FFF!important;border:1px solid #000!important;color:#000!important}
+.ex-edit:active{background:#000!important;color:#FFF!important}
+.ex-top b{color:#FF3300!important}
 
 /* ===== EDITABLE TARGET ON EXERCISE DETAIL ===== */
 .target-edit{
@@ -1574,7 +1596,7 @@ function getActiveProgram(){return getProgramDef(state.activeProgramId||PROGRAMS
 
 let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[]};
 
-function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},done:false,note:''}))};save();}
+function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};save();}
 
 function switchProgram(id){
   if(!getProgramDef(id))return;
@@ -1921,6 +1943,14 @@ function renderToday(){
   document.getElementById('today-title').innerHTML=nameParts.length===2?`${nameParts[0]} & <span class="accent">${nameParts[1]}</span>`:`<span class="accent">${t.name}</span>`;
   document.getElementById('program-current-day').innerHTML=`Day <span class="num">${t.dayNum}</span> · ${t.name}`;
   const exs=t.exercises;
+  // Backfill completedSets for legacy data (ex.done=true from old versions)
+  exs.forEach(ex=>{
+    if(typeof ex.completedSets!=='number'){
+      ex.completedSets=ex.done?(ex.targetSets||0):0;
+    }
+    if(ex.completedSets>(ex.targetSets||0))ex.completedSets=ex.targetSets||0;
+    ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+  });
   const doneCount=exs.filter(e=>e.done).length;
   document.getElementById('today-count').textContent=`${doneCount} / ${exs.length}`;
   const currentIdx=exs.findIndex(e=>!e.done);
@@ -1931,18 +1961,45 @@ function renderToday(){
     if(ex.primary)cls+=' primary';
     const tagHtml=ex.tag?`<span class="tag${ex.tag==='WARM-UP'?' gray':''}">${ex.tag}</span>`:'';
     const editHtml=`<div class="sets-edit" id="sets-edit-${i}"><div class="sets-edit-inner"><div class="se-label">Edit sets · reps</div><div class="se-row"><input type="number" min="1" max="10" class="se-input" value="${ex.targetSets}" oninput="updateSets(${i},this.value)" onblur="renderToday()"><span class="se-x">×</span><input type="text" class="se-input wide" value="${ex.targetReps}" oninput="updateReps(${i},this.value)" onblur="renderToday()" placeholder="8-10"></div></div></div>`;
+    const topInfo=ex.topSet&&ex.topSet.kg?`<span class="ex-top">TOP <b>${ex.topSet.kg}×${ex.topSet.reps}</b></span>`:'';
+    let dotsHtml='';
+    for(let d=0;d<(ex.targetSets||0);d++){
+      const filled=d<ex.completedSets;
+      dotsHtml+=`<span class="set-dot${filled?' filled':''}" onclick="event.stopPropagation();toggleSet(${i},${d})" title="Set ${d+1}"></span>`;
+    }
     return `<div class="${cls}">
       <div class="ex-check" onclick="event.stopPropagation();openExercise(${i})"></div>
       <div class="ex-info" onclick="openExercise(${i})">
         <div class="ex-name">${ex.name}${tagHtml}</div>
-        <div class="ex-meta" onclick="event.stopPropagation();toggleSetsEdit(${i})"><b>${ex.targetSets} × ${ex.targetReps}</b>${ex.done&&ex.topSet?' · <b>'+ex.topSet.kg+'kg × '+ex.topSet.reps+'</b>':''} <span class="edit-hint">tap to edit</span></div>
+        <div class="ex-meta">
+          <span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>
+          <span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span>
+          <span class="ex-count">${ex.completedSets}/${ex.targetSets}</span>
+          ${topInfo}
+        </div>
       </div>
-      <div class="ex-remove" onclick="event.stopPropagation();removeExAt(${i})" title="Remove">×</div>
+      <button class="ex-edit" onclick="event.stopPropagation();toggleSetsEdit(${i})" title="Edit sets / reps">✎</button>
+      <button class="ex-remove" onclick="event.stopPropagation();removeExAt(${i})" title="Remove">×</button>
     </div>${editHtml}`;
   }).join('');
   const btn=document.getElementById('complete-btn');
   if(exs.length>0&&exs.every(e=>e.done)){btn.disabled=false;btn.textContent='Complete Workout →';}
   else{btn.disabled=true;btn.textContent=`Complete Workout (${doneCount}/${exs.length})`;}
+}
+
+function toggleSet(i,setIdx){
+  const ex=state.today.exercises[i];if(!ex)return;
+  const target=ex.targetSets||0;
+  if(typeof ex.completedSets!=='number')ex.completedSets=0;
+  // Tap a filled dot to undo it (and everything past it); tap an empty dot to fill up to it.
+  if(setIdx<ex.completedSets){
+    ex.completedSets=setIdx;
+  }else{
+    ex.completedSets=Math.min(target,setIdx+1);
+  }
+  ex.done=ex.completedSets>=target&&target>0;
+  save();
+  renderToday();
 }
 
 function toggleSetsEdit(i){
@@ -1957,6 +2014,8 @@ function updateSets(i,v){
   const ex=state.today.exercises[i];if(!ex)return;
   const n=Math.max(1,Math.min(10,parseInt(v)||1));
   ex.targetSets=n;
+  if((ex.completedSets||0)>n)ex.completedSets=n;
+  ex.done=(ex.completedSets||0)>=n;
   syncTodayToSchedule();save();
 }
 function updateReps(i,v){
@@ -2011,7 +2070,7 @@ function openExercise(i){
 
 function updateTopSet(field,val){
   const ex=state.today.exercises[state.currentExerciseIdx];
-  if(ex.done){
+  if(ex.topLogged){
     // Locked once logged. Re-sync input back to stored value.
     const el=document.getElementById('topset-'+(field==='kg'?'kg':'reps'));
     if(el&&ex.topSet)el.value=ex.topSet[field]||'';
@@ -2027,6 +2086,8 @@ function updateTopSet(field,val){
 function updateDetailSets(v){
   const ex=state.today.exercises[state.currentExerciseIdx];if(!ex)return;
   ex.targetSets=Math.max(1,Math.min(10,parseInt(v)||1));
+  if((ex.completedSets||0)>ex.targetSets)ex.completedSets=ex.targetSets;
+  ex.done=(ex.completedSets||0)>=ex.targetSets;
   document.getElementById('ex-detail-target').innerHTML=`Target: <b>${ex.targetSets} × ${ex.targetReps}</b>${ex.tag?' · '+ex.tag:''}`;
   document.getElementById('topset-sub').textContent=`Target: ${ex.targetSets} sets × ${ex.targetReps} reps`;
   syncTodayToSchedule();save();
@@ -2045,7 +2106,7 @@ function updateLogBtnState(){
   const delBtn=document.getElementById('delete-log-btn');
   const kgInput=document.getElementById('topset-kg');
   const repsInput=document.getElementById('topset-reps');
-  if(ex.done){
+  if(ex.topLogged){
     btn.textContent='✓ Logged · Locked';
     btn.classList.add('done');
     btn.disabled=true;
@@ -2068,26 +2129,32 @@ function updateLogBtnState(){
     if(repsInput){repsInput.readOnly=false;repsInput.classList.remove('locked');}
   }
   const card=document.getElementById('topset-card');
-  if(ex.done)card.classList.add('done','locked');
+  if(ex.topLogged)card.classList.add('done','locked');
   else card.classList.remove('done','locked');
 }
 
 function logTopSet(){
   const ex=state.today.exercises[state.currentExerciseIdx];
-  if(ex.done){toast('Already logged · use Delete Log to remove');return;}
+  if(ex.topLogged){toast('Already logged · use Delete Log to remove');return;}
   if(!ex.topSet||!ex.topSet.kg||!ex.topSet.reps){toast('Enter weight & reps first');return;}
-  ex.done=true;
+  ex.topLogged=true;
+  // Top set counts as one completed set
+  if(typeof ex.completedSets!=='number')ex.completedSets=0;
+  ex.completedSets=Math.min((ex.targetSets||0),ex.completedSets+1);
+  ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
   save();
   updateLogBtnState();
-  toast('Top set logged');
+  toast(ex.done?'Top set logged · all sets done':'Top set logged · '+ex.completedSets+'/'+ex.targetSets);
   setTimeout(()=>showView('today'),800);
 }
 
 function deleteLog(){
   const ex=state.today.exercises[state.currentExerciseIdx];
-  if(!ex||!ex.done)return;
-  if(!confirm(`Delete logged set for ${ex.name}? You'll need to re-enter and log again.`))return;
-  ex.done=false;
+  if(!ex||!ex.topLogged)return;
+  if(!confirm(`Delete logged top set for ${ex.name}? Counter drops by one.`))return;
+  ex.topLogged=false;
+  ex.completedSets=Math.max(0,(ex.completedSets||0)-1);
+  ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
   save();
   updateLogBtnState();
   toast('Log deleted');
@@ -2583,8 +2650,8 @@ function deleteCustomSplit(id){
   toast('Split deleted');
 }
 
-function addLibExToToday(libId){const libEx=LIBRARY.find(e=>e.id===libId);if(!libEx)return;if(state.today.type==='rest'){toast('Not a training day');return;}state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:3,targetReps:'8-10',primary:false,tag:null,topSet:{kg:'',reps:''},done:false,note:''});syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`${libEx.name} added`);}
-function swapLibEx(libId){const libEx=LIBRARY.find(e=>e.id===libId);if(!libEx)return;const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur)return;state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:cur.targetSets||3,targetReps:cur.targetReps||'8-10',primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},done:false,note:''};syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`Swapped to ${libEx.name}`);}
+function addLibExToToday(libId){const libEx=LIBRARY.find(e=>e.id===libId);if(!libEx)return;if(state.today.type==='rest'){toast('Not a training day');return;}state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:3,targetReps:'8-10',primary:false,tag:null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`${libEx.name} added`);}
+function swapLibEx(libId){const libEx=LIBRARY.find(e=>e.id===libId);if(!libEx)return;const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur)return;state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:cur.targetSets||3,targetReps:cur.targetReps||'8-10',primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`Swapped to ${libEx.name}`);}
 
 let toastTimeout;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);}
