@@ -118,6 +118,7 @@ input,textarea{user-select:text}
 .exercise.done .ex-name{text-decoration:line-through;color:var(--text-dim)}
 .exercise.current{border-color:var(--cobalt);box-shadow:0 0 0 1px var(--cobalt),0 0 25px var(--cobalt-soft);background:linear-gradient(90deg,var(--cobalt-soft) 0%,var(--steel) 100%)}
 .exercise.primary::before{content:'';position:absolute;top:8px;bottom:8px;left:0;width:3px;background:var(--cobalt-bright);border-radius:0 2px 2px 0}
+.exercise.warmup::before{content:'';position:absolute;top:8px;bottom:8px;left:0;width:3px;background:repeating-linear-gradient(180deg,var(--text-faint) 0 3px,transparent 3px 6px);border-radius:0 2px 2px 0}
 .ex-check{width:24px;height:24px;border:2px solid var(--steel-light);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .exercise.done .ex-check{background:var(--cobalt);border-color:var(--cobalt)}
 .exercise.done .ex-check::after{content:'✓';color:#fff;font-size:14px;font-weight:800;line-height:1}
@@ -131,14 +132,14 @@ input,textarea{user-select:text}
 .ex-meta b{color:var(--cobalt-bright);font-weight:700}
 
 .ex-edit,.ex-remove{
-  width:34px;height:34px;flex-shrink:0;border-radius:50%;
-  background:transparent;border:1px solid var(--steel-light);
-  color:var(--text-dim);font-size:16px;line-height:1;font-weight:500;
+  width:42px;height:42px;flex-shrink:0;border-radius:50%;
+  background:transparent;border:1.5px solid var(--steel-light);
+  color:var(--text-dim);font-size:19px;line-height:1;font-weight:500;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   padding:0;font-family:inherit;
   transition:background .15s,border-color .15s,color .15s,transform .15s cubic-bezier(.2,.8,.2,1);
 }
-.ex-remove{font-size:20px}
+.ex-remove{font-size:24px}
 .ex-edit:active{background:var(--cobalt);color:#fff;border-color:var(--cobalt);transform:scale(.9)}
 .ex-remove:active{background:var(--red);color:#fff;border-color:var(--red);transform:scale(.9)}
 
@@ -1959,7 +1960,7 @@ function renderToday(){
     if(ex.done)cls+=' done';
     else if(i===currentIdx)cls+=' current';
     if(ex.primary)cls+=' primary';
-    const tagHtml=ex.tag?`<span class="tag${ex.tag==='WARM-UP'?' gray':''}">${ex.tag}</span>`:'';
+    if(ex.tag==='WARM-UP')cls+=' warmup';
     const editHtml=`<div class="sets-edit" id="sets-edit-${i}"><div class="sets-edit-inner"><div class="se-label">Edit sets · reps</div><div class="se-row"><input type="number" min="1" max="10" class="se-input" value="${ex.targetSets}" oninput="updateSets(${i},this.value)" onblur="renderToday()"><span class="se-x">×</span><input type="text" class="se-input wide" value="${ex.targetReps}" oninput="updateReps(${i},this.value)" onblur="renderToday()" placeholder="8-10"></div></div></div>`;
     const topInfo=ex.topSet&&ex.topSet.kg?`<span class="ex-top">TOP <b>${ex.topSet.kg}×${ex.topSet.reps}</b></span>`:'';
     let dotsHtml='';
@@ -1970,7 +1971,7 @@ function renderToday(){
     return `<div class="${cls}">
       <div class="ex-check" onclick="event.stopPropagation();openExercise(${i})"></div>
       <div class="ex-info" onclick="openExercise(${i})">
-        <div class="ex-name">${ex.name}${tagHtml}</div>
+        <div class="ex-name">${ex.name}</div>
         <div class="ex-meta">
           <span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>
           <span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span>
