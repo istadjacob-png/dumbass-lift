@@ -944,6 +944,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <p><b>MEV</b> Minimum Effective Volume — the floor. Below this you don't grow.</p>
       <p><b>MAV</b> Maximum Adaptive Volume — the productive range. Live here.</p>
       <p><b>MRV</b> Maximum Recoverable Volume — the ceiling. Past it you overreach.</p>
+      <p style="margin-top:8px;color:var(--text-faint);font-size:10px"><b>How it counts</b> Primary muscle = 1 set. Secondary muscle = 0.5 set (RP / Israetel standard for compound synergists).</p>
     </div>
   </div>
 
@@ -2078,6 +2079,9 @@ function renderProgram(){
 }
 
 function computeWeeklySets(){
+  // Volume model: primary muscle gets 1 set per logged set.
+  // Secondary muscles get 0.5 sets (RP-school standard for synergist work
+  // in compound exercises — Israetel/Helms convention; EMG-supported).
   const counts={};
   getActiveSchedule().forEach(day=>{
     if(day.type==='rest'||!day.exercises)return;
@@ -2086,6 +2090,9 @@ function computeWeeklySets(){
       if(!lib)return;
       const sets=parseInt(ex.targetSets)||0;
       counts[lib.muscle]=(counts[lib.muscle]||0)+sets;
+      if(Array.isArray(lib.secondary)){
+        lib.secondary.forEach(s=>{counts[s]=(counts[s]||0)+sets*0.5;});
+      }
     });
   });
   return counts;
