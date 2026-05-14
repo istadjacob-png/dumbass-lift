@@ -1070,6 +1070,13 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <div id="profile-bw-history" class="bw-history"></div>
     </div>
 
+    <div class="profile-card">
+      <div class="field-label">Daily Reminders</div>
+      <p class="ds-hint" style="margin:6px 0 12px">A daily 12:00 nudge with today's training, straight to your phone. Free, no account, works on iPhone, Android and desktop.</p>
+      <button class="btn-secondary" onclick="downloadReminders()" style="width:100%">⏰ ACTIVATE DAILY REMINDER</button>
+      <p class="ds-hint" style="margin-top:10px;font-size:11px">Tap → opens your Calendar app → tap "Add" / "Subscribe". Re-activate if you switch split.</p>
+    </div>
+
     <div class="profile-card data-safety">
       <div class="ds-eyebrow">Data Safety · Policy</div>
       <p class="ds-policy">Your lift data is the product of months of work. We treat it as sacred. Every workout auto-backs up to your device, and nothing is ever silently wiped — even "reset" moves your data to a recovery slot first.</p>
@@ -1780,6 +1787,81 @@ function exportData(){
     setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
     toast('Backup downloaded');
   }catch(e){toast('Export failed');}
+}
+
+// ============================================================
+// DAILY REMINDERS via .ics calendar subscription
+// Generates 365 daily events at 12:00 with today's training in the title.
+// User taps button → Calendar app opens → "Add" → done forever.
+// No server, no third-party, works on iOS/Android/Desktop calendars.
+// ============================================================
+function _icsEscape(s){return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
+function _icsDateLocal(d){
+  // Floating local time (no Z) — fires at 12:00 wherever the user is
+  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T120000';
+}
+function _icsDateLocalEnd(d){
+  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T120100';
+}
+function buildRemindersIcs(){
+  const sched=getActiveSchedule();
+  const prog=getActiveProgram();
+  const lines=[
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//DUMBASS LIFT//Daily Reminder//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:DUMBASS LIFT · Daily Reminder',
+    'X-WR-TIMEZONE:Europe/Oslo',
+    'X-WR-CALDESC:Daily nudge with today\'s training. From DUMBASS LIFT.',
+  ];
+  const today=new Date(); today.setHours(12,0,0,0);
+  const stampUtc=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  const dayMs=86400000;
+  for(let i=0;i<365;i++){
+    const d=new Date(today.getTime()+i*dayMs);
+    const wkIdx=(d.getDay()+6)%7; // Mon=0
+    const slot=sched[wkIdx];
+    const isRest=!slot||slot.type==='rest';
+    const trainingName=isRest?'HVILE':(slot.name||'TRAINING');
+    const wd=weekdayShort(wkIdx);
+    const title=isRest?`DUMBASS LIFT · ${wd}: HVILE · Spis. Sov. Voks.`:`DUMBASS LIFT · ${wd}: ${trainingName}`;
+    const quote=DAILY_QUOTES[i % DAILY_QUOTES.length];
+    const desc=isRest?`Hviledag. Kroppen vokser når du ikke trener. Velg én ting du gjør for å bli bedre i morgen.\n\n"${quote.q}"${quote.a?` — ${quote.a}`:''}`:`I dag: ${trainingName}\nMuskler: ${slot.muscles||''}\n\n"${quote.q}"${quote.a?` — ${quote.a}`:''}\n\nÅpne appen: https://istadjacob-png.github.io/dumbass-lift/`;
+    const ymdStr=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    lines.push(
+      'BEGIN:VEVENT',
+      `UID:dumbass-${ymdStr}@dumbass-lift`,
+      `DTSTAMP:${stampUtc}`,
+      `DTSTART:${_icsDateLocal(d)}`,
+      `DTEND:${_icsDateLocalEnd(d)}`,
+      `SUMMARY:${_icsEscape(title)}`,
+      `DESCRIPTION:${_icsEscape(desc)}`,
+      'TRANSP:TRANSPARENT',
+      'BEGIN:VALARM',
+      'TRIGGER:PT0M',
+      'ACTION:DISPLAY',
+      `DESCRIPTION:${_icsEscape(title)}`,
+      'END:VALARM',
+      'END:VEVENT'
+    );
+  }
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+function downloadReminders(){
+  try{
+    const ics=buildRemindersIcs();
+    const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`dumbass-lift-reminders-${new Date().getFullYear()}.ics`;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},300);
+    toast('Reminders downloaded · open the file in Calendar');
+  }catch(e){toast('Couldn\'t generate reminders');}
 }
 
 function importDataFromFile(input){
