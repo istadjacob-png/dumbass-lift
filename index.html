@@ -237,9 +237,9 @@ input,textarea{user-select:text}
 .profile-input::placeholder{color:var(--text-faint)}
 .profile-input::-webkit-outer-spin-button,.profile-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .profile-input[type=number]{-moz-appearance:textfield}
-.bw-row{display:flex;gap:8px;align-items:stretch}
-.bw-row .bw-input{flex:1}
-.bw-row .bw-log{flex:0 0 auto;padding:0 18px;font-size:14px}
+.bw-row{display:flex;gap:8px;align-items:stretch;width:100%;min-width:0}
+.bw-row .bw-input{flex:1 1 auto;min-width:0;width:auto}
+.bw-row .bw-log{flex:0 0 auto;width:auto;padding:0 22px;font-size:14px;white-space:nowrap}
 /* DATA SAFETY CARD */
 .profile-card.data-safety{border-left:3px solid var(--cobalt-bright)}
 .ds-eyebrow{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.35em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;margin-bottom:8px}
