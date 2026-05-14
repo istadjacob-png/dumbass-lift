@@ -315,7 +315,7 @@ input,textarea{user-select:text}
 .day-card:active{transform:scale(.99)}
 .day-card.today{background:linear-gradient(90deg,var(--cobalt-soft) 0%,var(--steel) 100%);border-color:var(--cobalt);box-shadow:0 0 0 1px var(--cobalt),0 0 25px var(--cobalt-soft)}
 .day-card.rest{opacity:.55}
-.day-card .num{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--cobalt-bright);line-height:1;min-width:40px;text-align:center}
+.day-card .num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--cobalt-bright);line-height:1;min-width:50px;text-align:center;letter-spacing:.05em}
 .day-card.rest .num{color:var(--text-faint)}
 .day-info{flex:1;min-width:0}
 .day-info .d-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.3em;color:var(--text-faint);text-transform:uppercase;margin-bottom:2px;font-weight:600}
@@ -710,7 +710,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .day-card.today .d-name,.day-card.today .d-muscles{color:#FFF!important}
 .day-card.today .play-btn{background:#FFF!important;border-color:#FFF!important}
 .day-card.today .play-btn svg{stroke:#000;fill:#000}
-.day-card .num{font-family:'Inter',sans-serif;font-weight:900;font-size:48px;letter-spacing:-.04em;color:#000}
+.day-card .num{font-family:'Inter',sans-serif;font-weight:900;font-size:22px;letter-spacing:0;color:#000;min-width:50px;text-align:center}
 .day-card.today .num{color:#FFF}
 .avatar{background:#000!important;color:#FFF!important;border:1px solid #000!important;font-family:'JetBrains Mono',monospace}
 .ex-remove{background:#FFF!important;border:1px solid #000!important;color:#000!important}
@@ -875,7 +875,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <div class="program-btn" onclick="showView('program')">
         <div>
           <div class="label" id="program-current-name">Aesthetic Physique</div>
-          <div class="current" id="program-current-day">Day <span class="num">1</span> · Chest & Back</div>
+          <div class="current" id="program-current-day"><span class="num">MON</span> · Chest & Back</div>
         </div>
         <div class="icon-box">
           <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
@@ -889,7 +889,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     </div>
     <button class="btn-ghost" onclick="openProgramPicker()" style="color:var(--cobalt-bright);font-weight:700;letter-spacing:.25em;padding:6px 0 14px;width:100%;text-align:left">⇆ SWITCH SPLIT</button>
 
-    <div class="eyebrow" id="today-eyebrow">Day 1</div>
+    <div class="eyebrow" id="today-eyebrow">Monday</div>
     <div class="title" id="today-title">CHEST & <span class="accent">BACK</span></div>
 
     <div class="section-head">
@@ -1624,7 +1624,16 @@ function getActiveSchedule(){
 }
 function getActiveProgram(){return getProgramDef(state.activeProgramId||PROGRAMS[0].id);}
 
-let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[]};
+// Weekday helpers — map schedule slot 0..6 to Mon..Sun
+const WEEKDAYS=['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
+const WEEKDAYS_SHORT=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+function weekdayLabel(idx){return WEEKDAYS[((idx%7)+7)%7];}
+function weekdayShort(idx){return WEEKDAYS_SHORT[((idx%7)+7)%7];}
+// Today's slot in the schedule. JS Sunday=0, Monday=1, ..., we want Mon=0.
+function todayScheduleIdx(){const d=new Date().getDay();return (d+6)%7;}
+function ymd(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[],lastOpenDate:''};
 
 function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};save();}
 
@@ -1909,6 +1918,17 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
   if(!state.today)loadDay(state.currentDayIdx||0);
   state._v=10;
   if(state.history.length===0&&!state.introSeen){seedDemoData();}
+  // Auto-snap to today's weekday on a new calendar day if no progress is logged
+  const today=ymd();
+  if(state.lastOpenDate!==today){
+    const hasProgress=state.today&&Array.isArray(state.today.exercises)&&state.today.exercises.some(e=>e.completedSets>0||e.done||(e.topSet&&e.topSet.kg));
+    if(!hasProgress){
+      const slot=todayScheduleIdx();
+      if(slot!==state.currentDayIdx)loadDay(slot);
+    }
+    state.lastOpenDate=today;
+    save();
+  }
 }
 function dismissIntro(){state.introSeen=true;save();document.getElementById('intro').classList.add('hidden');renderToday();}
 
@@ -1927,11 +1947,14 @@ function renderProgram(){
       <div class="sub">${prog.author} · Tap a day to train it</div>
     `;
   }
+  const realToday=todayScheduleIdx();
   document.getElementById('day-list').innerHTML=sched.map((day,i)=>{
     const isToday=i===state.currentDayIdx;
+    const isRealToday=i===realToday;
     const cls=`day-card${isToday?' today':''}${day.type==='rest'?' rest':''}`;
     const icon=day.type==='rest'?'<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>':'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-    return `<div class="${cls}" onclick="switchToDay(${i})"><div class="num">${day.dayNum}</div><div class="day-info"><div class="d-label">${isToday?'CURRENT DAY':'DAY '+day.dayNum}</div><div class="d-name">${day.name}</div><div class="d-muscles">${day.muscles}</div></div><div class="play-btn">${icon}</div></div>`;
+    const labelTxt=isToday?(isRealToday?'TODAY':'SELECTED'):(isRealToday?weekdayLabel(i)+' · TODAY':weekdayLabel(i));
+    return `<div class="${cls}" onclick="switchToDay(${i})"><div class="num">${weekdayShort(i)}</div><div class="day-info"><div class="d-label">${labelTxt}</div><div class="d-name">${day.name}</div><div class="d-muscles">${day.muscles}</div></div><div class="play-btn">${icon}</div></div>`;
   }).join('');
 }
 
@@ -2098,10 +2121,12 @@ function renderToday(){
   const pn=document.getElementById('program-current-name');
   if(pn)pn.textContent=prog.name;
   if(t.type==='rest'){showView('rest');return;}
-  document.getElementById('today-eyebrow').textContent=`Day ${t.dayNum}`;
+  const wd=weekdayLabel(t.dayNum-1);
+  const isRealToday=(state.currentDayIdx===todayScheduleIdx());
+  document.getElementById('today-eyebrow').textContent=isRealToday?`${wd} · TODAY`:wd;
   const nameParts=t.name.split(' & ');
-  document.getElementById('today-title').innerHTML=nameParts.length===2?`${nameParts[0]} & <span class="accent">${nameParts[1]}</span>`:`<span class="accent">${t.name}</span>`;
-  document.getElementById('program-current-day').innerHTML=`Day <span class="num">${t.dayNum}</span> · ${t.name}`;
+  document.getElementById('today-title').innerHTML=nameParts.length===2?`<span style="white-space:nowrap">${nameParts[0]} &amp;</span> <span class="accent">${nameParts[1]}</span>`:`<span class="accent">${t.name}</span>`;
+  document.getElementById('program-current-day').innerHTML=`<span class="num">${weekdayShort(t.dayNum-1)}</span> · ${t.name}`;
   const exs=t.exercises;
   // Backfill completedSets for legacy data (ex.done=true from old versions)
   exs.forEach(ex=>{
