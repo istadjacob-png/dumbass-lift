@@ -1101,7 +1101,35 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   <div class="modal">
     <h2 id="lib-title">ADD <span class="accent">EXERCISE</span></h2>
     <input class="modal-input" id="lib-search" placeholder="Search..." oninput="filterLib()">
+    <button class="add-ex-btn" style="margin-top:0;margin-bottom:12px" onclick="openCustomExForm()">+ CREATE CUSTOM EXERCISE</button>
     <div id="lib-results"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="custom-ex-modal" onclick="if(event.target.id==='custom-ex-modal')closeCustomExForm()">
+  <div class="modal">
+    <h2>NEW <span class="accent">EXERCISE</span></h2>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Name it. Pick the muscle. Pick the tool.</div>
+    <label class="sb-label">Name</label>
+    <input class="modal-input" id="cx-name" type="text" placeholder="e.g. Landmine Press" maxlength="40">
+    <label class="sb-label" style="margin-top:6px">Main muscle</label>
+    <select class="modal-input" id="cx-muscle"></select>
+    <label class="sb-label" style="margin-top:6px">Tool</label>
+    <select class="modal-input" id="cx-equip">
+      <option value="BARBELL">Barbell</option>
+      <option value="DUMBBELL">Dumbbell</option>
+      <option value="MACHINE">Machine</option>
+      <option value="CABLE">Cable</option>
+      <option value="BODYWEIGHT">Bodyweight</option>
+      <option value="KETTLEBELL">Kettlebell</option>
+      <option value="BAND">Band</option>
+      <option value="SMITH">Smith Machine</option>
+      <option value="OTHER">Other</option>
+    </select>
+    <div class="sb-footer">
+      <button class="btn-ghost" onclick="closeCustomExForm()" style="color:var(--text-dim)">CANCEL</button>
+      <button class="btn-primary" onclick="saveCustomExercise()" style="flex:1">SAVE</button>
+    </div>
   </div>
 </div>
 
@@ -1204,9 +1232,41 @@ const LIBRARY=[
   {id:'standing-calf',name:'Standing Calf Raise',muscle:'calves',region:'calves',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Full ROM is everything.',cues:['Stand on edge of platform','Deep stretch at bottom','Rise to toes, peak squeeze','1 sec pause at top']}},
   {id:'seated-calf',name:'Seated Calf Raise',muscle:'calves',region:'calves',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Targets soleus muscle.',cues:['Pads on knees','Full stretch below','Rise as high as possible','Controlled tempo throughout']}},
   {id:'leg-press-calf',name:'Leg Press Calf Raise',muscle:'calves',region:'calves',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Heavy loading possible.',cues:['Feet at bottom edge','Push through balls of feet','Full stretch at bottom','Peak squeeze']}},
+  {id:'push-up',name:'Push-Up',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Plank-tight body, full ROM.',cues:['Hands slightly wider than shoulders','Elbows ~45° from torso','Chest to floor','Full lockout at top']}},
+  {id:'machine-press',name:'Machine Chest Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'MACHINE',form:{primary:'Fixed path = pure chest under heavy load.',cues:['Seat height: handles at mid-chest','Shoulder blades pinned back','Press without locking out hard','Slow eccentric, 2-3s']}},
+  {id:'flat-db',name:'Flat DB Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Bigger ROM than barbell. Deep stretch.',cues:['Bench flat, feet planted','Elbows ~45° to torso','DBs touch lightly at the top','3s down · pause · drive up']}},
+  {id:'flat-fly',name:'Flat DB Fly',muscle:'chest',region:'middle',type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Stretch-position chest isolation.',cues:['Slight bend in elbows, locked','Wide arc, do not press','Stop at chest line for the stretch','Squeeze at top, controlled return']}},
+  {id:'cable-crossover',name:'Cable Crossover',muscle:'chest',region:'middle',type:'ISOLATION',equipment:'CABLE',form:{primary:'Constant tension across the full arc.',cues:['Cables at shoulder height','Slight forward lean','Hands meet in front of chest','Squeeze 1s · slow return']}},
+  {id:'pendlay-row',name:'Pendlay Row',muscle:'lats',secondary:['biceps','rear-delts'],region:'thickness',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Dead-stop reps. Strict torso, explosive pull.',cues:['Torso parallel to floor','Bar to lower ribs','Reset on the floor each rep','No torso swing']}},
+  {id:'meadows-row',name:'Meadows Row',muscle:'lats',secondary:['biceps','rear-delts'],region:'thickness',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Unilateral landmine row. Brutal lat builder.',cues:['One end of barbell in a corner','Stagger stance, hinge over','Pull elbow back and up','Squeeze hard at top']}},
+  {id:'inv-row',name:'Inverted Row',muscle:'lats',secondary:['biceps','rear-delts'],region:'thickness',type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Horizontal pull. Scalable, joint-friendly.',cues:['Bar at hip height in rack','Body straight, heels on floor','Pull chest to bar','Squeeze shoulder blades']}},
+  {id:'sa-pulldown',name:'Straight-Arm Pulldown',muscle:'lats',region:'width',type:'ISOLATION',equipment:'CABLE',form:{primary:'Pure lat isolation. No biceps cheating.',cues:['Stand back from the stack','Arms straight, soft elbow lock','Pull bar to thighs in an arc','Feel lats — not biceps']}},
+  {id:'chin-up',name:'Chin-Up',muscle:'lats',secondary:['biceps','rear-delts'],region:'width',type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Underhand pull-up. Heavier biceps recruitment.',cues:['Palms facing you, shoulder-width','Dead hang at bottom','Pull chin over bar','Slow descent']}},
+  {id:'machine-ohp',name:'Machine Shoulder Press',muscle:'front-delts',secondary:['triceps','traps'],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Fixed path, joint-friendly heavy pressing.',cues:['Seat height: handles at shoulder','Press up without shrugging','Stop short of full lockout','Control the negative']}},
+  {id:'upright-row',name:'Upright Row',muscle:'side-delts',secondary:['traps'],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Wider grip is kinder on the shoulder joint.',cues:['Grip wider than shoulders','Pull bar to chest, elbows lead','Stop when upper arms are parallel','Slow eccentric']}},
+  {id:'y-raise',name:'Y-Raise',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Hits rear delts + lower traps. Shoulder health.',cues:['Hinge forward ~45°','Arms straight, thumbs up','Raise out and up into a Y','Squeeze shoulder blades']}},
+  {id:'conc-curl',name:'Concentration Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Elbow pinned, peak contraction.',cues:['Seated, elbow against inner thigh','Curl with biceps only','Squeeze at top, 1s','Slow eccentric']}},
+  {id:'cable-curl',name:'Cable Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'CABLE',form:{primary:'Constant tension top to bottom.',cues:['Stand at cable, EZ-bar or rope','Elbows locked at sides','Curl through full range','Squeeze peak hard']}},
+  {id:'spider-curl',name:'Spider Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Chest-down on incline bench. Stretched biceps.',cues:['Chest on incline pad','Arms hang straight down','Curl without moving elbows','Squeeze, slow return']}},
+  {id:'bench-dip',name:'Bench Tricep Dip',muscle:'triceps',type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Elbows tight, full ROM.',cues:['Hands on bench behind you','Feet on floor or a second bench','Drop until elbows ~90°','Press up, lock elbows']}},
+  {id:'diamond-pushup',name:'Diamond Push-Up',muscle:'triceps',secondary:['chest'],type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Hands close = triceps emphasis.',cues:['Thumbs and index fingers touch','Elbows tracked along ribs','Lower chest to hands','Press up, full lockout']}},
+  {id:'sa-pushdown',name:'Single-Arm Pushdown',muscle:'triceps',type:'ISOLATION',equipment:'CABLE',form:{primary:'Unilateral pushdown. Fixes imbalances.',cues:['D-handle, neutral grip','Elbow pinned to side','Press down, full extension','Squeeze 1s · slow return']}},
+  {id:'smith-squat',name:'Smith Machine Squat',muscle:'quads',secondary:['glutes','hamstrings'],region:'knee',type:'COMPOUND',equipment:'MACHINE',form:{primary:'Fixed bar path enables quad isolation.',cues:['Feet forward of bar = quad focus','Brace hard, full depth','Knees track over toes','Drive up through mid-foot']}},
+  {id:'step-up',name:'Step-Up',muscle:'quads',secondary:['glutes','hamstrings'],region:'knee',type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Unilateral quad and glute hit.',cues:['Bench knee-height or higher','DBs at sides','Drive through front heel','Step up — do not push off rear leg']}},
+  {id:'sissy-squat',name:'Sissy Squat',muscle:'quads',region:'knee',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Knees-forward squat. Brutal quad isolation.',cues:['Heels elevated or on plate','Lean back, knees travel forward','Drop until thighs near vertical','Drive up through quads']}},
+  {id:'nordic',name:'Nordic Curl',muscle:'hamstrings',region:'hip',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Hardest bodyweight ham move. Eccentric king.',cues:['Anchor feet under a pad','Knees on a mat','Lower under control — fight it','Push with hands to assist back up']}},
+  {id:'sl-rdl',name:'Single-Leg RDL',muscle:'hamstrings',secondary:['glutes','lower-back'],region:'hip',type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Balance + hamstring stretch. Unilateral.',cues:['DB in opposite hand of standing leg','Hinge at hip, back leg straight back','Lower to mid-shin','Drive hip forward to stand']}},
+  {id:'pull-through',name:'Cable Pull-Through',muscle:'glutes',secondary:['hamstrings'],region:'hip',type:'COMPOUND',equipment:'CABLE',form:{primary:'Hip hinge under constant tension.',cues:['Rope on low pulley','Face away, rope between legs','Hinge forward, soft knees','Squeeze glutes to stand']}},
+  {id:'glute-bridge',name:'Glute Bridge',muscle:'glutes',secondary:['hamstrings'],region:'hip',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Glute activation + pure squeeze.',cues:['Back on floor, knees bent','Feet flat, hip-width','Drive hips up, squeeze hard','Pause 1s at top']}},
+  {id:'ab-wheel',name:'Ab Wheel Rollout',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Hardest standing abs move. No sway in low back.',cues:['Knees on mat (feet for advanced)','Roll out until arms above head','Tight core — no lower-back arch','Pull back with abs']}},
+  {id:'russian-twist',name:'Russian Twist',muscle:'abs',type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Obliques. Controlled tempo.',cues:['Sit, lean back ~45°','Feet up or planted','Rotate DB side to side','Tap floor — slow, controlled']}},
+  {id:'donkey-calf',name:'Donkey Calf Raise',muscle:'calves',region:'calves',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Bent-over position = strong gastroc stretch.',cues:['Hinge forward, hands on bench','Load on lower back / hips','Deep stretch at the bottom','Drive up onto toes, peak squeeze']}},
+  {id:'kb-swing',name:'Kettlebell Swing',muscle:'glutes',secondary:['hamstrings','lower-back'],region:'hip',type:'COMPOUND',equipment:'KETTLEBELL',form:{primary:'Hip hinge under explosive load.',cues:['Hinge — do not squat','Hike KB between legs','Snap hips forward to chest height','Arms are passive — hips do the work']}},
 ];
 
 const MUSCLE_NAMES={'chest':'Chest','lats':'Lats','traps':'Traps','front-delts':'Front Delts','side-delts':'Side Delts','rear-delts':'Rear Delts','biceps':'Biceps','triceps':'Triceps','forearms':'Forearms','abs':'Abs','quads':'Quads','hamstrings':'Hamstrings','glutes':'Glutes','lower-back':'Lower Back','calves':'Calves'};
+
+function getLibrary(){return [...LIBRARY,...((state&&Array.isArray(state.customExercises))?state.customExercises:[])];}
 
 // Weekly working-set landmarks (Israetel / Renaissance Periodization).
 // mev: floor · mav: productive band · mrv: ceiling.
@@ -1678,7 +1738,7 @@ function dailyQuote(){
   return DAILY_QUOTES[day % DAILY_QUOTES.length];
 }
 
-let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[],lastOpenDate:''};
+let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],customExercises:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[],lastOpenDate:''};
 
 function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};save();}
 
@@ -2027,6 +2087,7 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
       // Salvage history / customPrograms / bodyWeight if present
       if(Array.isArray(parsed.history))state.history=parsed.history;
       if(Array.isArray(parsed.customPrograms))state.customPrograms=parsed.customPrograms;
+      if(Array.isArray(parsed.customExercises))state.customExercises=parsed.customExercises;
       if(Array.isArray(parsed.bodyWeight))state.bodyWeight=parsed.bodyWeight;
       if(parsed.userName)state.userName=parsed.userName;
     }
@@ -2035,6 +2096,7 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
   if(!state.activeProgramId)state.activeProgramId='aesthetic-6';
   if(!state.programs)state.programs={};
   if(!Array.isArray(state.customPrograms))state.customPrograms=[];
+  if(!Array.isArray(state.customExercises))state.customExercises=[];
   if(!state.today)loadDay(state.currentDayIdx||0);
   state._v=10;
   if(state.history.length===0&&!state.introSeen){seedDemoData();}
@@ -2086,7 +2148,7 @@ function computeWeeklySets(){
   getActiveSchedule().forEach(day=>{
     if(day.type==='rest'||!day.exercises)return;
     day.exercises.forEach(ex=>{
-      const lib=LIBRARY.find(l=>l.id===ex.libId);
+      const lib=getLibrary().find(l=>l.id===ex.libId);
       if(!lib)return;
       const sets=parseInt(ex.targetSets)||0;
       counts[lib.muscle]=(counts[lib.muscle]||0)+sets;
@@ -2105,7 +2167,7 @@ function computeRegionBreakdown(muscleKeys){
   getActiveSchedule().forEach(day=>{
     if(day.type==='rest'||!day.exercises)return;
     day.exercises.forEach(ex=>{
-      const lib=LIBRARY.find(l=>l.id===ex.libId);
+      const lib=getLibrary().find(l=>l.id===ex.libId);
       if(!lib||!muscleKeys.includes(lib.muscle))return;
       const key=lib.region||'other';
       const sets=parseInt(ex.targetSets)||0;
@@ -2857,7 +2919,43 @@ let libMode='add'; // 'add' or 'swap'
 function openExLibrary(){libMode='add';document.getElementById('lib-title').innerHTML='ADD <span class="accent">EXERCISE</span>';document.getElementById('lib-search').value='';filterLib();document.getElementById('lib-modal').classList.add('open');}
 function openSwap(){libMode='swap';document.getElementById('lib-title').innerHTML='SWAP <span class="accent">EXERCISE</span>';document.getElementById('lib-search').value='';filterLib();document.getElementById('lib-modal').classList.add('open');}
 function closeModalBg(e){if(e.target.classList.contains('modal-bg'))e.target.classList.remove('open');}
-function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=LIBRARY.filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const handler=libMode==='swap'?'swapLibEx':'addLibExToToday';const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>`<div class="modal-row" onclick="${handler}('${e.id}')"><div><div class="name">${e.name}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div>`).join('');}
+function openCustomExForm(){
+  const sel=document.getElementById('cx-muscle');
+  sel.innerHTML=Object.keys(MUSCLE_NAMES).map(k=>`<option value="${k}">${MUSCLE_NAMES[k]}</option>`).join('');
+  document.getElementById('cx-name').value='';
+  document.getElementById('cx-equip').value='BARBELL';
+  document.getElementById('custom-ex-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('cx-name').focus(),50);
+}
+function closeCustomExForm(){document.getElementById('custom-ex-modal').classList.remove('open');}
+function saveCustomExercise(){
+  const name=(document.getElementById('cx-name').value||'').trim();
+  const muscle=document.getElementById('cx-muscle').value;
+  const equipment=document.getElementById('cx-equip').value;
+  if(!name){toast('Name required');return;}
+  if(!muscle){toast('Pick a muscle');return;}
+  const baseId='cx-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32);
+  let id=baseId||('cx-'+Date.now());
+  const existing=new Set(getLibrary().map(e=>e.id));
+  let n=1;while(existing.has(id)){id=baseId+'-'+(++n);}
+  const ex={id,name,muscle,equipment,type:'CUSTOM',custom:true};
+  if(!Array.isArray(state.customExercises))state.customExercises=[];
+  state.customExercises.push(ex);
+  save();
+  closeCustomExForm();
+  filterLib();
+  toast(`${name} saved`);
+}
+function deleteCustomExercise(id){
+  const ex=(state.customExercises||[]).find(e=>e.id===id);
+  if(!ex)return;
+  if(!confirm(`Delete "${ex.name}"? Workouts already using it will keep working.`))return;
+  state.customExercises=state.customExercises.filter(e=>e.id!==id);
+  save();
+  filterLib();
+  toast('Deleted');
+}
+function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=getLibrary().filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const handler=libMode==='swap'?'swapLibEx':'addLibExToToday';const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>{const custom=e.custom?` <span style="color:var(--cobalt-bright);font-size:9px;letter-spacing:.15em">· CUSTOM</span>`:'';const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';return `<div class="modal-row" onclick="${handler}('${e.id}')"><div><div class="name">${e.name}${custom}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;}).join('');}
 function openProgramPicker(){
   const active=state.activeProgramId;
   const all=getAllPrograms();
@@ -2979,8 +3077,8 @@ function deleteCustomSplit(id){
   toast('Split deleted');
 }
 
-function addLibExToToday(libId){const libEx=LIBRARY.find(e=>e.id===libId);if(!libEx)return;if(state.today.type==='rest'){toast('Not a training day');return;}state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:3,targetReps:'8-10',primary:false,tag:null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`${libEx.name} added`);}
-function swapLibEx(libId){const libEx=LIBRARY.find(e=>e.id===libId);if(!libEx)return;const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur)return;state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:cur.targetSets||3,targetReps:cur.targetReps||'8-10',primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`Swapped to ${libEx.name}`);}
+function addLibExToToday(libId){const libEx=getLibrary().find(e=>e.id===libId);if(!libEx)return;if(state.today.type==='rest'){toast('Not a training day');return;}state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:3,targetReps:'8-10',primary:false,tag:null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`${libEx.name} added`);}
+function swapLibEx(libId){const libEx=getLibrary().find(e=>e.id===libId);if(!libEx)return;const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur)return;state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:cur.targetSets||3,targetReps:cur.targetReps||'8-10',primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`Swapped to ${libEx.name}`);}
 
 let toastTimeout;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);}
