@@ -240,6 +240,13 @@ input,textarea{user-select:text}
 .bw-row{display:flex;gap:8px;align-items:stretch}
 .bw-row .bw-input{flex:1}
 .bw-row .bw-log{flex:0 0 auto;padding:0 18px;font-size:14px}
+/* DATA SAFETY CARD */
+.profile-card.data-safety{border-left:3px solid var(--cobalt-bright)}
+.ds-eyebrow{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.35em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.ds-policy{font-family:'Inter',sans-serif;font-size:12px;line-height:1.55;color:var(--text-mid);margin:0 0 10px}
+.ds-status{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.08em;background:var(--steel-dark);border:1px solid var(--border);padding:8px 10px;border-radius:6px;margin-bottom:10px}
+.ds-actions{display:flex;gap:8px;margin-bottom:10px}
+.ds-hint{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.5;color:var(--text-faint);margin:0;letter-spacing:.04em}
 .bw-history{margin-top:12px;display:flex;flex-direction:column;gap:6px}
 .bw-history .bw-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--steel-dark);border-radius:8px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-mid)}
 .bw-history .bw-item .v{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.02em;color:var(--text)}
@@ -1058,7 +1065,21 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <div id="profile-bw-history" class="bw-history"></div>
     </div>
 
-    <button class="btn-ghost" onclick="resetAllData()" style="color:var(--red);width:100%;margin-top:6px">Reset All Data</button>
+    <div class="profile-card data-safety">
+      <div class="ds-eyebrow">Data Safety · Policy</div>
+      <p class="ds-policy">Your lift data is the product of months of work. We treat it as sacred. Every workout auto-backs up to your device, and nothing is ever silently wiped — even "reset" moves your data to a recovery slot first.</p>
+      <div class="ds-status" id="ds-status">No auto-backups yet</div>
+      <div class="ds-actions">
+        <button class="btn-secondary" onclick="exportData()" style="flex:1">⇩ EXPORT BACKUP</button>
+        <label class="btn-secondary" style="flex:1;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center">
+          ⇧ IMPORT
+          <input type="file" accept="application/json,.json" onchange="importDataFromFile(this)" style="display:none">
+        </label>
+      </div>
+      <p class="ds-hint">Tip: Export every few weeks to your phone's Files / iCloud / Google Drive. The file is a plain JSON you can keep forever.</p>
+    </div>
+
+    <button class="btn-ghost" onclick="resetAllData()" style="color:var(--red);width:100%;margin-top:6px">Reset All Data · Requires Typing DELETE</button>
   </div>
 
 </div>
@@ -1639,6 +1660,121 @@ function syncTodayToSchedule(){
   day.exercises=state.today.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null}));
 }
 function save(){try{localStorage.setItem('dumbass_state',JSON.stringify(state));}catch(e){}}
+
+// ============================================================
+// DATA-SAFETY POLICY
+// Your lift data is the product of months of work. We treat it as sacred:
+//   • Every workout completion writes a rolling backup snapshot.
+//   • localStorage is never silently wiped — anything destructive moves
+//     the old state to a recovery slot first.
+//   • Manual export/import is always one tap away.
+// ============================================================
+const BACKUP_PREFIX='dumbass_backup_';
+const RECOVERY_PREFIX='dumbass_recovery_';
+const MAX_BACKUPS=10;
+const MAX_RECOVERIES=5;
+
+function _listKeys(prefix){
+  const out=[];
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.indexOf(prefix)===0)out.push(k);
+    }
+  }catch(e){}
+  return out.sort();
+}
+
+function snapshotBackup(){
+  try{
+    const raw=localStorage.getItem('dumbass_state');
+    if(!raw)return;
+    const key=BACKUP_PREFIX+Date.now();
+    localStorage.setItem(key,raw);
+    const list=_listKeys(BACKUP_PREFIX);
+    while(list.length>MAX_BACKUPS){
+      const old=list.shift();
+      try{localStorage.removeItem(old);}catch(e){}
+    }
+  }catch(e){}
+}
+
+function safelyWipeState(reason){
+  try{
+    const raw=localStorage.getItem('dumbass_state');
+    if(raw){
+      const key=RECOVERY_PREFIX+Date.now()+(reason?'_'+String(reason).replace(/[^a-z0-9]/gi,''):'');
+      localStorage.setItem(key,raw);
+      // Trim recovery slots
+      const list=_listKeys(RECOVERY_PREFIX);
+      while(list.length>MAX_RECOVERIES){
+        const old=list.shift();
+        try{localStorage.removeItem(old);}catch(e){}
+      }
+    }
+    localStorage.removeItem('dumbass_state');
+  }catch(e){}
+}
+
+function exportData(){
+  try{
+    const payload={
+      _exportedAt:new Date().toISOString(),
+      _appVersion:'dumbass-swiss',
+      state:JSON.parse(localStorage.getItem('dumbass_state')||'null'),
+      backups:_listKeys(BACKUP_PREFIX).map(k=>({key:k,data:JSON.parse(localStorage.getItem(k)||'null')})),
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    const stamp=new Date().toISOString().slice(0,10);
+    a.download=`dumbass-backup-${stamp}.json`;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
+    toast('Backup downloaded');
+  }catch(e){toast('Export failed');}
+}
+
+function importDataFromFile(input){
+  const file=input&&input.files&&input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=evt=>{
+    try{
+      const parsed=JSON.parse(evt.target.result);
+      const incomingState=parsed.state||parsed; // accept either wrapper or raw state
+      if(!incomingState||typeof incomingState!=='object'){toast('Bad backup file');return;}
+      if(!confirm('Restore this backup? Your current data will be moved to a recovery slot first.'))return;
+      safelyWipeState('import');
+      localStorage.setItem('dumbass_state',JSON.stringify(incomingState));
+      // Also restore numbered backups if present
+      if(Array.isArray(parsed.backups)){
+        parsed.backups.forEach(b=>{
+          if(b&&b.key&&b.data){
+            try{localStorage.setItem(b.key,JSON.stringify(b.data));}catch(e){}
+          }
+        });
+      }
+      toast('Backup restored · reloading');
+      setTimeout(()=>location.reload(),600);
+    }catch(err){toast('Couldn\'t read file');}
+  };
+  reader.readAsText(file);
+}
+
+function backupStatusText(){
+  const backups=_listKeys(BACKUP_PREFIX);
+  if(backups.length===0)return'No auto-backups yet · complete a workout to start';
+  const lastTs=parseInt(backups[backups.length-1].replace(BACKUP_PREFIX,''),10);
+  if(!lastTs)return`${backups.length} auto-backup${backups.length===1?'':'s'}`;
+  const ago=Date.now()-lastTs;
+  let when='just now';
+  if(ago>86400000)when=Math.floor(ago/86400000)+'d ago';
+  else if(ago>3600000)when=Math.floor(ago/3600000)+'h ago';
+  else if(ago>60000)when=Math.floor(ago/60000)+'m ago';
+  return`${backups.length} auto-backup${backups.length===1?'':'s'} · last ${when}`;
+}
 // ============ SEEDED WITH JACOB'S 2 REAL WORKOUTS ONLY ============
 function seedDemoData(){
   const now=new Date();
@@ -1744,11 +1880,29 @@ function seedDemoData(){
   save();
 }
 
-function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){const parsed=JSON.parse(raw);if(parsed._v===10){state=Object.assign(state,parsed);}else if(parsed._v===9){// migrate v9 → v10: legacy single-program state
-    state=Object.assign(state,parsed);
-    state.activeProgramId='aesthetic-6';
-    state.programs={};
-  }else{localStorage.removeItem('dumbass_state');}}}catch(e){}
+function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let parsed=null;
+  try{parsed=JSON.parse(raw);}catch(parseErr){
+    // Corrupt JSON — never throw away; move to recovery
+    safelyWipeState('corrupt');
+    parsed=null;
+  }
+  if(parsed){
+    if(parsed._v===10){state=Object.assign(state,parsed);}
+    else if(parsed._v===9){// migrate v9 → v10: legacy single-program state
+      state=Object.assign(state,parsed);
+      state.activeProgramId='aesthetic-6';
+      state.programs={};
+    }else{
+      // Unknown version — keep the data we can salvage, move original to recovery
+      safelyWipeState('unknown-v'+(parsed._v||'?'));
+      // Salvage history / customPrograms / bodyWeight if present
+      if(Array.isArray(parsed.history))state.history=parsed.history;
+      if(Array.isArray(parsed.customPrograms))state.customPrograms=parsed.customPrograms;
+      if(Array.isArray(parsed.bodyWeight))state.bodyWeight=parsed.bodyWeight;
+      if(parsed.userName)state.userName=parsed.userName;
+    }
+  }
+}}catch(e){}
   if(!state.activeProgramId)state.activeProgramId='aesthetic-6';
   if(!state.programs)state.programs={};
   if(!Array.isArray(state.customPrograms))state.customPrograms=[];
@@ -2247,7 +2401,9 @@ function completeWorkout(){
   state.history.push(session);
   state.streak+=1;
   state.lastCompletedSession=session;
-  
+  save();
+  snapshotBackup(); // rolling auto-backup after every workout
+
   const nextIdx=(state.currentDayIdx+1)%getActiveSchedule().length;
   loadDay(nextIdx);
   showView('today');
@@ -2686,14 +2842,16 @@ function renderProfile(){
   const list=document.getElementById('profile-bw-history');
   if(!state.bodyWeight||state.bodyWeight.length===0){
     list.innerHTML='<div class="bw-empty">No weigh-ins yet</div>';
-    return;
+  }else{
+    const sorted=[...state.bodyWeight].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
+    list.innerHTML=sorted.map(w=>{
+      const d=new Date(w.date);
+      const dateStr=d.toLocaleDateString('en',{month:'short',day:'numeric'}).toUpperCase();
+      return `<div class="bw-item"><span>${dateStr}</span><span class="v">${w.kg} KG</span></div>`;
+    }).join('');
   }
-  const sorted=[...state.bodyWeight].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
-  list.innerHTML=sorted.map(w=>{
-    const d=new Date(w.date);
-    const dateStr=d.toLocaleDateString('en',{month:'short',day:'numeric'}).toUpperCase();
-    return `<div class="bw-item"><span>${dateStr}</span><span class="v">${w.kg} KG</span></div>`;
-  }).join('');
+  const status=document.getElementById('ds-status');
+  if(status)status.textContent=backupStatusText();
 }
 
 function saveProfileName(val){
@@ -2715,14 +2873,21 @@ function logBodyWeight(){
 }
 
 function resetAllData(){
-  if(!confirm('Wipe all training data and start fresh?'))return;
-  localStorage.removeItem('dumbass_state');
-  location.reload();
+  // Two-step destructive confirmation. Always backup before wiping.
+  const phrase=prompt('This deletes all your training data.\nYour current state will be moved to a recovery slot first.\n\nType DELETE to confirm:');
+  if(phrase!=='DELETE'){toast('Reset cancelled');return;}
+  safelyWipeState('user-reset');
+  toast('Reset · reloading');
+  setTimeout(()=>location.reload(),600);
 }
 
-// URL-driven reset: append ?reset=1 to wipe localStorage on load (used by share links)
-if(new URLSearchParams(location.search).get('reset')==='1'){
-  try{localStorage.removeItem('dumbass_state');}catch(e){}
+// URL-driven reset: only triggers if ?reset=DELETE (no silent wipe from a shared link).
+// Old ?reset=1 form is intentionally ignored.
+if(new URLSearchParams(location.search).get('reset')==='DELETE'){
+  safelyWipeState('url-reset');
+  history.replaceState(null,'',location.pathname);
+}else if(new URLSearchParams(location.search).get('reset')==='1'){
+  // Strip the param but do not wipe anything
   history.replaceState(null,'',location.pathname);
 }
 load();
