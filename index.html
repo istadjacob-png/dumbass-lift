@@ -146,10 +146,10 @@ input,textarea{user-select:text}
 /* SET DOTS — set counter under exercise meta */
 .ex-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--cobalt-bright);letter-spacing:.05em}
-.set-dots{display:inline-flex;gap:5px;align-items:center}
+.set-dots{display:inline-flex;gap:6px;align-items:center;padding:4px 0}
 .set-dot{
-  width:14px;height:14px;border-radius:50%;
-  background:transparent;border:1.5px solid var(--steel-light);
+  width:20px;height:20px;border-radius:50%;
+  background:transparent;border:2px solid var(--steel-light);
   cursor:pointer;flex-shrink:0;
   transition:background .12s,border-color .12s,transform .1s;
 }
@@ -816,7 +816,14 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .target-edit{
   background:#FFF;border:1px solid #000;border-left:3px solid #FF3300;
   padding:14px 16px;margin-bottom:14px;
+  max-height:0;overflow:hidden;padding-top:0;padding-bottom:0;border-width:0;
+  transition:max-height .3s cubic-bezier(.4,0,.2,1),padding .3s,border-width .3s,margin .3s;
+  margin-bottom:0;
 }
+.target-edit.open{
+  max-height:280px;padding:14px 16px;border-width:1px;border-left-width:3px;margin-bottom:14px;
+}
+#detail-edit-btn.active{color:var(--cobalt-bright)!important}
 .target-edit .te-label{
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;
   color:#7A7A7A;text-transform:uppercase;font-weight:700;margin-bottom:10px;
@@ -932,8 +939,9 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   <div class="view" id="view-exercise">
     <div class="back-row">
       <button class="back-btn" onclick="showView('today')">BACK</button>
-      <div style="display:flex;gap:14px">
+      <div style="display:flex;gap:14px;align-items:center">
         <button class="btn-ghost" onclick="openSwap()" style="color:var(--cobalt-bright)">SWAP</button>
+        <button class="btn-ghost" onclick="toggleDetailCustomize()" id="detail-edit-btn" style="color:var(--text);font-size:18px;padding:4px 6px" title="Edit sets / reps">✎</button>
         <button class="btn-ghost" onclick="deleteCurrentEx()" style="color:var(--red)">REMOVE</button>
       </div>
     </div>
@@ -943,7 +951,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <div class="tag" id="ex-detail-target">Target: <b>4 × 8</b></div>
     </div>
 
-    <div class="target-edit">
+    <div class="target-edit" id="target-edit-panel">
       <div class="te-label">Customize this lift</div>
       <div class="te-row">
         <div class="te-field">
@@ -1988,6 +1996,14 @@ function renderToday(){
   else{btn.disabled=true;btn.textContent=`Complete Workout (${doneCount}/${exs.length})`;}
 }
 
+function toggleDetailCustomize(){
+  const panel=document.getElementById('target-edit-panel');
+  const btn=document.getElementById('detail-edit-btn');
+  if(!panel)return;
+  panel.classList.toggle('open');
+  if(btn)btn.classList.toggle('active',panel.classList.contains('open'));
+}
+
 function toggleSet(i,setIdx){
   const ex=state.today.exercises[i];if(!ex)return;
   const target=ex.targetSets||0;
@@ -2035,6 +2051,9 @@ function openExercise(i){
   document.getElementById('topset-sub').textContent=`Target: ${ex.targetSets} sets × ${ex.targetReps} reps`;
   const teSets=document.getElementById('te-sets');if(teSets)teSets.value=ex.targetSets;
   const teReps=document.getElementById('te-reps');if(teReps)teReps.value=ex.targetReps;
+  // Customize panel always starts collapsed; user opens via the pencil
+  const cust=document.getElementById('target-edit-panel');if(cust)cust.classList.remove('open');
+  const editBtn=document.getElementById('detail-edit-btn');if(editBtn)editBtn.classList.remove('active');
 
   // Initialize topSet if needed (RPE removed)
   if(!ex.topSet)ex.topSet={kg:'',reps:''};
