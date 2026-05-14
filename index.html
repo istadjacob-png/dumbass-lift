@@ -1944,9 +1944,6 @@ function computeWeeklySets(){
       if(!lib)return;
       const sets=parseInt(ex.targetSets)||0;
       counts[lib.muscle]=(counts[lib.muscle]||0)+sets;
-      if(Array.isArray(lib.secondary)){
-        lib.secondary.forEach(s=>{counts[s]=(counts[s]||0)+sets*0.5;});
-      }
     });
   });
   return counts;
