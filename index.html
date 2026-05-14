@@ -75,6 +75,9 @@ input,textarea{user-select:text}
 .title{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:.95;letter-spacing:-.005em;color:var(--text);margin-bottom:4px;text-wrap:balance}
 .title .accent{color:var(--cobalt-bright)}
 .subtitle{font-size:12px;color:var(--text-dim);font-family:'Oswald',sans-serif;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.daily-quote{margin:14px 0 22px;padding:0;font-family:'Inter',sans-serif;font-size:13px;line-height:1.45;color:var(--text-mid);font-style:italic;text-wrap:pretty}
+.daily-quote .dq-author{display:block;margin-top:4px;font-style:normal;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-faint);font-family:'Oswald',sans-serif;font-weight:700}
+.daily-quote:empty{display:none}
 
 /* BUTTONS */
 .btn-primary{width:100%;background:linear-gradient(180deg,var(--cobalt),var(--cobalt-deep));color:#fff;border:1px solid var(--cobalt-bright);padding:15px 0;border-radius:10px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.35em;text-transform:uppercase;font-weight:700;cursor:pointer;box-shadow:0 4px 25px var(--cobalt-glow);transition:transform .15s cubic-bezier(.2,.8,.2,1),box-shadow .25s,filter .2s}
@@ -892,6 +895,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="eyebrow" id="today-eyebrow">Monday</div>
     <div class="title" id="today-title">CHEST & <span class="accent">BACK</span></div>
 
+    <div class="daily-quote" id="daily-quote"></div>
+
     <div class="section-head">
       <span class="t">Today's Lifts</span>
       <span class="c" id="today-count">0 / 0</span>
@@ -1633,6 +1638,38 @@ function weekdayShort(idx){return WEEKDAYS_SHORT[((idx%7)+7)%7];}
 function todayScheduleIdx(){const d=new Date().getDay();return (d+6)%7;}
 function ymd(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
+// Daily quote — deterministic by date. Same quote all day, fresh tomorrow.
+const DAILY_QUOTES=[
+  {q:'Glory is fleeting, obscurity is forever.',a:'Napoleon'},
+  {q:'Show up. Especially when you don\'t feel like it.',a:'The unwritten rule'},
+  {q:'Consistency is the only thing that compounds.',a:''},
+  {q:'You are either getting better or worse. There is no maintenance.',a:''},
+  {q:'Discipline equals freedom.',a:'Jocko Willink'},
+  {q:'Priority order is law. The first muscle is trained first, when you are freshest.',a:''},
+  {q:'Volume is the road to hypertrophy. Effort is the toll.',a:''},
+  {q:'The body grows on the off day. Today, you earn the off day.',a:''},
+  {q:'Hard work beats talent when talent doesn\'t work hard.',a:'Tim Notke'},
+  {q:'Today\'s effort is tomorrow\'s ceiling.',a:''},
+  {q:'Stop lying to yourself. The mirror knows.',a:''},
+  {q:'You don\'t have to be extreme. Just consistent.',a:''},
+  {q:'The bar doesn\'t care about your mood.',a:''},
+  {q:'Strength is a skill. Practice it.',a:'Pavel Tsatsouline'},
+  {q:'Train like you mean it. Eat like you mean it. Sleep like you mean it.',a:''},
+  {q:'Excuses don\'t build muscle.',a:''},
+  {q:'Average is a choice. So is excellence.',a:''},
+  {q:'You owe today\'s lift to last week\'s lift.',a:''},
+  {q:'Most people quit at 70%. Don\'t.',a:''},
+  {q:'Repetition is the mother of skill.',a:'Tony Robbins'},
+];
+function dailyQuote(){
+  const d=new Date();
+  // Day-of-year index, year-stable so it advances daily and resets cleanly each year
+  const start=new Date(d.getFullYear(),0,0);
+  const diff=d-start;
+  const day=Math.floor(diff/86400000);
+  return DAILY_QUOTES[day % DAILY_QUOTES.length];
+}
+
 let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[],lastOpenDate:''};
 
 function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};save();}
@@ -2127,6 +2164,11 @@ function renderToday(){
   const nameParts=t.name.split(' & ');
   document.getElementById('today-title').innerHTML=nameParts.length===2?`<span style="white-space:nowrap">${nameParts[0]} &amp;</span> <span class="accent">${nameParts[1]}</span>`:`<span class="accent">${t.name}</span>`;
   document.getElementById('program-current-day').innerHTML=`<span class="num">${weekdayShort(t.dayNum-1)}</span> · ${t.name}`;
+  const dq=document.getElementById('daily-quote');
+  if(dq){
+    const quote=dailyQuote();
+    dq.innerHTML=isRealToday?`"${quote.q}"${quote.a?`<span class="dq-author">— ${quote.a}</span>`:''}`:'';
+  }
   const exs=t.exercises;
   // Backfill completedSets for legacy data (ex.done=true from old versions)
   exs.forEach(ex=>{
