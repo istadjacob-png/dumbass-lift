@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>DUMBASS v1.7 · LIFT — For people who think they can do better</title>
+<title>DUMBASS v1.8 · LIFT — For people who think they can do better</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Crect%20width%3D%2724%27%20height%3D%2724%27%20fill%3D%27%23000%27%2F%3E%3Cpolygon%20points%3D%274.5%2C6.5%2019.5%2C6.5%2012%2C19.5%27%20fill%3D%27%23FF3300%27%2F%3E%3C%2Fsvg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
@@ -439,6 +439,14 @@ input,textarea{user-select:text}
 .hist-detail .hd-lift .v{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.02em;color:var(--text);font-weight:400}
 .hist-detail .hd-lift .t{font-size:9px;color:var(--text-faint);letter-spacing:.15em;margin-right:6px}
 .hist-detail .hd-lift.is-pr .v{color:var(--cobalt-bright)}
+.hist-detail .hd-lift .x{margin-left:8px;width:22px;height:22px;border-radius:50%;border:1px solid var(--border-soft);background:transparent;color:var(--text-faint);font-size:14px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:400;padding:0}
+.hist-detail .hd-lift .x:active{background:var(--red);color:#fff;border-color:var(--red)}
+.hist-detail .hd-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border-soft)}
+.hist-detail .hd-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700}
+.hist-detail .hd-del-all{background:transparent;border:none;color:var(--text-faint);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;font-weight:600;padding:4px 8px}
+.hist-detail .hd-del-all:active{color:var(--red)}
+.hist-row .hr-meta .partial-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cobalt-bright);box-shadow:0 0 8px var(--red-glow);margin-right:6px;vertical-align:middle;animation:pulseDot 2s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{opacity:.4}50%{opacity:1}}
 .hist-section-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.35em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin:12px 0 8px}
 .empty-state{text-align:center;padding:50px 20px;color:var(--text-faint);font-family:'Oswald',sans-serif;letter-spacing:.15em;text-transform:uppercase;font-size:11px;font-weight:500}
 
@@ -781,6 +789,28 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .sb-add-btn{flex:1;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;color:#000;background:#FFF;border:1px dashed #000;padding:10px;cursor:pointer;text-transform:uppercase;font-weight:700}
 .sb-add-btn.rest{color:#FF3300;border-color:#FF3300}
 .sb-add-btn:active{background:#F0F0F0}
+
+/* IMPORT-FROM-LINK */
+.program-card.import-link{border-style:dashed;border-left-color:#FF3300;background:linear-gradient(135deg,#FFF6F2 0%,#FFF 100%)}
+.program-card.import-link .pc-name{color:#FF3300;display:flex;align-items:center;gap:8px}
+.program-card .pc-source{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;color:#FF3300;font-weight:700;border:1px solid #FF3300;padding:2px 6px;margin-left:6px;text-transform:uppercase}
+.il-hero{background:linear-gradient(135deg,#000 0%,#1a1a1a 50%,#FF3300 200%);color:#fff;border:1px solid #FF3300;border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:0 4px 20px var(--cobalt-glow)}
+.il-hero .il-eyebrow{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.4em;color:#FF3300;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.il-hero .il-tag{font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;color:rgba(255,255,255,.9)}
+.il-field{margin-bottom:10px}
+.il-label{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;color:#000;text-transform:uppercase;font-weight:700;margin-bottom:5px;display:block}
+.il-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A;margin-top:4px;line-height:1.4}
+.il-textarea{width:100%;background:#FAFAFA;border:1.5px solid #000;border-radius:10px;padding:12px;color:#000;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;line-height:1.5;min-height:140px;resize:vertical}
+.il-textarea:focus{border-color:#FF3300}
+.il-preview{background:#FAFAFA;border:1px dashed #000;border-radius:10px;padding:10px 12px;margin-top:6px;min-height:46px;max-height:240px;overflow-y:auto}
+.il-preview-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7A7A7A;letter-spacing:.05em}
+.il-prev-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.il-prev-row .match{flex:1;color:#000;font-weight:700}
+.il-prev-row .raw{color:#FF3300;text-transform:none;font-family:'JetBrains Mono',monospace;font-size:10px}
+.il-prev-row .ok{color:#0a8a3d;font-size:14px;font-weight:700}
+.il-prev-row .miss{color:#999;font-size:14px}
+.il-source-link{display:inline-flex;align-items:center;gap:6px;background:#000;color:#FF3300;border:1px solid #FF3300;border-radius:8px;padding:8px 12px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;text-transform:uppercase;font-weight:700;text-decoration:none;margin-bottom:10px;cursor:pointer}
+.il-source-link:active{background:#FF3300;color:#000}
 .sb-footer{display:flex;gap:10px;align-items:center;margin-top:8px}
 
 /* ===== INLINE SETS/REPS EDITOR ===== */
@@ -858,7 +888,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="intro" id="intro">
   <svg class="intro-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#000"/><polygon points="4.5,6.5 19.5,6.5 12,19.5" fill="#FF3300"/></svg>
   <div class="logo-big">DUMBASS</div>
-  <div class="intro-tag">v1.7·LIFT · 8 Splits · Custom Sets & Reps</div>
+  <div class="intro-tag">v1.8·LIFT · 10 Splits · Import From Video</div>
   <div class="intro-title">AESTHETIC <span class="accent">PHYSIQUE</span></div>
   <div class="intro-quote">"Glory is fleeting, obscurity is forever."</div>
   <div class="intro-quote-author">— Napoleon</div>
@@ -868,7 +898,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="app">
 
   <div class="header">
-    <div class="logo"><svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#000"/><polygon points="4.5,6.5 19.5,6.5 12,19.5" fill="#FF3300"/></svg>DUMBASS<span class="ver">v1.7·LIFT</span></div>
+    <div class="logo"><svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#000"/><polygon points="4.5,6.5 19.5,6.5 12,19.5" fill="#FF3300"/></svg>DUMBASS<span class="ver">v1.8·LIFT</span></div>
     <div class="avatar" onclick="avatarTap()" id="avatar-btn">J</div>
   </div>
 
@@ -1158,6 +1188,53 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="sb-footer">
       <button class="btn-ghost" onclick="closeSplitBuilder()" style="color:var(--text-dim)">CANCEL</button>
       <button class="btn-primary" onclick="saveCustomSplit()" style="flex:1">CREATE SPLIT</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="import-link-modal" onclick="if(event.target.id==='import-link-modal')closeImportLink()">
+  <div class="modal">
+    <h2>FROM A <span class="accent">VIDEO</span></h2>
+    <div class="il-hero">
+      <div class="il-eyebrow">▶ Make it yours</div>
+      <div class="il-tag">Saw a sick split on YouTube, IG, or TikTok? Paste the link, list the lifts, done. You're building it.</div>
+    </div>
+
+    <div class="il-field">
+      <label class="il-label">1 · Paste the link</label>
+      <input class="modal-input" id="il-url" type="url" placeholder="https://youtube.com/watch?v=..." oninput="onImportUrlInput()">
+      <div class="il-hint" id="il-url-status"></div>
+    </div>
+
+    <div class="il-field">
+      <label class="il-label">2 · Name your split</label>
+      <input class="modal-input" id="il-name" type="text" placeholder="e.g. Sulek Chest Day" maxlength="60">
+    </div>
+
+    <div class="il-field">
+      <label class="il-label">3 · Author / source</label>
+      <input class="modal-input" id="il-author" type="text" placeholder="e.g. Sam Sulek" maxlength="40" value="From video">
+    </div>
+
+    <div class="il-field">
+      <label class="il-label">4 · Day name</label>
+      <input class="modal-input" id="il-dayname" type="text" placeholder="e.g. PUSH, CHEST DAY, FULL BODY" maxlength="30" value="WORKOUT">
+    </div>
+
+    <div class="il-field">
+      <label class="il-label">5 · The exercises (one per line)</label>
+      <textarea class="il-textarea" id="il-exercises" placeholder="Incline bench press&#10;Cable row&#10;Lateral raise&#10;Lying leg curl..." oninput="renderImportPreview()"></textarea>
+      <div class="il-hint">Type each lift on its own line. We'll match them to the library. Anything we can't find becomes a custom exercise.</div>
+    </div>
+
+    <div class="il-field">
+      <label class="il-label">Preview</label>
+      <div class="il-preview" id="il-preview"><div class="il-preview-empty">Lifts you add show up here →</div></div>
+    </div>
+
+    <div class="sb-footer">
+      <button class="btn-ghost" onclick="closeImportLink()" style="color:var(--text-dim)">CANCEL</button>
+      <button class="btn-primary" onclick="saveImportedSplit()" style="flex:1">CREATE SPLIT</button>
     </div>
   </div>
 </div>
@@ -1672,6 +1749,108 @@ const PROGRAMS=[
       {dayNum:6,name:'REST',muscles:'Recovery',subtitle:'Weekend',type:'rest',exercises:[]},
       {dayNum:7,name:'REST',muscles:'Recovery',subtitle:'Long walk. Sunlight.',type:'rest',exercises:[]}
     ]
+  },
+  {
+    id:'sulek-6',
+    name:'Sam Sulek 6-Day',
+    author:'Sam Sulek',
+    sourceUrl:'https://www.youtube.com/@SamSulek',
+    description:'Viral high-volume bro split. One muscle per day, brutal sets, no excuses. The internet\'s favourite young bodybuilder.',
+    schedule:[
+      {dayNum:1,name:'CHEST',muscles:'Chest · Triceps',subtitle:'Press until empty',type:'train',exercises:[
+        {libId:'inc-bench',name:'Incline Bench Press',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
+        {libId:'flat-db',name:'Flat DB Press',targetSets:4,targetReps:'8-12'},
+        {libId:'machine-press',name:'Machine Chest Press',targetSets:4,targetReps:'10-12'},
+        {libId:'pec-deck',name:'Pec Deck',targetSets:3,targetReps:'12-15'},
+        {libId:'cable-crossover',name:'Cable Crossover',targetSets:3,targetReps:'12-20'},
+        {libId:'pushdown',name:'Cable Tricep Pushdown',targetSets:3,targetReps:'10-12'}]},
+      {dayNum:2,name:'BACK',muscles:'Lats · Mid-back',subtitle:'Width and thickness',type:'train',exercises:[
+        {libId:'wide-pulldown',name:'Wide-Grip Lat Pulldown',targetSets:4,targetReps:'8-12',primary:true,tag:'PRIMARY'},
+        {libId:'cable-row',name:'Seated Cable Row',targetSets:4,targetReps:'8-12'},
+        {libId:'row-chest-supported',name:'Chest-Supported Row',targetSets:3,targetReps:'10-12'},
+        {libId:'pullover',name:'Cable Pullover',targetSets:3,targetReps:'12-15'},
+        {libId:'sa-pulldown',name:'Straight-Arm Pulldown',targetSets:3,targetReps:'12-15'},
+        {libId:'shrug-db',name:'DB Shrug',targetSets:3,targetReps:'12-15'}]},
+      {dayNum:3,name:'LEGS',muscles:'Quads · Hams · Calves',subtitle:'Leg day, full send',type:'train',exercises:[
+        {libId:'squat',name:'Back Squat',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
+        {libId:'leg-press',name:'Leg Press',targetSets:4,targetReps:'10-15'},
+        {libId:'leg-ext',name:'Leg Extension',targetSets:4,targetReps:'12-15'},
+        {libId:'lying-curl',name:'Lying Leg Curl',targetSets:4,targetReps:'10-12'},
+        {libId:'standing-calf',name:'Standing Calf Raise',targetSets:5,targetReps:'10-15'}]},
+      {dayNum:4,name:'SHOULDERS',muscles:'All three delt heads',subtitle:'Cap builder',type:'train',exercises:[
+        {libId:'db-press',name:'Seated DB Shoulder Press',targetSets:4,targetReps:'8-12',primary:true,tag:'PRIMARY'},
+        {libId:'lat-raise',name:'DB Lateral Raise',targetSets:5,targetReps:'10-15'},
+        {libId:'cable-lat',name:'Cable Lateral Raise',targetSets:4,targetReps:'12-20'},
+        {libId:'rev-fly',name:'Reverse DB Fly',targetSets:3,targetReps:'12-15'},
+        {libId:'face-pull',name:'Face Pull',targetSets:3,targetReps:'12-15'},
+        {libId:'shrug-db',name:'DB Shrug',targetSets:3,targetReps:'10-15'}]},
+      {dayNum:5,name:'ARMS',muscles:'Biceps · Triceps',subtitle:'Pump city',type:'train',exercises:[
+        {libId:'bb-curl',name:'Barbell Curl',targetSets:4,targetReps:'8-12',primary:true,tag:'PRIMARY'},
+        {libId:'skull',name:'Skull Crushers',targetSets:4,targetReps:'8-12',primary:true,tag:'PRIMARY'},
+        {libId:'incline-curl',name:'Incline DB Curl',targetSets:3,targetReps:'10-12'},
+        {libId:'overhead-ext',name:'Overhead Tricep Extension',targetSets:3,targetReps:'10-12'},
+        {libId:'preacher',name:'Preacher Curl',targetSets:3,targetReps:'10-12'},
+        {libId:'rope-pd',name:'Rope Pushdown',targetSets:3,targetReps:'12-15'},
+        {libId:'hammer',name:'Hammer Curl',targetSets:3,targetReps:'10-12'}]},
+      {dayNum:6,name:'CHEST & BACK',muscles:'Quick repeat',subtitle:'Second-pass volume',type:'train',exercises:[
+        {libId:'flat-bench',name:'Flat Bench Press',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
+        {libId:'pullup',name:'Pull-Ups',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
+        {libId:'inc-db',name:'Incline DB Press',targetSets:3,targetReps:'8-12'},
+        {libId:'t-bar',name:'T-Bar Row',targetSets:3,targetReps:'8-12'},
+        {libId:'cable-fly-high',name:'High-to-Low Cable Fly',targetSets:3,targetReps:'12-15'},
+        {libId:'cable-row',name:'Seated Cable Row',targetSets:3,targetReps:'10-12'}]},
+      {dayNum:7,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Repeat.',type:'rest',exercises:[]}
+    ]
+  },
+  {
+    id:'rp-5day',
+    name:'RP 5-Day Hypertrophy',
+    author:'Dr. Mike Israetel · RP',
+    sourceUrl:'https://www.youtube.com/@RenaissancePeriodization',
+    description:'Evidence-based hypertrophy at MEV→MAV→MRV. Push / Pull / Legs / Upper / Lower. The RP-school approach to natural growth.',
+    schedule:[
+      {dayNum:1,name:'PUSH',muscles:'Chest · Shoulders · Triceps',subtitle:'Compounds first, isolations to MRV',type:'train',exercises:[
+        {libId:'inc-bench',name:'Incline Bench Press',targetSets:3,targetReps:'6-10',primary:true,tag:'PRIMARY'},
+        {libId:'machine-press',name:'Machine Chest Press',targetSets:3,targetReps:'8-12'},
+        {libId:'cable-crossover',name:'Cable Crossover',targetSets:3,targetReps:'12-15'},
+        {libId:'db-press',name:'Seated DB Shoulder Press',targetSets:3,targetReps:'8-12'},
+        {libId:'cable-lat',name:'Cable Lateral Raise',targetSets:4,targetReps:'12-20'},
+        {libId:'overhead-ext',name:'Overhead Tricep Extension',targetSets:3,targetReps:'10-12'},
+        {libId:'rope-pd',name:'Rope Pushdown',targetSets:3,targetReps:'12-15'}]},
+      {dayNum:2,name:'PULL',muscles:'Back · Biceps · Rear Delts',subtitle:'Width then thickness',type:'train',exercises:[
+        {libId:'pullup',name:'Pull-Ups',targetSets:3,targetReps:'6-10',primary:true,tag:'PRIMARY'},
+        {libId:'row-chest-supported',name:'Chest-Supported Row',targetSets:3,targetReps:'8-12'},
+        {libId:'cable-row',name:'Seated Cable Row',targetSets:3,targetReps:'10-12'},
+        {libId:'sa-pulldown',name:'Straight-Arm Pulldown',targetSets:3,targetReps:'12-15'},
+        {libId:'rear-cable',name:'Rear Cable Fly',targetSets:3,targetReps:'12-15'},
+        {libId:'incline-curl',name:'Incline DB Curl',targetSets:3,targetReps:'10-12'},
+        {libId:'cable-curl',name:'Cable Curl',targetSets:3,targetReps:'10-15'}]},
+      {dayNum:3,name:'LEGS',muscles:'Quads · Hams · Calves',subtitle:'Stretch-position bias',type:'train',exercises:[
+        {libId:'squat',name:'Back Squat',targetSets:3,targetReps:'6-10',primary:true,tag:'PRIMARY'},
+        {libId:'rdl',name:'Romanian Deadlift',targetSets:3,targetReps:'8-10'},
+        {libId:'hack-sq',name:'Hack Squat',targetSets:3,targetReps:'8-12'},
+        {libId:'seated-curl',name:'Seated Leg Curl',targetSets:3,targetReps:'10-12'},
+        {libId:'leg-ext',name:'Leg Extension',targetSets:3,targetReps:'12-15'},
+        {libId:'standing-calf',name:'Standing Calf Raise',targetSets:4,targetReps:'8-12'},
+        {libId:'seated-calf',name:'Seated Calf Raise',targetSets:3,targetReps:'12-20'}]},
+      {dayNum:4,name:'UPPER',muscles:'Chest · Back · Arms',subtitle:'Frequency boost',type:'train',exercises:[
+        {libId:'flat-db',name:'Flat DB Press',targetSets:3,targetReps:'8-12',primary:true,tag:'PRIMARY'},
+        {libId:'wide-pulldown',name:'Wide-Grip Lat Pulldown',targetSets:3,targetReps:'8-12'},
+        {libId:'pec-deck',name:'Pec Deck',targetSets:3,targetReps:'10-15'},
+        {libId:'row-db',name:'Single-Arm DB Row',targetSets:3,targetReps:'10-12'},
+        {libId:'lat-raise',name:'DB Lateral Raise',targetSets:3,targetReps:'12-15'},
+        {libId:'preacher',name:'Preacher Curl',targetSets:3,targetReps:'8-12'},
+        {libId:'pushdown',name:'Cable Tricep Pushdown',targetSets:3,targetReps:'12-15'}]},
+      {dayNum:5,name:'LOWER',muscles:'Hams · Quads · Glutes',subtitle:'Hip-dominant',type:'train',exercises:[
+        {libId:'dl',name:'Conventional Deadlift',targetSets:3,targetReps:'4-6',primary:true,tag:'PRIMARY'},
+        {libId:'hip-thrust',name:'Barbell Hip Thrust',targetSets:3,targetReps:'8-12'},
+        {libId:'leg-press',name:'Leg Press',targetSets:3,targetReps:'10-15'},
+        {libId:'lying-curl',name:'Lying Leg Curl',targetSets:3,targetReps:'10-12'},
+        {libId:'lunges',name:'Walking Lunges',targetSets:3,targetReps:'10-12'},
+        {libId:'cable-crunch',name:'Cable Crunch',targetSets:3,targetReps:'12-15'}]},
+      {dayNum:6,name:'REST',muscles:'Recovery',subtitle:'Active recovery · walk',type:'rest',exercises:[]},
+      {dayNum:7,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Grow.',type:'rest',exercises:[]}
+    ]
   }
 ];
 
@@ -1740,13 +1919,127 @@ function dailyQuote(){
 
 let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],customExercises:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[],lastOpenDate:''};
 
-function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};save();}
+function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};restoreLiveSessionIntoToday();save();}
+
+// === LIVE SESSION PERSISTENCE ===
+// Every logged top set is immediately upserted into state.history as a "partial" session,
+// keyed by (today's date, programId, dayNum). This means browsing or switching splits
+// can never lose work — sets only disappear if the user deletes them from history.
+function todayDateKey(){return new Date().toISOString().slice(0,10);}
+function findLiveSessionFor(programId,dayNum){
+  if(!Array.isArray(state.history))return null;
+  const key=todayDateKey();
+  for(let i=state.history.length-1;i>=0;i--){
+    const h=state.history[i];
+    if(h&&h.partial&&h.date&&h.date.slice(0,10)===key&&h.programId===programId&&h.dayNum===dayNum){
+      return {idx:i,session:h};
+    }
+  }
+  return null;
+}
+function findCurrentLiveSession(){
+  if(!state.today)return null;
+  return findLiveSessionFor(state.activeProgramId,state.today.dayNum);
+}
+function findAnyLiveSessionForProgram(programId){
+  if(!Array.isArray(state.history))return null;
+  const key=todayDateKey();
+  for(let i=state.history.length-1;i>=0;i--){
+    const h=state.history[i];
+    if(h&&h.partial&&h.date&&h.date.slice(0,10)===key&&h.programId===programId){
+      return {idx:i,session:h};
+    }
+  }
+  return null;
+}
+function ensureLiveSession(){
+  let found=findCurrentLiveSession();
+  if(found)return found;
+  if(!Array.isArray(state.history))state.history=[];
+  const session={
+    date:new Date().toISOString(),
+    dayNum:state.today.dayNum,
+    name:state.today.name,
+    programId:state.activeProgramId,
+    exercises:[],
+    totalVolume:0,
+    totalSets:0,
+    prs:[],
+    partial:true
+  };
+  state.history.push(session);
+  return {idx:state.history.length-1,session};
+}
+function liveExerciseKey(ex){return (ex.libId||'')+'::'+(ex.name||'');}
+function recomputeLiveTotals(s){
+  let v=0,sets=0;
+  s.exercises.forEach(e=>{
+    const kg=parseFloat(e.topSet&&e.topSet.kg)||0;
+    const reps=parseInt(e.topSet&&e.topSet.reps)||0;
+    const tgt=parseInt(e.targetSets)||0;
+    v+=kg*reps*tgt;
+    sets+=tgt;
+  });
+  s.totalVolume=Math.round(v);
+  s.totalSets=sets;
+}
+function upsertLiveExercise(ex){
+  const found=ensureLiveSession();
+  const s=found.session;
+  const k=liveExerciseKey(ex);
+  const idx=s.exercises.findIndex(e=>liveExerciseKey(e)===k);
+  const snap={
+    libId:ex.libId,name:ex.name,
+    targetSets:ex.targetSets,targetReps:ex.targetReps,
+    primary:ex.primary||false,tag:ex.tag||null,
+    topSet:{kg:ex.topSet&&ex.topSet.kg||'',reps:ex.topSet&&ex.topSet.reps||''},
+    completedSets:ex.completedSets||0,
+    done:!!ex.done
+  };
+  if(idx===-1)s.exercises.push(snap);else s.exercises[idx]=snap;
+  recomputeLiveTotals(s);
+}
+function removeLiveExercise(ex){
+  const found=findCurrentLiveSession();
+  if(!found)return;
+  const s=found.session;
+  const k=liveExerciseKey(ex);
+  s.exercises=s.exercises.filter(e=>liveExerciseKey(e)!==k);
+  if(s.exercises.length===0){
+    state.history.splice(found.idx,1);
+  }else{
+    recomputeLiveTotals(s);
+  }
+}
+function restoreLiveSessionIntoToday(){
+  const found=findCurrentLiveSession();
+  if(!found||!state.today||!Array.isArray(state.today.exercises))return;
+  const s=found.session;
+  state.today.exercises.forEach(ex=>{
+    const k=liveExerciseKey(ex);
+    const m=s.exercises.find(e=>liveExerciseKey(e)===k);
+    if(m){
+      ex.topSet={kg:(m.topSet&&m.topSet.kg)||'',reps:(m.topSet&&m.topSet.reps)||''};
+      ex.completedSets=m.completedSets||0;
+      ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+      ex.topLogged=!!(m.topSet&&m.topSet.kg);
+    }
+  });
+}
 
 function switchProgram(id){
   if(!getProgramDef(id))return;
   state.activeProgramId=id;
-  state.currentDayIdx=0;
-  loadDay(0);
+  // If there's a live (unfinished) session for this split today, jump back to that day.
+  const live=findAnyLiveSessionForProgram(id);
+  if(live){
+    const sched=getProgramDef(id).schedule;
+    const dayIdx=sched.findIndex(d=>d.dayNum===live.session.dayNum);
+    state.currentDayIdx=dayIdx>=0?dayIdx:0;
+  }else{
+    state.currentDayIdx=0;
+  }
+  loadDay(state.currentDayIdx);
   save();
   const modal=document.getElementById('program-modal');if(modal)modal.classList.remove('open');
   renderToday();renderProgram();
@@ -2097,6 +2390,12 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
   if(!state.programs)state.programs={};
   if(!Array.isArray(state.customPrograms))state.customPrograms=[];
   if(!Array.isArray(state.customExercises))state.customExercises=[];
+  // Finalize any partial sessions left over from previous calendar days — they're
+  // no longer "in progress" once today rolls over.
+  if(Array.isArray(state.history)){
+    const tk=todayDateKey();
+    state.history.forEach(h=>{if(h&&h.partial&&h.date&&h.date.slice(0,10)!==tk)h.partial=false;});
+  }
   if(!state.today)loadDay(state.currentDayIdx||0);
   state._v=10;
   if(state.history.length===0&&!state.introSeen){seedDemoData();}
@@ -2123,10 +2422,14 @@ function renderProgram(){
   const restDays=sched.filter(d=>d.type==='rest').length;
   const head=document.getElementById('program-head');
   if(head){
+    const sourceLink=prog.sourceUrl
+      ?`<div style="margin-top:10px"><a class="il-source-link" href="${prog.sourceUrl}" target="_blank" rel="noopener">▶ Watch the source</a></div>`
+      :'';
     head.innerHTML=`
       <div class="eyebrow">${trainDays}-Day Split · ${restDays} Rest</div>
       <h1>${prog.name.toUpperCase()}</h1>
       <div class="sub">${prog.author} · Tap a day to train it</div>
+      ${sourceLink}
     `;
   }
   const realToday=todayScheduleIdx();
@@ -2300,7 +2603,7 @@ function renderVolume(){
   document.getElementById('volume-list').innerHTML=breakdownHtml+cards+emptyHtml;
 }
 
-function switchToDay(idx){const hasLogged=state.today&&state.today.exercises.some(e=>e.done);if(hasLogged&&idx!==state.currentDayIdx){if(!confirm('You have logged exercises. Switching resets progress. Continue?'))return;}loadDay(idx);showView('today');}
+function switchToDay(idx){loadDay(idx);showView('today');}
 
 function renderToday(){
   if(!state.today)loadDay(state.currentDayIdx||0);
@@ -2531,6 +2834,8 @@ function logTopSet(){
   if(typeof ex.completedSets!=='number')ex.completedSets=0;
   ex.completedSets=Math.min((ex.targetSets||0),ex.completedSets+1);
   ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+  // Persist immediately to history — survives split/day switching.
+  upsertLiveExercise(ex);
   save();
   updateLogBtnState();
   toast(ex.done?'Top set logged · all sets done':'Top set logged · '+ex.completedSets+'/'+ex.targetSets);
@@ -2544,6 +2849,8 @@ function deleteLog(){
   ex.topLogged=false;
   ex.completedSets=Math.max(0,(ex.completedSets||0)-1);
   ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+  // Also clear from the live history entry.
+  removeLiveExercise(ex);
   save();
   updateLogBtnState();
   toast('Log deleted');
@@ -2587,13 +2894,16 @@ function completeWorkout(){
     }
   });
   
-  // PR detection — compare top set weight against all-time per lift
+  // PR detection — compare top set weight against all-time per lift.
+  // Skip the in-progress partial session (it holds the same top sets we're
+  // about to finalize, which would otherwise mask every PR).
   const prs=[];
   exs.forEach(ex=>{
     if(ex.topSet&&ex.topSet.kg){
       const topW=parseFloat(ex.topSet.kg)||0;
       let allTime=0;
       state.history.forEach(h=>{
+        if(h.partial)return;
         const prior=h.exercises.find(e=>e.libId===ex.libId||e.name===ex.name);
         if(prior&&prior.topSet){
           const w=parseFloat(prior.topSet.kg)||0;
@@ -2604,18 +2914,27 @@ function completeWorkout(){
     }
   });
   
-  const session={
-    date:new Date().toISOString(),
+  // If a partial session exists for today/this program/day, finalize it in place.
+  // Otherwise push a fresh entry.
+  const found=findCurrentLiveSession();
+  const finalized={
+    date:found?found.session.date:new Date().toISOString(),
     dayNum:state.today.dayNum,
     name:state.today.name,
+    programId:state.activeProgramId,
     exercises:JSON.parse(JSON.stringify(exs)),
     totalVolume:Math.round(totalVolume),
     totalSets,
-    prs
+    prs,
+    partial:false
   };
-  state.history.push(session);
+  if(found){
+    state.history[found.idx]=finalized;
+  }else{
+    state.history.push(finalized);
+  }
   state.streak+=1;
-  state.lastCompletedSession=session;
+  state.lastCompletedSession=finalized;
   save();
   snapshotBackup(); // rolling auto-backup after every workout
 
@@ -2636,7 +2955,9 @@ function renderProgHistory(){
   const q=state.historySearch.toLowerCase();
 
   const sorted=[...state.history].reverse();
-  const last=sorted[0];
+  // The "Last Session" hero shows the most recent *completed* session, so an
+  // in-progress live session doesn't masquerade as the last one finished.
+  const last=sorted.find(h=>!h.partial)||sorted[0];
   const lastPrSet=new Set((last.prs||[]).map(p=>p.name));
   const lastLifts=last.exercises
     .filter(ex=>ex.topSet&&ex.topSet.kg)
@@ -2671,20 +2992,27 @@ function renderProgHistory(){
         const isOpen=state.historyOpen===h.date;
         const hasPr=h.prs&&h.prs.length>0;
         const prSet=new Set((h.prs||[]).map(p=>p.name));
-        const meta=hasPr?`<b>${h.prs.length}</b> PR`:`${h.totalSets} SETS`;
+        const partialDot=h.partial?'<span class="partial-dot" title="In progress"></span>':'';
+        const meta=h.partial
+          ?`${partialDot}LIVE · <b>${h.exercises.filter(e=>e.topSet&&e.topSet.kg).length}</b> LOGGED`
+          :(hasPr?`<b>${h.prs.length}</b> PR`:`${h.totalSets} SETS`);
         const row=`<div class="hist-row${isOpen?' open':''}" onclick="toggleHistoryRow('${h.date}')">
           <div class="hr-date">${dateStr}</div>
           <div class="hr-day">Day ${h.dayNum} · ${h.name}</div>
           <div class="hr-meta">${meta}</div>
         </div>`;
         if(!isOpen)return row;
+        const safeDate=h.date.replace(/'/g,'');
         const lifts=h.exercises
           .filter(ex=>ex.topSet&&ex.topSet.kg)
           .map(ex=>{
             const isPr=prSet.has(ex.name);
-            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${ex.name}${isPr?' · PR':''}</span><span class="t">${ex.targetSets}×${ex.targetReps}</span><span class="v">${ex.topSet.kg}KG × ${ex.topSet.reps}</span></div>`;
+            const key=(ex.libId||'')+'::'+(ex.name||'');
+            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${ex.name}${isPr?' · PR':''}</span><span class="t">${ex.targetSets}×${ex.targetReps}</span><span class="v">${ex.topSet.kg}KG × ${ex.topSet.reps}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this set">×</button></div>`;
           }).join('');
-        return row+`<div class="hist-detail">${lifts||'<div style="color:var(--text-faint);font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase">No lifts logged</div>'}</div>`;
+        const liveTag=h.partial?'<span class="hd-tag">● Logging in progress</span>':'<span class="hd-tag">● Completed</span>';
+        const foot=`<div class="hd-foot">${liveTag}<button class="hd-del-all" onclick="event.stopPropagation();deleteHistorySession('${safeDate}')">Delete session</button></div>`;
+        return row+`<div class="hist-detail">${lifts||'<div style="color:var(--text-faint);font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase">No lifts logged</div>'}${foot}</div>`;
       }).join('');
 
   c.innerHTML=`
@@ -2698,6 +3026,58 @@ function renderProgHistory(){
 function toggleHistoryRow(date){
   state.historyOpen=state.historyOpen===date?'':date;
   renderProgHistory();
+}
+
+function deleteHistoryLift(date,key){
+  const idx=state.history.findIndex(h=>h.date===date);
+  if(idx===-1)return;
+  const h=state.history[idx];
+  const target=h.exercises.find(e=>((e.libId||'')+'::'+(e.name||''))===key);
+  if(!target)return;
+  if(!confirm(`Delete ${target.name} from this session?`))return;
+  h.exercises=h.exercises.filter(e=>((e.libId||'')+'::'+(e.name||''))!==key);
+  if(h.exercises.length===0){
+    state.history.splice(idx,1);
+  }else{
+    recomputeLiveTotals(h);
+    h.prs=(h.prs||[]).filter(p=>p.name!==target.name);
+  }
+  // If this lift is the currently selected exercise in Today, clear its log state too.
+  if(h.partial&&state.today&&Array.isArray(state.today.exercises)){
+    state.today.exercises.forEach(ex=>{
+      if(((ex.libId||'')+'::'+(ex.name||''))===key){
+        ex.topLogged=false;
+        ex.topSet={kg:'',reps:''};
+        ex.completedSets=0;
+        ex.done=false;
+      }
+    });
+  }
+  save();
+  renderProgHistory();
+  renderToday();
+}
+
+function deleteHistorySession(date){
+  const idx=state.history.findIndex(h=>h.date===date);
+  if(idx===-1)return;
+  const h=state.history[idx];
+  if(!confirm(`Delete the entire ${h.name} session from ${new Date(h.date).toLocaleDateString()}? This cannot be undone.`))return;
+  const wasLive=h.partial&&h.programId===state.activeProgramId&&state.today&&h.dayNum===state.today.dayNum;
+  state.history.splice(idx,1);
+  if(wasLive){
+    // Reset today's logged state since the live session that backed it is gone.
+    state.today.exercises.forEach(ex=>{
+      ex.topLogged=false;
+      ex.topSet={kg:'',reps:''};
+      ex.completedSets=0;
+      ex.done=false;
+    });
+  }
+  save();
+  renderProgHistory();
+  renderToday();
+  toast('Session deleted');
 }
 
 function updateHistorySearch(val){
@@ -2965,9 +3345,10 @@ function openProgramPicker(){
     const isActive=p.id===active;
     const isCustom=(state.customPrograms||[]).some(c=>c.id===p.id);
     const deleteBtn=isCustom?`<span class="pc-del" onclick="event.stopPropagation();deleteCustomSplit('${p.id}')" title="Delete">×</span>`:'';
+    const sourceBadge=p.sourceUrl?`<span class="pc-source" title="${p.sourceUrl}">▶ VIDEO</span>`:'';
     return `<div class="program-card${isActive?' active':''}${isCustom?' custom':''}" onclick="switchProgram('${p.id}')">
       <div class="pc-head">
-        <div class="pc-name">${p.name}</div>
+        <div class="pc-name">${p.name}${sourceBadge}</div>
         <div style="display:flex;gap:8px;align-items:center">
           ${isActive?'<div class="pc-badge">ACTIVE</div>':''}
           ${deleteBtn}
@@ -2977,11 +3358,16 @@ function openProgramPicker(){
       <div class="pc-desc">${p.description}</div>
     </div>`;
   }).join('');
+  const importCard=`<div class="program-card import-link" onclick="openImportLink()">
+    <div class="pc-head"><div class="pc-name">▶ FROM A YOUTUBE / IG / TIKTOK VIDEO</div></div>
+    <div class="pc-author">Paste a link · list the lifts · we'll match them</div>
+    <div class="pc-desc">You saw it. You make it. 60 seconds and it's yours.</div>
+  </div>`;
   const addCard=`<div class="program-card add-custom" onclick="openSplitBuilder()">
     <div class="pc-head"><div class="pc-name">+ ADD CUSTOM SPLIT</div></div>
     <div class="pc-author">Build your own · name your days · pick rest days</div>
   </div>`;
-  document.getElementById('program-results').innerHTML=cards+addCard;
+  document.getElementById('program-results').innerHTML=cards+importCard+addCard;
   document.getElementById('program-modal').classList.add('open');
 }
 function closeProgramModalBg(e){if(e.target.id==='program-modal')document.getElementById('program-modal').classList.remove('open');}
@@ -3075,6 +3461,151 @@ function deleteCustomSplit(id){
   openProgramPicker();
   renderToday();renderProgram();
   toast('Split deleted');
+}
+
+// === IMPORT FROM LINK ===
+function openImportLink(){
+  document.getElementById('program-modal').classList.remove('open');
+  document.getElementById('il-url').value='';
+  document.getElementById('il-name').value='';
+  document.getElementById('il-author').value='From video';
+  document.getElementById('il-dayname').value='WORKOUT';
+  document.getElementById('il-exercises').value='';
+  document.getElementById('il-url-status').textContent='';
+  renderImportPreview();
+  document.getElementById('import-link-modal').classList.add('open');
+}
+function closeImportLink(){
+  document.getElementById('import-link-modal').classList.remove('open');
+}
+function onImportUrlInput(){
+  const url=(document.getElementById('il-url').value||'').trim();
+  const status=document.getElementById('il-url-status');
+  if(!url){status.textContent='';return;}
+  const yt=extractYouTubeId(url);
+  if(yt){
+    status.textContent='YouTube link detected · fetching title…';
+    fetchYouTubeTitle(url).then(title=>{
+      if(!title)return;
+      status.textContent='Title: ' + title;
+      const nameInput=document.getElementById('il-name');
+      if(!nameInput.value)nameInput.value=title.length>60?title.slice(0,57)+'…':title;
+      // Try to extract a creator-style author from the title or URL.
+      const authorInput=document.getElementById('il-author');
+      if(authorInput.value==='From video'){
+        const ytChannelGuess=guessChannelFromUrl(url);
+        if(ytChannelGuess)authorInput.value=ytChannelGuess;
+      }
+    }).catch(()=>{status.textContent='YouTube link saved (title fetch blocked)';});
+  }else if(/instagram\.com|tiktok\.com/i.test(url)){
+    status.textContent='Social link saved · type the lifts below';
+  }else if(/^https?:\/\//i.test(url)){
+    status.textContent='Link saved';
+  }else{
+    status.textContent='Tip: paste a full URL starting with https://';
+  }
+}
+function extractYouTubeId(url){
+  if(!url)return null;
+  const m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m?m[1]:null;
+}
+function guessChannelFromUrl(url){
+  const m=url.match(/youtube\.com\/@([A-Za-z0-9_.\-]+)/);
+  return m?'@'+m[1]:null;
+}
+function fetchYouTubeTitle(url){
+  const endpoint='https://www.youtube.com/oembed?url='+encodeURIComponent(url)+'&format=json';
+  return fetch(endpoint).then(r=>r.ok?r.json():null).then(j=>j&&j.title?j.title:null);
+}
+
+function normalizeExName(s){
+  return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+function fuzzyMatchExercise(raw){
+  const norm=normalizeExName(raw);
+  if(!norm)return null;
+  const lib=getLibrary();
+  let best=null,bestScore=0;
+  for(const l of lib){
+    const libNorm=normalizeExName(l.name);
+    let score=0;
+    if(libNorm===norm)score=100;
+    else if(libNorm.includes(norm)||norm.includes(libNorm))score=60;
+    else{
+      const a=norm.split(' ').filter(Boolean);
+      const b=new Set(libNorm.split(' ').filter(Boolean));
+      let overlap=0;for(const t of a)if(b.has(t))overlap++;
+      score=overlap*15;
+    }
+    if(score>bestScore){bestScore=score;best=l;}
+  }
+  return bestScore>=15?{lib:best,score:bestScore}:null;
+}
+function parseImportLines(){
+  const text=document.getElementById('il-exercises').value||'';
+  return text.split(/\n+/).map(s=>s.replace(/^[\s\-\*\d\.\)\:]+/,'').trim()).filter(Boolean);
+}
+function renderImportPreview(){
+  const lines=parseImportLines();
+  const box=document.getElementById('il-preview');
+  if(lines.length===0){box.innerHTML='<div class="il-preview-empty">Lifts you add show up here →</div>';return;}
+  box.innerHTML=lines.map(line=>{
+    const m=fuzzyMatchExercise(line);
+    if(m){
+      return `<div class="il-prev-row"><span class="ok">✓</span><span class="match">${m.lib.name}</span><span class="raw">${line}</span></div>`;
+    }
+    return `<div class="il-prev-row"><span class="miss">＋</span><span class="match" style="color:#FF3300">${line.toUpperCase()}</span><span class="raw">custom</span></div>`;
+  }).join('');
+}
+function saveImportedSplit(){
+  const url=(document.getElementById('il-url').value||'').trim();
+  const name=(document.getElementById('il-name').value||'').trim();
+  const author=(document.getElementById('il-author').value||'').trim()||'From video';
+  const dayname=((document.getElementById('il-dayname').value||'').trim()||'WORKOUT').toUpperCase();
+  const lines=parseImportLines();
+  if(!name){toast('Name your split');return;}
+  if(lines.length===0){toast('Add at least one exercise');return;}
+
+  if(!Array.isArray(state.customExercises))state.customExercises=[];
+  const exercises=lines.map(line=>{
+    const m=fuzzyMatchExercise(line);
+    if(m){
+      return {libId:m.lib.id,name:m.lib.name,targetSets:3,targetReps:'8-12'};
+    }
+    // create custom exercise on the fly
+    const baseId='cx-'+normalizeExName(line).replace(/ /g,'-').slice(0,32);
+    let id=baseId||('cx-'+Date.now());
+    const existing=new Set(getLibrary().map(e=>e.id));
+    let n=1;while(existing.has(id)){id=baseId+'-'+(++n);}
+    const cx={id,name:line.replace(/\b\w/g,c=>c.toUpperCase()),muscle:'chest',equipment:'OTHER',type:'CUSTOM',custom:true};
+    state.customExercises.push(cx);
+    return {libId:cx.id,name:cx.name,targetSets:3,targetReps:'8-12'};
+  });
+  if(exercises[0])exercises[0].primary=true,exercises[0].tag='PRIMARY';
+
+  const id='import-'+Date.now().toString(36);
+  const schedule=[
+    {dayNum:1,name:dayname,muscles:'',subtitle:'',type:'train',exercises},
+    {dayNum:2,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Grow.',type:'rest',exercises:[]}
+  ];
+  const prog={
+    id,name:name.toUpperCase(),author,
+    sourceUrl:url||undefined,
+    description:`Imported from ${url?'a link':'memory'} · ${exercises.length} lift${exercises.length===1?'':'s'} · 1 training day · 1 rest. Tweak it any time.`,
+    schedule
+  };
+  if(!Array.isArray(state.customPrograms))state.customPrograms=[];
+  state.customPrograms.push(prog);
+  state.activeProgramId=id;
+  state.currentDayIdx=0;
+  if(state.programs)delete state.programs[id];
+  loadDay(0);
+  save();
+  closeImportLink();
+  renderToday();renderProgram();
+  toast(`${name.toUpperCase()} imported · ${exercises.length} lifts`);
+  showView('today');
 }
 
 function addLibExToToday(libId){const libEx=getLibrary().find(e=>e.id===libId);if(!libEx)return;if(state.today.type==='rest'){toast('Not a training day');return;}state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:3,targetReps:'8-10',primary:false,tag:null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`${libEx.name} added`);}
