@@ -802,13 +802,16 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .il-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A;margin-top:4px;line-height:1.4}
 .il-textarea{width:100%;background:#FAFAFA;border:1.5px solid #000;border-radius:10px;padding:12px;color:#000;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;line-height:1.5;min-height:140px;resize:vertical}
 .il-textarea:focus{border-color:#FF3300}
-.il-preview{background:#FAFAFA;border:1px dashed #000;border-radius:10px;padding:10px 12px;margin-top:6px;min-height:46px;max-height:240px;overflow-y:auto}
+.il-preview{background:#FAFAFA;border:1px dashed #000;border-radius:10px;padding:12px 14px;margin-bottom:10px;min-height:46px;max-height:320px;overflow-y:auto}
 .il-preview-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7A7A7A;letter-spacing:.05em}
-.il-prev-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
-.il-prev-row .match{flex:1;color:#000;font-weight:700}
-.il-prev-row .raw{color:#FF3300;text-transform:none;font-family:'JetBrains Mono',monospace;font-size:10px}
-.il-prev-row .ok{color:#0a8a3d;font-size:14px;font-weight:700}
-.il-prev-row .miss{color:#999;font-size:14px}
+.ilp-title{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7A7A7A;letter-spacing:.03em;line-height:1.4;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed #DDD}
+.ilp-summary{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.15em;color:#000;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.ilp-summary b{color:#FF3300;font-weight:700}
+.ilp-day{margin-bottom:10px}
+.ilp-day-head{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.04em;color:#000;margin-bottom:4px}
+.ilp-lift{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.04em;color:#3A3A3A;padding:3px 0;display:flex;justify-content:space-between;text-transform:uppercase;font-weight:500}
+.ilp-lift .ilp-sxr{color:#FF3300;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0;text-transform:none}
+.ilp-foot{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A;margin-top:8px;padding-top:8px;border-top:1px dashed #DDD}
 .il-source-link{display:inline-flex;align-items:center;gap:6px;background:#000;color:#FF3300;border:1px solid #FF3300;border-radius:8px;padding:8px 12px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;text-transform:uppercase;font-weight:700;text-decoration:none;margin-bottom:10px;cursor:pointer}
 .il-source-link:active{background:#FF3300;color:#000}
 .sb-footer{display:flex;gap:10px;align-items:center;margin-top:8px}
@@ -1197,40 +1200,21 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <h2>FROM A <span class="accent">VIDEO</span></h2>
     <div class="il-hero">
       <div class="il-eyebrow">▶ Make it yours</div>
-      <div class="il-tag">Saw a sick split on YouTube, IG, or TikTok? Paste the link, list the lifts, done. You're building it.</div>
+      <div class="il-tag">Paste a YouTube link and name it. We read the title and build a sensible split. Swap any lift after.</div>
     </div>
 
     <div class="il-field">
-      <label class="il-label">1 · Paste the link</label>
+      <label class="il-label">Paste the link</label>
       <input class="modal-input" id="il-url" type="url" placeholder="https://youtube.com/watch?v=..." oninput="onImportUrlInput()">
       <div class="il-hint" id="il-url-status"></div>
     </div>
 
     <div class="il-field">
-      <label class="il-label">2 · Name your split</label>
-      <input class="modal-input" id="il-name" type="text" placeholder="e.g. Sulek Chest Day" maxlength="60">
+      <label class="il-label">Name your split</label>
+      <input class="modal-input" id="il-name" type="text" placeholder="e.g. Sulek Chest Day" maxlength="60" oninput="renderImportPreview()">
     </div>
 
-    <div class="il-field">
-      <label class="il-label">3 · Author / source</label>
-      <input class="modal-input" id="il-author" type="text" placeholder="e.g. Sam Sulek" maxlength="40" value="From video">
-    </div>
-
-    <div class="il-field">
-      <label class="il-label">4 · Day name</label>
-      <input class="modal-input" id="il-dayname" type="text" placeholder="e.g. PUSH, CHEST DAY, FULL BODY" maxlength="30" value="WORKOUT">
-    </div>
-
-    <div class="il-field">
-      <label class="il-label">5 · The exercises (one per line)</label>
-      <textarea class="il-textarea" id="il-exercises" placeholder="Incline bench press&#10;Cable row&#10;Lateral raise&#10;Lying leg curl..." oninput="renderImportPreview()"></textarea>
-      <div class="il-hint">Type each lift on its own line. We'll match them to the library. Anything we can't find becomes a custom exercise.</div>
-    </div>
-
-    <div class="il-field">
-      <label class="il-label">Preview</label>
-      <div class="il-preview" id="il-preview"><div class="il-preview-empty">Lifts you add show up here →</div></div>
-    </div>
+    <div class="il-preview" id="il-preview"><div class="il-preview-empty">Paste a link and name it → preview shows up here</div></div>
 
     <div class="sb-footer">
       <button class="btn-ghost" onclick="closeImportLink()" style="color:var(--text-dim)">CANCEL</button>
@@ -3464,13 +3448,18 @@ function deleteCustomSplit(id){
 }
 
 // === IMPORT FROM LINK ===
+// User pastes a URL + names it. We sniff the YouTube title for keywords
+// (push, pull, legs, chest, back, shoulders, arms, full body, upper, lower, PPL)
+// and auto-generate a split using exercises already in the library.
+// User can swap any exercise after — every imported split is a normal custom split.
+
+let importState={url:'',title:'',name:''};
+
 function openImportLink(){
   document.getElementById('program-modal').classList.remove('open');
+  importState={url:'',title:'',name:''};
   document.getElementById('il-url').value='';
   document.getElementById('il-name').value='';
-  document.getElementById('il-author').value='From video';
-  document.getElementById('il-dayname').value='WORKOUT';
-  document.getElementById('il-exercises').value='';
   document.getElementById('il-url-status').textContent='';
   renderImportPreview();
   document.getElementById('import-link-modal').classList.add('open');
@@ -3480,29 +3469,32 @@ function closeImportLink(){
 }
 function onImportUrlInput(){
   const url=(document.getElementById('il-url').value||'').trim();
+  importState.url=url;
   const status=document.getElementById('il-url-status');
-  if(!url){status.textContent='';return;}
+  if(!url){status.textContent='';importState.title='';renderImportPreview();return;}
   const yt=extractYouTubeId(url);
   if(yt){
-    status.textContent='YouTube link detected · fetching title…';
+    status.textContent='Reading the video title…';
     fetchYouTubeTitle(url).then(title=>{
-      if(!title)return;
-      status.textContent='Title: ' + title;
+      if(!title){status.textContent='YouTube link saved';return;}
+      importState.title=title;
+      status.textContent='Title: '+title;
       const nameInput=document.getElementById('il-name');
-      if(!nameInput.value)nameInput.value=title.length>60?title.slice(0,57)+'…':title;
-      // Try to extract a creator-style author from the title or URL.
-      const authorInput=document.getElementById('il-author');
-      if(authorInput.value==='From video'){
-        const ytChannelGuess=guessChannelFromUrl(url);
-        if(ytChannelGuess)authorInput.value=ytChannelGuess;
+      if(!nameInput.value){
+        nameInput.value=title.length>60?title.slice(0,57)+'…':title;
+        importState.name=nameInput.value;
       }
-    }).catch(()=>{status.textContent='YouTube link saved (title fetch blocked)';});
+      renderImportPreview();
+    }).catch(()=>{status.textContent='YouTube link saved (title blocked by browser)';renderImportPreview();});
   }else if(/instagram\.com|tiktok\.com/i.test(url)){
-    status.textContent='Social link saved · type the lifts below';
+    status.textContent='Social link saved · we\'ll guess the focus from the name';
+    renderImportPreview();
   }else if(/^https?:\/\//i.test(url)){
     status.textContent='Link saved';
+    renderImportPreview();
   }else{
     status.textContent='Tip: paste a full URL starting with https://';
+    renderImportPreview();
   }
 }
 function extractYouTubeId(url){
@@ -3519,80 +3511,164 @@ function fetchYouTubeTitle(url){
   return fetch(endpoint).then(r=>r.ok?r.json():null).then(j=>j&&j.title?j.title:null);
 }
 
-function normalizeExName(s){
-  return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+// === FOCUS INFERENCE ===
+// Templates are real exercises by libId. First one is marked PRIMARY at build time.
+const IMPORT_TEMPLATES={
+  push:{label:'PUSH',muscles:'Chest · Shoulders · Triceps',lifts:[
+    {libId:'inc-bench',sets:4,reps:'6-8'},
+    {libId:'db-press',sets:3,reps:'8-12'},
+    {libId:'pec-deck',sets:3,reps:'10-15'},
+    {libId:'lat-raise',sets:4,reps:'12-15'},
+    {libId:'pushdown',sets:3,reps:'10-12'},
+    {libId:'overhead-ext',sets:3,reps:'10-12'}]},
+  pull:{label:'PULL',muscles:'Back · Biceps · Rear Delts',lifts:[
+    {libId:'pullup',sets:4,reps:'6-10'},
+    {libId:'cable-row',sets:3,reps:'10-12'},
+    {libId:'wide-pulldown',sets:3,reps:'8-12'},
+    {libId:'face-pull',sets:3,reps:'12-15'},
+    {libId:'bb-curl',sets:3,reps:'8-12'},
+    {libId:'hammer',sets:3,reps:'10-12'}]},
+  legs:{label:'LEGS',muscles:'Quads · Hams · Calves',lifts:[
+    {libId:'squat',sets:4,reps:'6-10'},
+    {libId:'rdl',sets:3,reps:'8-10'},
+    {libId:'leg-press',sets:3,reps:'10-15'},
+    {libId:'lying-curl',sets:3,reps:'10-12'},
+    {libId:'leg-ext',sets:3,reps:'12-15'},
+    {libId:'standing-calf',sets:4,reps:'10-15'}]},
+  chest:{label:'CHEST',muscles:'Chest · Triceps',lifts:[
+    {libId:'inc-bench',sets:4,reps:'6-10'},
+    {libId:'flat-db',sets:4,reps:'8-12'},
+    {libId:'machine-press',sets:3,reps:'10-12'},
+    {libId:'pec-deck',sets:3,reps:'12-15'},
+    {libId:'cable-crossover',sets:3,reps:'12-15'},
+    {libId:'pushdown',sets:3,reps:'10-12'}]},
+  back:{label:'BACK',muscles:'Lats · Mid-back · Biceps',lifts:[
+    {libId:'pullup',sets:4,reps:'6-10'},
+    {libId:'row-bb',sets:4,reps:'6-10'},
+    {libId:'wide-pulldown',sets:3,reps:'8-12'},
+    {libId:'cable-row',sets:3,reps:'10-12'},
+    {libId:'pullover',sets:3,reps:'12-15'},
+    {libId:'bb-curl',sets:3,reps:'8-12'}]},
+  shoulders:{label:'SHOULDERS',muscles:'All three delt heads',lifts:[
+    {libId:'ohp',sets:4,reps:'6-8'},
+    {libId:'db-press',sets:3,reps:'8-12'},
+    {libId:'lat-raise',sets:4,reps:'12-15'},
+    {libId:'cable-lat',sets:3,reps:'12-20'},
+    {libId:'rev-fly',sets:3,reps:'12-15'},
+    {libId:'face-pull',sets:3,reps:'12-15'}]},
+  arms:{label:'ARMS',muscles:'Biceps · Triceps',lifts:[
+    {libId:'bb-curl',sets:4,reps:'8-10'},
+    {libId:'skull',sets:4,reps:'8-10'},
+    {libId:'incline-curl',sets:3,reps:'10-12'},
+    {libId:'overhead-ext',sets:3,reps:'10-12'},
+    {libId:'hammer',sets:3,reps:'10-12'},
+    {libId:'rope-pd',sets:3,reps:'12-15'}]},
+  upper:{label:'UPPER',muscles:'Chest · Back · Arms',lifts:[
+    {libId:'flat-bench',sets:4,reps:'6-10'},
+    {libId:'row-bb',sets:4,reps:'6-10'},
+    {libId:'db-press',sets:3,reps:'8-12'},
+    {libId:'wide-pulldown',sets:3,reps:'8-12'},
+    {libId:'lat-raise',sets:3,reps:'12-15'},
+    {libId:'bb-curl',sets:3,reps:'8-12'},
+    {libId:'pushdown',sets:3,reps:'10-12'}]},
+  lower:{label:'LOWER',muscles:'Quads · Hams · Glutes · Calves',lifts:[
+    {libId:'squat',sets:4,reps:'6-10'},
+    {libId:'rdl',sets:3,reps:'8-10'},
+    {libId:'leg-press',sets:3,reps:'10-15'},
+    {libId:'lying-curl',sets:3,reps:'10-12'},
+    {libId:'leg-ext',sets:3,reps:'12-15'},
+    {libId:'standing-calf',sets:4,reps:'8-12'}]},
+  fullbody:{label:'FULL BODY',muscles:'Squat · Press · Pull',lifts:[
+    {libId:'squat',sets:4,reps:'5-8'},
+    {libId:'flat-bench',sets:4,reps:'6-8'},
+    {libId:'row-bb',sets:3,reps:'8-10'},
+    {libId:'ohp',sets:3,reps:'6-10'},
+    {libId:'rdl',sets:3,reps:'8-10'},
+    {libId:'pullup',sets:3,reps:'6-10'}]}
+};
+
+function inferImportFocus(){
+  // Combine title + user-typed name as the haystack.
+  const hay=((importState.title||'')+' '+(document.getElementById('il-name').value||'')).toLowerCase();
+  // PPL is a multi-day split, handle separately.
+  if(/\bppl\b|push.?pull.?legs|p\/p\/l/.test(hay))return 'ppl';
+  if(/full.?body|fullbody/.test(hay))return 'fullbody';
+  if(/\bupper\b/.test(hay)&&!/lower/.test(hay))return 'upper';
+  if(/\blower\b/.test(hay)&&!/upper/.test(hay))return 'lower';
+  if(/\bpush\b/.test(hay))return 'push';
+  if(/\bpull\b/.test(hay))return 'pull';
+  if(/\bleg|quad|hamstring|glute/.test(hay))return 'legs';
+  if(/chest|bench|pec/.test(hay))return 'chest';
+  if(/\bback\b|lat|row|deadlift/.test(hay))return 'back';
+  if(/shoulder|delt|press day|ohp/.test(hay))return 'shoulders';
+  if(/\barm|bicep|tricep|curl day/.test(hay))return 'arms';
+  return 'push'; // safe default
 }
-function fuzzyMatchExercise(raw){
-  const norm=normalizeExName(raw);
-  if(!norm)return null;
-  const lib=getLibrary();
-  let best=null,bestScore=0;
-  for(const l of lib){
-    const libNorm=normalizeExName(l.name);
-    let score=0;
-    if(libNorm===norm)score=100;
-    else if(libNorm.includes(norm)||norm.includes(libNorm))score=60;
-    else{
-      const a=norm.split(' ').filter(Boolean);
-      const b=new Set(libNorm.split(' ').filter(Boolean));
-      let overlap=0;for(const t of a)if(b.has(t))overlap++;
-      score=overlap*15;
-    }
-    if(score>bestScore){bestScore=score;best=l;}
+
+function buildImportSchedule(focus,dayName){
+  if(focus==='ppl'){
+    const days=['push','pull','legs'].map((f,i)=>{
+      const t=IMPORT_TEMPLATES[f];
+      return buildTrainingDay(i+1,t.label,t.muscles,t.lifts);
+    });
+    days.push({dayNum:4,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Repeat.',type:'rest',exercises:[]});
+    return days;
   }
-  return bestScore>=15?{lib:best,score:bestScore}:null;
+  const t=IMPORT_TEMPLATES[focus]||IMPORT_TEMPLATES.push;
+  return [
+    buildTrainingDay(1,(dayName||t.label).toUpperCase(),t.muscles,t.lifts),
+    {dayNum:2,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Grow.',type:'rest',exercises:[]}
+  ];
 }
-function parseImportLines(){
-  const text=document.getElementById('il-exercises').value||'';
-  return text.split(/\n+/).map(s=>s.replace(/^[\s\-\*\d\.\)\:]+/,'').trim()).filter(Boolean);
+function buildTrainingDay(num,name,muscles,lifts){
+  const lib=getLibrary();
+  const exercises=lifts.map((l,i)=>{
+    const ref=lib.find(x=>x.id===l.libId);
+    if(!ref)return null;
+    const ex={libId:ref.id,name:ref.name,targetSets:l.sets,targetReps:l.reps};
+    if(i===0){ex.primary=true;ex.tag='PRIMARY';}
+    return ex;
+  }).filter(Boolean);
+  return {dayNum:num,name,muscles,subtitle:'',type:'train',exercises};
 }
+
 function renderImportPreview(){
-  const lines=parseImportLines();
   const box=document.getElementById('il-preview');
-  if(lines.length===0){box.innerHTML='<div class="il-preview-empty">Lifts you add show up here →</div>';return;}
-  box.innerHTML=lines.map(line=>{
-    const m=fuzzyMatchExercise(line);
-    if(m){
-      return `<div class="il-prev-row"><span class="ok">✓</span><span class="match">${m.lib.name}</span><span class="raw">${line}</span></div>`;
-    }
-    return `<div class="il-prev-row"><span class="miss">＋</span><span class="match" style="color:#FF3300">${line.toUpperCase()}</span><span class="raw">custom</span></div>`;
-  }).join('');
+  const name=(document.getElementById('il-name').value||'').trim();
+  const url=importState.url;
+  if(!url&&!name){
+    box.innerHTML='<div class="il-preview-empty">Paste a link and name it → preview shows up here</div>';
+    return;
+  }
+  const focus=inferImportFocus();
+  const schedule=buildImportSchedule(focus,name);
+  const trainDays=schedule.filter(d=>d.type==='train');
+  const liftCount=trainDays.reduce((a,d)=>a+d.exercises.length,0);
+  const dayLabels=trainDays.map(d=>d.name).join(' · ');
+  const titleLine=importState.title?`<div class="ilp-title">${importState.title}</div>`:'';
+  const lifts=trainDays.map(d=>`<div class="ilp-day"><div class="ilp-day-head">${d.name}</div>${d.exercises.map(e=>`<div class="ilp-lift">→ ${e.name} <span class="ilp-sxr">${e.targetSets}×${e.targetReps}</span></div>`).join('')}</div>`).join('');
+  box.innerHTML=`${titleLine}<div class="ilp-summary">Building <b>${dayLabels}</b> · ${liftCount} lifts</div>${lifts}<div class="ilp-foot">Swap or add any lift after.</div>`;
 }
+
 function saveImportedSplit(){
   const url=(document.getElementById('il-url').value||'').trim();
   const name=(document.getElementById('il-name').value||'').trim();
-  const author=(document.getElementById('il-author').value||'').trim()||'From video';
-  const dayname=((document.getElementById('il-dayname').value||'').trim()||'WORKOUT').toUpperCase();
-  const lines=parseImportLines();
   if(!name){toast('Name your split');return;}
-  if(lines.length===0){toast('Add at least one exercise');return;}
+  const focus=inferImportFocus();
+  const schedule=buildImportSchedule(focus,name);
+  const trainDays=schedule.filter(d=>d.type==='train');
+  const liftCount=trainDays.reduce((a,d)=>a+d.exercises.length,0);
 
-  if(!Array.isArray(state.customExercises))state.customExercises=[];
-  const exercises=lines.map(line=>{
-    const m=fuzzyMatchExercise(line);
-    if(m){
-      return {libId:m.lib.id,name:m.lib.name,targetSets:3,targetReps:'8-12'};
-    }
-    // create custom exercise on the fly
-    const baseId='cx-'+normalizeExName(line).replace(/ /g,'-').slice(0,32);
-    let id=baseId||('cx-'+Date.now());
-    const existing=new Set(getLibrary().map(e=>e.id));
-    let n=1;while(existing.has(id)){id=baseId+'-'+(++n);}
-    const cx={id,name:line.replace(/\b\w/g,c=>c.toUpperCase()),muscle:'chest',equipment:'OTHER',type:'CUSTOM',custom:true};
-    state.customExercises.push(cx);
-    return {libId:cx.id,name:cx.name,targetSets:3,targetReps:'8-12'};
-  });
-  if(exercises[0])exercises[0].primary=true,exercises[0].tag='PRIMARY';
+  let author='From video';
+  const ch=guessChannelFromUrl(url);
+  if(ch)author=ch;
 
   const id='import-'+Date.now().toString(36);
-  const schedule=[
-    {dayNum:1,name:dayname,muscles:'',subtitle:'',type:'train',exercises},
-    {dayNum:2,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Grow.',type:'rest',exercises:[]}
-  ];
+  const focusLabel=focus==='ppl'?'PUSH / PULL / LEGS':(IMPORT_TEMPLATES[focus]||IMPORT_TEMPLATES.push).label;
   const prog={
     id,name:name.toUpperCase(),author,
     sourceUrl:url||undefined,
-    description:`Imported from ${url?'a link':'memory'} · ${exercises.length} lift${exercises.length===1?'':'s'} · 1 training day · 1 rest. Tweak it any time.`,
+    description:`Imported from ${url?'a link':'memory'} · ${focusLabel} · ${liftCount} lift${liftCount===1?'':'s'}. Swap any exercise — it's yours.`,
     schedule
   };
   if(!Array.isArray(state.customPrograms))state.customPrograms=[];
@@ -3604,7 +3680,7 @@ function saveImportedSplit(){
   save();
   closeImportLink();
   renderToday();renderProgram();
-  toast(`${name.toUpperCase()} imported · ${exercises.length} lifts`);
+  toast(`${name.toUpperCase()} created`);
   showView('today');
 }
 
