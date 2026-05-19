@@ -3605,19 +3605,68 @@ function inferImportFocus(){
   return 'push'; // safe default
 }
 
-function buildImportSchedule(focus,dayName){
-  if(focus==='ppl'){
-    const days=['push','pull','legs'].map((f,i)=>{
-      const t=IMPORT_TEMPLATES[f];
-      return buildTrainingDay(i+1,t.label,t.muscles,t.lifts);
-    });
-    days.push({dayNum:4,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Repeat.',type:'rest',exercises:[]});
-    return days;
+// A detected focus expands into a complete weekly split. Style depends on focus:
+//   push/pull/legs/ppl    → 6-day PPL × 2 (push/pull/legs/push/pull/legs/rest)
+//   upper/lower           → 4-day Upper/Lower (U/L/Rest/U/L/Rest/Rest)
+//   fullbody              → 3-day Full Body (FB-A/Rest/FB-B/Rest/FB-C/Rest/Rest)
+//   chest/back/shoulders/
+//   arms                  → 5-day bro split with the focus day rotated to the front
+function restDay(num,sub){return {dayNum:num,name:'REST',muscles:'Recovery',subtitle:sub||'Eat. Sleep. Grow.',type:'rest',exercises:[]};}
+function trainFromTpl(num,tplKey,nameOverride){
+  const t=IMPORT_TEMPLATES[tplKey]||IMPORT_TEMPLATES.push;
+  return buildTrainingDay(num,(nameOverride||t.label).toUpperCase(),t.muscles,t.lifts);
+}
+function buildImportSchedule(focus){
+  // PPL style for push/pull/legs/PPL signals
+  if(focus==='ppl'||focus==='push'||focus==='pull'||focus==='legs'){
+    return [
+      trainFromTpl(1,'push','PUSH A'),
+      trainFromTpl(2,'pull','PULL A'),
+      trainFromTpl(3,'legs','LEGS A'),
+      trainFromTpl(4,'push','PUSH B'),
+      trainFromTpl(5,'pull','PULL B'),
+      trainFromTpl(6,'legs','LEGS B'),
+      restDay(7,'Eat. Sleep. Grow.')
+    ];
   }
-  const t=IMPORT_TEMPLATES[focus]||IMPORT_TEMPLATES.push;
+  // Upper/Lower 4-day
+  if(focus==='upper'||focus==='lower'){
+    return [
+      trainFromTpl(1,'upper','UPPER A'),
+      trainFromTpl(2,'lower','LOWER A'),
+      restDay(3,'Mid-week reset'),
+      trainFromTpl(4,'upper','UPPER B'),
+      trainFromTpl(5,'lower','LOWER B'),
+      restDay(6,'Weekend reset'),
+      restDay(7,'Eat. Sleep. Grow.')
+    ];
+  }
+  // Full Body 3x
+  if(focus==='fullbody'){
+    return [
+      trainFromTpl(1,'fullbody','FULL BODY A'),
+      restDay(2,'Active recovery'),
+      trainFromTpl(3,'fullbody','FULL BODY B'),
+      restDay(4,'Eat. Sleep.'),
+      trainFromTpl(5,'fullbody','FULL BODY C'),
+      restDay(6,'Weekend'),
+      restDay(7,'Long walk. Sunlight.')
+    ];
+  }
+  // Bro split (chest/back/shoulders/arms/legs) — rotate so focus day comes first.
+  const bro=['chest','back','shoulders','arms','legs'];
+  const startIdx=bro.indexOf(focus);
+  const ordered=startIdx>=0
+    ?[...bro.slice(startIdx),...bro.slice(0,startIdx)]
+    :bro;
   return [
-    buildTrainingDay(1,(dayName||t.label).toUpperCase(),t.muscles,t.lifts),
-    {dayNum:2,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Grow.',type:'rest',exercises:[]}
+    trainFromTpl(1,ordered[0]),
+    trainFromTpl(2,ordered[1]),
+    trainFromTpl(3,ordered[2]),
+    trainFromTpl(4,ordered[3]),
+    trainFromTpl(5,ordered[4]),
+    restDay(6,'Weekend off'),
+    restDay(7,'Eat. Sleep. Grow.')
   ];
 }
 function buildTrainingDay(num,name,muscles,lifts){
@@ -3641,13 +3690,22 @@ function renderImportPreview(){
     return;
   }
   const focus=inferImportFocus();
-  const schedule=buildImportSchedule(focus,name);
+  const schedule=buildImportSchedule(focus);
   const trainDays=schedule.filter(d=>d.type==='train');
+  const restCount=schedule.filter(d=>d.type==='rest').length;
   const liftCount=trainDays.reduce((a,d)=>a+d.exercises.length,0);
-  const dayLabels=trainDays.map(d=>d.name).join(' · ');
+  const styleLabel=splitStyleLabel(focus);
   const titleLine=importState.title?`<div class="ilp-title">${importState.title}</div>`:'';
-  const lifts=trainDays.map(d=>`<div class="ilp-day"><div class="ilp-day-head">${d.name}</div>${d.exercises.map(e=>`<div class="ilp-lift">→ ${e.name} <span class="ilp-sxr">${e.targetSets}×${e.targetReps}</span></div>`).join('')}</div>`).join('');
-  box.innerHTML=`${titleLine}<div class="ilp-summary">Building <b>${dayLabels}</b> · ${liftCount} lifts</div>${lifts}<div class="ilp-foot">Swap or add any lift after.</div>`;
+  const lifts=trainDays.map(d=>`<div class="ilp-day"><div class="ilp-day-head">${d.name}<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A;font-weight:400;letter-spacing:0;margin-left:8px">${d.muscles}</span></div>${d.exercises.map(e=>`<div class="ilp-lift">→ ${e.name} <span class="ilp-sxr">${e.targetSets}×${e.targetReps}</span></div>`).join('')}</div>`).join('');
+  box.innerHTML=`${titleLine}<div class="ilp-summary">Building <b>${styleLabel}</b> · ${trainDays.length} training + ${restCount} rest · ${liftCount} lifts</div>${lifts}<div class="ilp-foot">Swap or add any lift after.</div>`;
+}
+
+function splitStyleLabel(focus){
+  if(focus==='ppl'||focus==='push'||focus==='pull'||focus==='legs')return 'PUSH / PULL / LEGS · 6 DAYS';
+  if(focus==='upper'||focus==='lower')return 'UPPER / LOWER · 4 DAYS';
+  if(focus==='fullbody')return 'FULL BODY · 3 DAYS';
+  const label=(IMPORT_TEMPLATES[focus]||IMPORT_TEMPLATES.push).label;
+  return `BRO SPLIT · 5 DAYS · ${label} first`;
 }
 
 function saveImportedSplit(){
@@ -3655,7 +3713,7 @@ function saveImportedSplit(){
   const name=(document.getElementById('il-name').value||'').trim();
   if(!name){toast('Name your split');return;}
   const focus=inferImportFocus();
-  const schedule=buildImportSchedule(focus,name);
+  const schedule=buildImportSchedule(focus);
   const trainDays=schedule.filter(d=>d.type==='train');
   const liftCount=trainDays.reduce((a,d)=>a+d.exercises.length,0);
 
@@ -3664,11 +3722,11 @@ function saveImportedSplit(){
   if(ch)author=ch;
 
   const id='import-'+Date.now().toString(36);
-  const focusLabel=focus==='ppl'?'PUSH / PULL / LEGS':(IMPORT_TEMPLATES[focus]||IMPORT_TEMPLATES.push).label;
+  const styleLabel=splitStyleLabel(focus);
   const prog={
     id,name:name.toUpperCase(),author,
     sourceUrl:url||undefined,
-    description:`Imported from ${url?'a link':'memory'} · ${focusLabel} · ${liftCount} lift${liftCount===1?'':'s'}. Swap any exercise — it's yours.`,
+    description:`Imported from ${url?'a link':'memory'} · ${styleLabel} · ${liftCount} total lifts. Swap any exercise — it's yours.`,
     schedule
   };
   if(!Array.isArray(state.customPrograms))state.customPrograms=[];
