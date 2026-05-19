@@ -2011,8 +2011,42 @@ function restoreLiveSessionIntoToday(){
   });
 }
 
+// How long has the user been training on their current program?
+// Used to warn them about switching too early — splits work best at 3-6 months.
+function currentProgramTrainingStats(){
+  const id=state.activeProgramId;
+  if(!Array.isArray(state.history))return {sessions:0,days:0};
+  const list=state.history.filter(h=>h&&!h.partial&&h.programId===id);
+  if(list.length===0)return {sessions:0,days:0};
+  const firstMs=Math.min(...list.map(s=>new Date(s.date).getTime()));
+  const days=Math.max(1,Math.floor((Date.now()-firstMs)/86400000)+1);
+  return {sessions:list.length,days};
+}
+
 function switchProgram(id){
   if(!getProgramDef(id))return;
+  // Warn before switching off a split the user is actively training on.
+  // The recommendation is to stay on a program 3-6 months so weights climb
+  // and the body adapts; switching early resets the reference points.
+  // Only fires if they've put in >=5 completed sessions and it's been <180 days
+  // — i.e. they're in the middle of a block, not just exploring.
+  if(id!==state.activeProgramId){
+    const stats=currentProgramTrainingStats();
+    if(stats.sessions>=5&&stats.days<180){
+      const curName=(getProgramDef(state.activeProgramId)||{}).name||'this split';
+      const newName=(getProgramDef(id)||{}).name||'the new split';
+      const dayWord=stats.days===1?'day':'days';
+      const msg=
+`You're ${stats.days} ${dayWord} into ${curName} (${stats.sessions} sessions).
+
+Splits work best when you stay on them 3-6 months. Your body learns the lifts and the weights climb. Switch now and you start lighter on the new lifts.
+
+Your logged sets stay safe in History either way.
+
+Switch to ${newName}?`;
+      if(!confirm(msg))return;
+    }
+  }
   state.activeProgramId=id;
   // If there's a live (unfinished) session for this split today, jump back to that day.
   const live=findAnyLiveSessionForProgram(id);
