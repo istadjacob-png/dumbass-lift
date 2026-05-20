@@ -317,18 +317,23 @@ input,textarea{user-select:text}
 .day-card{background:var(--steel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:14px;box-shadow:0 1px 0 rgba(255,255,255,.02) inset;transition:border-color .2s,background .2s}
 .day-card:active{transform:scale(.99)}
 .day-card.today{background:linear-gradient(90deg,var(--cobalt-soft) 0%,var(--steel) 100%);border-color:var(--cobalt);box-shadow:0 0 0 1px var(--cobalt),0 0 25px var(--cobalt-soft)}
+.day-card.done{background:linear-gradient(90deg,rgba(255,176,0,.12) 0%,var(--steel) 100%);border-color:rgba(255,176,0,.45);box-shadow:0 0 0 1px rgba(255,176,0,.30)}
 .day-card.rest{opacity:.55}
 .day-card .num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--cobalt-bright);line-height:1;min-width:50px;text-align:center;letter-spacing:.05em}
+.day-card.done .num{color:#FFB000}
 .day-card.rest .num{color:var(--text-faint)}
 .day-info{flex:1;min-width:0}
 .day-info .d-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.3em;color:var(--text-faint);text-transform:uppercase;margin-bottom:2px;font-weight:600}
 .day-card.today .d-label{color:var(--cobalt-bright)}
+.day-card.done .d-label{color:#FFB000}
 .day-info .d-name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);letter-spacing:.02em;line-height:1;margin-bottom:3px}
 .day-info .d-muscles{font-family:'Oswald',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase}
 .day-card .play-btn{width:36px;height:36px;border-radius:10px;background:var(--steel-dark);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .day-card.today .play-btn{background:linear-gradient(135deg,var(--cobalt),var(--cobalt-deep));border-color:var(--cobalt-bright);box-shadow:0 0 15px var(--cobalt-glow)}
+.day-card.done .play-btn{background:rgba(255,176,0,.18);border-color:rgba(255,176,0,.55)}
 .day-card .play-btn svg{width:12px;height:12px;fill:var(--text-dim);margin-left:2px}
 .day-card.today .play-btn svg{fill:#fff}
+.day-card.done .play-btn svg{fill:none;stroke:#FFB000;stroke-width:2.5;margin-left:0}
 
 .protocol-box{background:var(--steel);border:1px solid var(--border);border-top:3px solid var(--cobalt);border-radius:12px;padding:16px 18px;margin:18px 0;box-shadow:0 4px 15px rgba(0,0,0,.2)}
 .protocol-box .title-row{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.3em;color:var(--cobalt-bright);text-transform:uppercase;margin-bottom:10px;font-weight:700}
@@ -2454,9 +2459,16 @@ function renderProgram(){
   document.getElementById('day-list').innerHTML=sched.map((day,i)=>{
     const isToday=i===state.currentDayIdx;
     const isRealToday=i===realToday;
-    const cls=`day-card${isToday?' today':''}${day.type==='rest'?' rest':''}`;
-    const icon=day.type==='rest'?'<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>':'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-    const labelTxt=isToday?(isRealToday?'TODAY':'SELECTED'):(isRealToday?weekdayLabel(i)+' · TODAY':weekdayLabel(i));
+    const isDone=i<realToday && day.type!=='rest' && !isToday;
+    const cls=`day-card${isToday?' today':''}${isDone?' done':''}${day.type==='rest'?' rest':''}`;
+    let icon;
+    if(day.type==='rest') icon='<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>';
+    else if(isDone) icon='<svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M5 12l5 5 9-11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    else icon='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    let labelTxt;
+    if(isToday) labelTxt=isRealToday?'TODAY':'SELECTED';
+    else if(isDone) labelTxt=weekdayLabel(i)+' · DONE';
+    else labelTxt=isRealToday?weekdayLabel(i)+' · TODAY':weekdayLabel(i);
     return `<div class="${cls}" onclick="switchToDay(${i})"><div class="num">${weekdayShort(i)}</div><div class="day-info"><div class="d-label">${labelTxt}</div><div class="d-name">${day.name}</div><div class="d-muscles">${day.muscles}</div></div><div class="play-btn">${icon}</div></div>`;
   }).join('');
 }
