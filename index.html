@@ -267,6 +267,30 @@ input,textarea{user-select:text}
 .profile-card.data-safety{border-left:3px solid var(--cobalt-bright)}
 .profile-card.sync-card{border-left:3px solid var(--cobalt)}
 .profile-card.sync-card.on{border-left-color:#5cd07a}
+
+/* Prominent Today-view sync banner */
+.sync-banner{background:linear-gradient(180deg,var(--cobalt),var(--cobalt-deep));border:1px solid var(--cobalt-bright);border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px var(--cobalt-glow);cursor:pointer;transition:transform .12s}
+.sync-banner:active{transform:scale(.99)}
+.sync-banner .sb-icon{font-size:22px;line-height:1;flex-shrink:0}
+.sync-banner .sb-text{flex:1;min-width:0}
+.sync-banner .sb-title{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.28em;color:#fff;text-transform:uppercase;font-weight:700;line-height:1.2;margin-bottom:3px}
+.sync-banner .sb-sub{font-family:'Inter',sans-serif;font-size:11px;color:rgba(255,255,255,.85);line-height:1.4}
+.sync-banner .sb-cta{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.25em;color:#fff;text-transform:uppercase;font-weight:700;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:8px 14px;border-radius:6px;flex-shrink:0}
+.sync-banner.on{background:var(--steel);border-color:var(--border);box-shadow:none;border-left:3px solid #5cd07a}
+.sync-banner.on .sb-title{color:#5cd07a}
+.sync-banner.on .sb-sub{color:var(--text-dim)}
+.sync-banner.on .sb-cta{background:transparent;color:var(--cobalt-bright);border-color:var(--border)}
+
+/* Dedicated login modal (cleaner than the in-Profile flow) */
+.login-modal-content h2{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.02em;margin-bottom:6px}
+.login-modal-content .sub-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.06em;margin-bottom:18px;line-height:1.5}
+.login-modal-content .login-section{background:var(--steel-dark);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.login-modal-content .login-section .ls-eyebrow{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.3em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.login-modal-content .login-section .ls-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);margin-bottom:4px}
+.login-modal-content .login-section .ls-desc{font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.5;margin-bottom:12px}
+.login-modal-content .login-section input{width:100%;background:var(--steel);border:1px solid var(--border);border-radius:6px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:.2em;color:var(--text);text-transform:uppercase;text-align:center;margin-bottom:10px}
+.login-modal-content .login-section input:focus{outline:none;border-color:var(--cobalt-bright)}
+.login-modal-content .code-display{font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:.22em;font-weight:700;color:var(--cobalt-bright);text-align:center;background:#000;padding:18px;border-radius:8px;margin-bottom:10px}
 .sync-status{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.25em;color:var(--text-dim);text-transform:uppercase;font-weight:600;margin:6px 0 10px}
 .sync-status.on{color:#5cd07a}
 .sync-code-row{display:flex;align-items:center;gap:8px;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin:8px 0}
@@ -994,6 +1018,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       </button>
     </div>
     <button class="btn-ghost" onclick="openProgramPicker()" style="color:var(--cobalt-bright);font-weight:700;letter-spacing:.25em;padding:6px 0 14px;width:100%;text-align:left">⇆ SWITCH SPLIT</button>
+
+    <div id="sync-banner" class="sync-banner" style="display:none"></div>
 
     <div class="eyebrow" id="today-eyebrow">Monday</div>
     <div class="title" id="today-title">CHEST & <span class="accent">BACK</span></div>
@@ -2349,6 +2375,62 @@ async function cloudInitOnLoad(){
   });
 }
 
+// Prominent Today-view banner. Drives users into the login flow.
+function renderSyncBanner(){
+  const el=document.getElementById('sync-banner');
+  if(!el)return;
+  const code=getSyncCode();
+  if(!code){
+    el.className='sync-banner';
+    el.style.display='';
+    el.onclick=openSyncSetup;
+    el.innerHTML=`
+      <div class="sb-icon">🔗</div>
+      <div class="sb-text">
+        <div class="sb-title">LOG IN TO SYNC</div>
+        <div class="sb-sub">Pair phone and web. Your lifts mirror across both, no login.</div>
+      </div>
+      <div class="sb-cta">LOG IN</div>
+    `;
+    return;
+  }
+  el.className='sync-banner on';
+  el.style.display='';
+  el.onclick=manualCloudPull;
+  const last=_lastCloudPushAt?fmtAgo(Date.now()-_lastCloudPushAt):'pending…';
+  el.innerHTML=`
+    <div class="sb-icon">✓</div>
+    <div class="sb-text">
+      <div class="sb-title">SYNCED · ${code}</div>
+      <div class="sb-sub">Last sync · ${last} · tap to pull latest now</div>
+    </div>
+    <div class="sb-cta">PULL NOW</div>
+  `;
+}
+
+// Force-pull from cloud immediately. Used when user suspects local is stale.
+async function manualCloudPull(){
+  const code=getSyncCode();
+  if(!code){openSyncSetup();return;}
+  if(!window.__sync){toast('Cloud not loaded yet');return;}
+  toast('Pulling from cloud…');
+  try{
+    const remote=await window.__sync.pull(code);
+    if(!remote||!remote.state){toast('Cloud is empty');return;}
+    if(remote.deviceId===getDeviceId()){
+      toast('Already up to date');
+      _lastCloudPushAt=Date.now();
+      renderSyncBanner();
+      return;
+    }
+    snapshotBackup&&snapshotBackup();
+    _adoptRemoteState(remote.state);
+    _lastCloudPushAt=Date.now();
+    renderSyncBanner();
+    toast('Synced — latest pulled');
+  }catch(e){toast('Cloud reach failed');}
+}
+
 function renderSyncCard(){
   const code=getSyncCode();
   const card=document.getElementById('sync-card');
@@ -2410,7 +2492,7 @@ async function syncSetupAsPrimary(){
     toast('Sync code generated');
   }catch(e){toast('Cloud reach failed — try again');setSyncCode('');return;}
   closeSyncSetup();
-  renderSyncCard();
+  renderSyncCard();renderSyncBanner();
   window.__sync.subscribe(code,(remoteState,meta)=>{
     if(meta&&meta.deviceId===getDeviceId())return;
     _adoptRemoteState(remoteState);
@@ -2431,7 +2513,7 @@ async function syncPullByCode(){
   _adoptRemoteState(remote.state);
   _lastCloudPushAt=Date.now();
   closeSyncSetup();
-  renderSyncCard();
+  renderSyncCard();renderSyncBanner();
   toast('Pulled from cloud');
   window.__sync.subscribe(code,(remoteState,meta)=>{
     if(meta&&meta.deviceId===getDeviceId())return;
@@ -2447,7 +2529,7 @@ function disconnectSync(){
   if(!confirm('Disconnect cloud sync? This device keeps its data; cloud copy stays for other devices using the code.'))return;
   if(window.__sync)window.__sync.unsubscribe();
   setSyncCode('');
-  renderSyncCard();
+  renderSyncCard();renderSyncBanner();
   toast('Disconnected');
 }
 
@@ -3078,6 +3160,7 @@ function renderToday(){
   const prog=getActiveProgram();
   const pn=document.getElementById('program-current-name');
   if(pn)pn.textContent=prog.name;
+  renderSyncBanner();
   if(t.type==='rest'){showView('rest');return;}
   const wd=weekdayLabel(t.dayNum-1);
   const isRealToday=(state.currentDayIdx===todayScheduleIdx());
@@ -4286,7 +4369,7 @@ function renderProfile(){
   }
   const status=document.getElementById('ds-status');
   if(status)status.textContent=backupStatusText();
-  renderSyncCard();
+  renderSyncCard();renderSyncBanner();
 }
 
 function saveProfileName(val){
