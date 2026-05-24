@@ -122,6 +122,26 @@ input,textarea{user-select:text}
 .exercise.current{border-color:var(--cobalt);box-shadow:0 0 0 1px var(--cobalt),0 0 25px var(--cobalt-soft);background:linear-gradient(90deg,var(--cobalt-soft) 0%,var(--steel) 100%)}
 .exercise.primary::before{content:'';position:absolute;top:8px;bottom:8px;left:0;width:3px;background:var(--cobalt-bright);border-radius:0 2px 2px 0}
 .exercise.warmup::before{content:'';position:absolute;top:8px;bottom:8px;left:0;width:3px;background:repeating-linear-gradient(180deg,var(--text-faint) 0 3px,transparent 3px 6px);border-radius:0 2px 2px 0}
+.exercise.skipped{opacity:.5;border-style:dashed;background:var(--steel-dark)}
+.exercise.skipped .ex-name{color:var(--text-dim);text-decoration:line-through;text-decoration-thickness:1px}
+.ex-skipped-badge{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;color:var(--text-dim);background:rgba(255,255,255,.05);padding:2px 8px;border-radius:3px;border:1px solid var(--border)}
+.ex-unskip{background:transparent;border:0;color:var(--cobalt-bright);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;cursor:pointer;padding:2px 6px;margin-left:6px;text-transform:uppercase}
+.ex-unskip:active{transform:scale(.95)}
+
+/* DRAG-TO-REORDER */
+.ex-grip{position:absolute;top:0;bottom:0;left:0;width:14px;cursor:grab;touch-action:none}
+.ex-grip::after{content:'⋮⋮';position:absolute;top:50%;left:2px;transform:translateY(-50%);color:var(--text-faint);font-size:10px;letter-spacing:-1px;line-height:1;opacity:0;transition:opacity .15s}
+.exercise:hover .ex-grip::after{opacity:.6}
+.exercise.dragging{z-index:20;box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 0 1px var(--cobalt-bright);transform:scale(1.02);transition:none;cursor:grabbing}
+.exercise.drag-ghost{opacity:.25;filter:saturate(.3)}
+#exercise-list.reorder-on .exercise:not(.dragging){transition:transform .18s cubic-bezier(.2,.8,.2,1)}
+#exercise-list.reorder-on .exercise .ex-check,
+#exercise-list.reorder-on .exercise .ex-info,
+#exercise-list.reorder-on .exercise .ex-edit,
+#exercise-list.reorder-on .exercise .ex-remove,
+#exercise-list.reorder-on .exercise .set-dots{pointer-events:none}
+.reorder-hint{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--cobalt);color:#fff;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.3em;padding:8px 16px;border-radius:6px;z-index:50;pointer-events:none;box-shadow:0 4px 20px var(--cobalt-glow);text-transform:uppercase;opacity:0;transition:opacity .2s}
+.reorder-hint.show{opacity:1}
 .ex-check{width:24px;height:24px;border:2px solid var(--steel-light);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .exercise.done .ex-check{background:var(--cobalt);border-color:var(--cobalt)}
 .exercise.done .ex-check::after{content:'✓';color:#fff;font-size:14px;font-weight:800;line-height:1}
@@ -245,6 +265,20 @@ input,textarea{user-select:text}
 .bw-row .bw-log{flex:0 0 auto;width:auto;padding:0 22px;font-size:14px;white-space:nowrap}
 /* DATA SAFETY CARD */
 .profile-card.data-safety{border-left:3px solid var(--cobalt-bright)}
+.profile-card.sync-card{border-left:3px solid var(--cobalt)}
+.profile-card.sync-card.on{border-left-color:#5cd07a}
+.sync-status{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.25em;color:var(--text-dim);text-transform:uppercase;font-weight:600;margin:6px 0 10px}
+.sync-status.on{color:#5cd07a}
+.sync-code-row{display:flex;align-items:center;gap:8px;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin:8px 0}
+.sync-code{font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:.18em;color:var(--text);font-weight:700;flex:1;text-transform:uppercase}
+.sync-copy{background:transparent;border:1px solid var(--border);color:var(--cobalt-bright);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.2em;padding:5px 10px;border-radius:5px;cursor:pointer;text-transform:uppercase}
+.sync-copy:active{transform:scale(.96)}
+.sync-last{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:.05em;margin:6px 0}
+.sync-actions{display:flex;gap:8px;margin-top:10px}
+.sync-actions .btn-secondary{flex:1}
+.sync-hint{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-dim);line-height:1.5;margin:8px 0 0}
+.sync-modal-input{width:100%;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:.18em;color:var(--text);text-transform:uppercase;text-align:center;margin:10px 0}
+.sync-modal-input:focus{outline:none;border-color:var(--cobalt-bright)}
 .ds-eyebrow{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.35em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;margin-bottom:8px}
 .ds-policy{font-family:'Inter',sans-serif;font-size:12px;line-height:1.55;color:var(--text-mid);margin:0 0 10px}
 .ds-status{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.08em;background:var(--steel-dark);border:1px solid var(--border);padding:8px 10px;border-radius:6px;margin-bottom:10px}
@@ -355,6 +389,37 @@ input,textarea{user-select:text}
 .vol-summary .stat.active.over{border-color:var(--red);box-shadow:0 0 0 1px var(--red),0 4px 18px rgba(255,176,0,.4)}
 .vol-summary .stat.active.ideal{border-color:#5cd07a;box-shadow:0 0 0 1px #5cd07a,0 4px 18px rgba(92,208,122,.3)}
 .vol-empty{background:var(--steel);border:1px dashed var(--border);border-radius:12px;padding:24px;text-align:center;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;color:var(--text-faint);text-transform:uppercase;font-weight:600}
+/* Past-week actual vs planned */
+.vol-actuals{background:var(--steel);border:1px solid var(--border);border-left:3px solid var(--cobalt-bright);border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.vol-actuals .va-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.vol-actuals .va-title{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.3em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700}
+.vol-actuals .va-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:.05em}
+.vol-actuals .va-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-family:'Oswald',sans-serif}
+.vol-actuals .va-row:last-child{border-bottom:none}
+.vol-actuals .va-row .va-label{font-size:13px;letter-spacing:.08em;color:var(--text);text-transform:uppercase;font-weight:600;flex:1}
+.vol-actuals .va-row .va-stat{font-family:'Bebas Neue',sans-serif;font-size:18px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;min-width:38px;text-align:right}
+.vol-actuals .va-row .va-stat .unit{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.2em;color:var(--text-faint);margin-left:2px}
+.vol-actuals .va-row .va-stat .planned{color:var(--text-dim)}
+.vol-actuals .va-row .va-pct{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;min-width:50px;text-align:right;letter-spacing:.02em}
+.vol-actuals .va-row.green .va-pct{color:#5cd07a}
+.vol-actuals .va-row.amber .va-pct{color:#e8b94a}
+.vol-actuals .va-row.red .va-pct{color:var(--red)}
+.vol-actuals .va-row.gray .va-pct{color:var(--text-faint)}
+.vol-actuals .va-row .va-bar{flex:0 0 90px;height:6px;background:var(--steel-dark);border-radius:3px;overflow:hidden;position:relative}
+.vol-actuals .va-row .va-bar .va-fill{height:100%;border-radius:3px;transition:width .3s}
+.vol-actuals .va-row.green .va-bar .va-fill{background:#5cd07a}
+.vol-actuals .va-row.amber .va-bar .va-fill{background:#e8b94a}
+.vol-actuals .va-row.red .va-bar .va-fill{background:var(--red)}
+.vol-actuals .va-row.gray .va-bar .va-fill{background:var(--text-faint)}
+.vol-actuals .va-roll{display:flex;justify-content:space-between;align-items:center;padding-top:10px;margin-top:8px;border-top:1px solid var(--border)}
+.vol-actuals .va-roll .va-total{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;color:var(--text-dim);text-transform:uppercase;font-weight:700}
+.vol-actuals .va-roll .va-grade{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.05em}
+.vol-actuals .va-roll .va-grade.green{color:#5cd07a}
+.vol-actuals .va-roll .va-grade.amber{color:#e8b94a}
+.vol-actuals .va-roll .va-grade.red{color:var(--red)}
+.vol-actuals .va-roll .va-grade.gray{color:var(--text-faint)}
+.vol-actuals.empty{border-left-color:var(--text-faint)}
+.vol-actuals.empty .va-empty{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;color:var(--text-faint);text-transform:uppercase;font-weight:600;text-align:center;padding:8px 0}
 .vol-breakdown{background:var(--steel);border:1px solid var(--border);border-left:3px solid var(--cobalt);border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .vol-breakdown .b-title{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.3em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;margin-bottom:10px}
 .vol-breakdown .b-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:12px}
@@ -975,6 +1040,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="subtitle">Where your week lands · MEV · MAV · MRV</div>
 
     <div id="volume-summary" class="vol-summary"></div>
+    <div id="volume-actuals" class="vol-actuals"></div>
     <div id="volume-filters" class="lift-select"></div>
     <div id="volume-list"></div>
 
@@ -992,6 +1058,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <button class="back-btn" onclick="showView('today')">BACK</button>
       <div style="display:flex;gap:14px;align-items:center">
         <button class="btn-ghost" onclick="openSwap()" style="color:var(--cobalt-bright)">SWAP</button>
+        <button class="btn-ghost" onclick="skipCurrentEx()" style="color:var(--text-dim)" title="Skip — no time for this one">SKIP</button>
         <button class="btn-ghost" onclick="toggleDetailCustomize()" id="detail-edit-btn" style="color:var(--text);font-size:18px;padding:4px 6px" title="Edit sets / reps">✎</button>
         <button class="btn-ghost" onclick="deleteCurrentEx()" style="color:var(--red)">REMOVE</button>
       </div>
@@ -1116,6 +1183,11 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <p class="ds-hint" style="margin-top:10px;font-size:11px">Tap → opens your Calendar app → tap "Add" / "Subscribe". Re-activate if you switch split.</p>
     </div>
 
+    <div class="profile-card sync-card" id="sync-card">
+      <div class="ds-eyebrow">Cloud Sync · Phone ↔ Web</div>
+      <div id="sync-body"></div>
+    </div>
+
     <div class="profile-card data-safety">
       <div class="ds-eyebrow">Data Safety · Policy</div>
       <p class="ds-policy">Your lift data is the product of months of work. We treat it as sacred. Every workout auto-backs up to your device, and nothing is ever silently wiped — even "reset" moves your data to a recovery slot first.</p>
@@ -1141,6 +1213,30 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <input class="modal-input" id="lib-search" placeholder="Search..." oninput="filterLib()">
     <button class="add-ex-btn" style="margin-top:0;margin-bottom:12px" onclick="openCustomExForm()">+ CREATE CUSTOM EXERCISE</button>
     <div id="lib-results"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="sync-setup-modal" onclick="if(event.target.id==='sync-setup-modal')closeSyncSetup()">
+  <div class="modal">
+    <h2>CLOUD <span class="accent">SYNC</span></h2>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Use DUMBASS on phone AND web. Your phone stays the source of truth.</div>
+
+    <div id="sync-setup-step1">
+      <button class="btn-primary" style="margin-bottom:10px" onclick="syncSetupAsPrimary()">FIRST DEVICE · GENERATE CODE</button>
+      <p class="sync-hint" style="margin:0 0 14px">Tap this on the device where your data already lives (phone). It uploads your current lifts and shows a sync code.</p>
+      <button class="btn-secondary" style="width:100%" onclick="syncSetupShowCodeEntry()">I HAVE A CODE → PULL FROM CLOUD</button>
+      <p class="sync-hint" style="margin:10px 0 0">Use this on the second device (web). It downloads from cloud and replaces local data.</p>
+    </div>
+
+    <div id="sync-setup-step2" style="display:none">
+      <label class="sb-label">Enter sync code</label>
+      <input class="sync-modal-input" id="sync-code-input" maxlength="9" placeholder="XXXX-XXXX" autocomplete="off">
+      <p class="sync-hint" style="text-align:center;margin:0 0 14px">Replaces local data with cloud data. Cannot be undone (an auto-backup is taken first).</p>
+      <div class="sb-footer">
+        <button class="btn-ghost" onclick="syncSetupBackToStep1()" style="color:var(--text-dim)">BACK</button>
+        <button class="btn-primary" onclick="syncPullByCode()" style="flex:1">PULL FROM CLOUD</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1328,6 +1424,100 @@ const LIBRARY=[
   {id:'russian-twist',name:'Russian Twist',muscle:'abs',type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Obliques. Controlled tempo.',cues:['Sit, lean back ~45°','Feet up or planted','Rotate DB side to side','Tap floor — slow, controlled']}},
   {id:'donkey-calf',name:'Donkey Calf Raise',muscle:'calves',region:'calves',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Bent-over position = strong gastroc stretch.',cues:['Hinge forward, hands on bench','Load on lower back / hips','Deep stretch at the bottom','Drive up onto toes, peak squeeze']}},
   {id:'kb-swing',name:'Kettlebell Swing',muscle:'glutes',secondary:['hamstrings','lower-back'],region:'hip',type:'COMPOUND',equipment:'KETTLEBELL',form:{primary:'Hip hinge under explosive load.',cues:['Hinge — do not squat','Hike KB between legs','Snap hips forward to chest height','Arms are passive — hips do the work']}},
+  // ===== EXPANSION PACK =====
+  // Chest
+  {id:'smith-bench',name:'Smith Machine Bench',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'MACHINE',form:{primary:'Fixed bar path = pure chest work with less stabilizer fatigue.',cues:['Set bench so bar lands at nipple line','Unrack with a twist','Touch chest, press straight up','Great for high-rep pump sets']}},
+  {id:'larsen-press',name:'Larsen Press',muscle:'chest',secondary:['triceps'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Feet off the floor — no leg drive. Pure chest and tris.',cues:['Lie flat, feet up in the air','Brace hard, no arch','Press strict — slow eccentric','Light load, big stimulus']}},
+  {id:'svend-press',name:'Svend Press',muscle:'chest',region:'middle',type:'ISOLATION',equipment:'PLATE',form:{primary:'Plate squeeze + press. Inner chest finisher.',cues:['Two plates squeezed together at chest','Press straight out, squeeze the whole way','Keep tension — never let plates slip','Pump-burn finisher']}},
+  {id:'mach-press',name:'Chest Press Machine',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'MACHINE',form:{primary:'Beginner-safe, easy to overload, low fatigue.',cues:['Handles at mid-chest','Press out without locking out','Squeeze chest at end','Slow eccentric, 2s']}},
+  {id:'deficit-pushup',name:'Deficit Push-Up',muscle:'chest',secondary:['triceps','front-delts'],region:'lower',type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Hands on parallettes or DBs — deeper stretch.',cues:['Hands elevated 5–10cm','Drop chest below hands','Tight core, no hip sag','Drive up explosively']}},
+
+  // Back / Lats
+  {id:'yates-row',name:'Yates Row',muscle:'lats',secondary:['biceps','traps'],region:'thickness',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Upright torso, underhand grip — upper-back thickness.',cues:['Torso ~30°, not parallel','Underhand grip, shoulder-width','Pull to belly button','Heavier loads than strict rows']}},
+  {id:'kroc-row',name:'Kroc Row',muscle:'lats',secondary:['biceps','traps','forearms'],region:'thickness',type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Heavy, high-rep DB rows. Some body english allowed.',cues:['Heavy DB, straps if needed','One hand on bench','Row with hip pop on the last few','Full stretch at the bottom']}},
+  {id:'renegade-row',name:'Renegade Row',muscle:'lats',secondary:['abs','biceps'],region:'thickness',type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Plank + row. Anti-rotation work.',cues:['DBs on floor, plank position','Row one DB to hip','Brace hard — no hip rotation','Alternate sides']}},
+  {id:'trap-bar-dl',name:'Trap Bar Deadlift',muscle:'quads',secondary:['glutes','hamstrings','lats','traps'],region:'knee',type:'COMPOUND',equipment:'BARBELL',form:{primary:'More quad than conventional. Easier on the back.',cues:['Stand inside the trap bar','Handles at sides — neutral grip','Hips back, chest up','Drive through mid-foot, stand tall']}},
+  {id:'sumo-dl',name:'Sumo Deadlift',muscle:'hamstrings',secondary:['glutes','quads','lats'],region:'hip',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Wide stance — less back, more legs.',cues:['Feet wide, toes flared out','Grip inside legs','Knees out, chest up','Push the floor away, squeeze glutes']}},
+  {id:'snatch-dl',name:'Snatch-Grip Deadlift',muscle:'lats',secondary:['traps','hamstrings','glutes'],region:'thickness',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Ultra-wide grip — brutal on upper back and lats.',cues:['Grip as wide as possible (rings or wider)','Chest up, lats engaged','Sub-maximal loads','Builds back size like nothing else']}},
+  {id:'rack-pull',name:'Rack Pull',muscle:'lats',secondary:['traps','glutes','hamstrings'],region:'thickness',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Partial DL from knee height. Heavy back loading.',cues:['Set pins just below the knee','Big air, brace hard','Pull and lock out','Heavier than your DL — go for it']}},
+  {id:'meadows-row-bb',name:'Landmine Row',muscle:'lats',secondary:['biceps','traps'],region:'thickness',type:'COMPOUND',equipment:'BARBELL',form:{primary:'One-arm row with landmine setup. Insane lat stretch.',cues:['Bar in landmine, plate end loaded','Stand square to bar, one hand on knee','Row to hip with the other','Massive stretch at the bottom']}},
+  {id:'straight-arm-pd',name:'Straight-Arm Pulldown',muscle:'lats',region:'width',type:'ISOLATION',equipment:'CABLE',form:{primary:'Pure lat isolation — keep arms straight.',cues:['Cable high, slight bend at hips','Arms straight, pull bar to thighs','Squeeze lats hard at bottom','Slow return — full stretch overhead']}},
+
+  // Traps
+  {id:'cable-shrug',name:'Cable Shrug',muscle:'traps',type:'ISOLATION',equipment:'CABLE',form:{primary:'Cables = constant tension at peak.',cues:['Stand between two low pulleys (or one)','Shrug straight up','Hold 1s at top','Slow return, full stretch']}},
+  {id:'machine-shrug',name:'Machine Shrug',muscle:'traps',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Fixed path, easy to overload.',cues:['Stand tall, handles at sides','Shrug straight up — no rotation','Squeeze for 1s','Controlled descent']}},
+  {id:'snatch-grip-shrug',name:'Snatch-Grip High Pull',muscle:'traps',secondary:['side-delts','rear-delts'],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Explosive trap and upper-back builder.',cues:['Wide snatch grip','Pull explosively to upper chest','Elbows lead, finish high','Reset between reps']}},
+
+  // Front delts
+  {id:'z-press',name:'Z Press',muscle:'front-delts',secondary:['triceps','abs'],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Seated on the floor, legs straight. Brutal strict press.',cues:['Sit on floor, legs out straight','Bar at front rack','Press strict overhead — no leg drive','Tight core, no leaning back']}},
+  {id:'push-press',name:'Push Press',muscle:'front-delts',secondary:['triceps','quads'],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Leg dip + press. Heavier loads than strict OHP.',cues:['Quick quarter-squat dip','Drive bar overhead off the legs','Lock out hard with bar over mid-foot','Reset and repeat']}},
+  {id:'landmine-press',name:'Landmine Press',muscle:'front-delts',secondary:['triceps','chest'],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Shoulder-friendly pressing angle.',cues:['Bar in landmine, plate end up','Half-kneeling or standing','Press up and slightly in','Switch sides each set']}},
+  {id:'plate-raise',name:'Plate Front Raise',muscle:'front-delts',type:'ISOLATION',equipment:'PLATE',form:{primary:'Two-handed plate raise — strict.',cues:['Hold plate at 3 and 9 o\'clock','Raise to eye level','Strict — no swing','Slow eccentric']}},
+
+  // Side delts
+  {id:'machine-lat-raise',name:'Machine Lateral Raise',muscle:'side-delts',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Fixed-path side delt isolation. Easy to overload.',cues:['Pads on outside of upper arm','Drive elbows up and out','Pause 1s at top','Slow eccentric, 3s']}},
+  {id:'leaning-lat',name:'Leaning DB Lateral',muscle:'side-delts',type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Hold a rack, lean away. Killer stretch on the side delt.',cues:['Grab a rack with one hand','Lean away, DB hangs across body','Raise out and up to shoulder height','Pause, slow return']}},
+  {id:'egyptian-lat',name:'Egyptian Lateral Raise',muscle:'side-delts',type:'ISOLATION',equipment:'CABLE',form:{primary:'Cable from opposite side — constant tension.',cues:['Grab cable with far hand','Lean away from stack','Raise to shoulder height','Pure cable tension at the peak']}},
+  {id:'upright-row-cable',name:'Cable Upright Row',muscle:'side-delts',secondary:['traps'],type:'COMPOUND',equipment:'CABLE',form:{primary:'Wide grip, lead with elbows — side delts and traps.',cues:['EZ-bar or rope on low pulley','Grip slightly wider than shoulders','Pull to chest, elbows high','Stop at shoulder height — no higher']}},
+
+  // Rear delts
+  {id:'rev-pec-deck',name:'Reverse Pec Deck',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'MACHINE',form:{primary:'Fixed path = perfect rear delt isolation.',cues:['Chest on pad, arms straight','Pull handles out and back','Squeeze shoulder blades','Slow return']}},
+  {id:'prone-y',name:'Prone Y Raise',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Lie face-down on incline. Light DBs, perfect form.',cues:['Chest on incline bench','Arms in Y position','Raise DBs up, thumbs up','Squeeze rear delts and lower traps']}},
+  {id:'rope-face-pull',name:'High-Cable Rear Delt Fly',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'CABLE',form:{primary:'Cables high, pull rope apart at face level.',cues:['Cables above shoulder height','Step back, slight lean','Pull rope to ears, elbows wide','External rotation at the end']}},
+
+  // Biceps
+  {id:'drag-curl',name:'Drag Curl',muscle:'biceps',type:'ISOLATION',equipment:'BARBELL',form:{primary:'Drag bar up the torso. Removes front delt cheat.',cues:['Elbows travel back as you curl','Bar stays in contact with torso','Strict — no swing','Short ROM, big squeeze']}},
+  {id:'bayesian-curl',name:'Bayesian Cable Curl',muscle:'biceps',type:'ISOLATION',equipment:'CABLE',form:{primary:'Cable from low pulley, arm behind body — max stretch.',cues:['Face away from cable stack','Arm extended behind torso','Curl up, fight the stretch','Slow eccentric — 3s']}},
+  {id:'zottman-curl',name:'Zottman Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Curl up palms-up, rotate, lower palms-down. Forearms bonus.',cues:['DBs at sides, supinated','Curl up to shoulders','Rotate to pronated grip','Slow eccentric — feel the forearm']}},
+  {id:'cross-hammer',name:'Cross-Body Hammer Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Hammer grip, curl across body. Brachialis focus.',cues:['Neutral grip, DBs at sides','Curl across body to opposite shoulder','Alternate arms','Squeeze hard at top']}},
+
+  // Triceps
+  {id:'jm-press',name:'JM Press',muscle:'triceps',secondary:['chest'],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench-skull crusher hybrid. Big tricep mass.',cues:['Grip close, like CGBP','Lower bar to throat with bent elbows','Elbows tucked, bar travels back','Press straight up']}},
+  {id:'tate-press',name:'Tate Press',muscle:'triceps',type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'DB extension lowering to chest. Killer long-head stretch.',cues:['Lie on bench, DBs over chest','Lower DBs by bending elbows out','Elbows flare to sides','Press back up — squeeze tris']}},
+  {id:'reverse-pd',name:'Reverse-Grip Pushdown',muscle:'triceps',type:'ISOLATION',equipment:'CABLE',form:{primary:'Underhand grip — medial head focus.',cues:['Cable with straight bar','Supinated grip','Elbows pinned to sides','Press down strict, hold 1s']}},
+  {id:'db-kickback',name:'DB Tricep Kickback',muscle:'triceps',type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Strict kickback, full extension. Light load.',cues:['Hinge forward, DB at side','Upper arm parallel to floor','Extend at the elbow only','Squeeze tris, 1s at lockout']}},
+
+  // Forearms
+  {id:'pinch-plate',name:'Plate Pinch Hold',muscle:'forearms',type:'ISOLATION',equipment:'PLATE',form:{primary:'Pinch two plates together — pure grip work.',cues:['Smooth sides facing out','Pinch with thumb and fingers','Hold for time — 30s+','Build to 20kg pinch']}},
+  {id:'behind-wrist',name:'Behind-Back Wrist Curl',muscle:'forearms',type:'ISOLATION',equipment:'BARBELL',form:{primary:'Bar behind back. Targets flexors at a deeper angle.',cues:['Bar in hands behind glutes','Let bar roll to fingertips','Curl up using only the wrists','Big stretch, short ROM']}},
+  {id:'cable-wrist-curl',name:'Cable Wrist Curl',muscle:'forearms',type:'ISOLATION',equipment:'CABLE',form:{primary:'Constant tension wrist curl. Pump city.',cues:['Low cable, kneel facing stack','Forearms on bench, palms up','Curl wrists up, full ROM','High reps — 15-25']}},
+
+  // Quads
+  {id:'pendulum-sq',name:'Pendulum Squat',muscle:'quads',secondary:['glutes'],region:'knee',type:'COMPOUND',equipment:'MACHINE',form:{primary:'Quad-focused machine squat. Brutal stimulus, low fatigue.',cues:['Feet low on platform = quad','Brace, full depth','Knees track over toes','Drive up explosively']}},
+  {id:'belt-squat',name:'Belt Squat',muscle:'quads',secondary:['glutes'],region:'knee',type:'COMPOUND',equipment:'MACHINE',form:{primary:'No spinal loading. Pure leg work.',cues:['Belt around hips','Stand on the platforms','Full-depth squat','High volume = no back fatigue']}},
+  {id:'box-squat',name:'Box Squat',muscle:'quads',secondary:['glutes','hamstrings'],region:'knee',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Sit to box, pause, drive up. Posterior chain bias.',cues:['Box at or below parallel','Sit back onto box — relaxed','Brace and drive off the box','No bounce — pause every rep']}},
+  {id:'pistol-sq',name:'Pistol Squat',muscle:'quads',secondary:['glutes','hamstrings'],region:'knee',type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Single-leg squat to floor. Balance + brutal quads.',cues:['Stand on one leg, other leg out front','Sit back and down — slow','Bottom = hamstring on calf','Drive up through the heel']}},
+  {id:'walking-lunge',name:'Walking Lunge',muscle:'quads',secondary:['glutes','hamstrings'],region:'knee',type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Continuous lunges, alternating legs. Brutal pump.',cues:['DBs at sides','Long step forward','Drop back knee toward floor','Push through front heel, step into next']}},
+  {id:'reverse-lunge',name:'Reverse Lunge',muscle:'quads',secondary:['glutes','hamstrings'],region:'knee',type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Step back not forward — less knee stress.',cues:['DBs at sides','Long step backward','Drop back knee to floor','Drive through front heel to stand']}},
+  {id:'cyclist-sq',name:'Cyclist Squat',muscle:'quads',region:'knee',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Heels elevated, close stance — pure quad shred.',cues:['Heels on plates or wedges','Feet close, toes forward','Full depth, knees travel forward','Slow eccentric — 3s']}},
+
+  // Hamstrings
+  {id:'standing-leg-curl',name:'Standing Leg Curl',muscle:'hamstrings',region:'hip',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Unilateral leg curl. Catches imbalances.',cues:['Stand, pad against back of ankle','Curl heel to glute','Squeeze at top, 1s','Slow eccentric, full stretch']}},
+  {id:'ghr',name:'Glute-Ham Raise',muscle:'hamstrings',secondary:['glutes','lower-back'],region:'hip',type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Hardest ham move in the gym.',cues:['Feet locked on GHR','Lower torso slowly','Curl back up using hams','Add weight as you progress']}},
+  {id:'snatch-rdl',name:'Snatch-Grip RDL',muscle:'hamstrings',secondary:['glutes','lats','lower-back'],region:'hip',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Wide grip = bigger ROM, more stretch.',cues:['Snatch-wide grip','Hinge at hips, knees soft','Bar travels close to legs','Stretch to floor or just below knee']}},
+
+  // Glutes
+  {id:'reverse-hyper',name:'Reverse Hyper',muscle:'glutes',secondary:['hamstrings','lower-back'],region:'hip',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Glute and lower-back builder. Spinal decompression bonus.',cues:['Lie face down on the pad','Legs hang straight down','Swing legs up using glutes','Control the descent']}},
+  {id:'hip-abduct',name:'Hip Abductor Machine',muscle:'glutes',region:'hip',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Pure glute medius isolation.',cues:['Knees against outside pads','Press out as far as possible','Squeeze 1s at full abduction','Slow return, full stretch']}},
+  {id:'frog-pump',name:'Frog Pump',muscle:'glutes',region:'hip',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Soles together, knees out — pure glute squeeze.',cues:['Lie on back, soles of feet together','Knees fall out to sides','Drive hips up, squeeze hard','High reps — burn-out finisher']}},
+  {id:'bstance-thrust',name:'B-Stance Hip Thrust',muscle:'glutes',secondary:['hamstrings'],region:'hip',type:'COMPOUND',equipment:'BARBELL',form:{primary:'One foot kickstand — bias one glute at a time.',cues:['One foot flat, other on heel (kickstand)','Drive through the flat foot','Squeeze working glute hard at top','Switch sides each set']}},
+
+  // Calves
+  {id:'smith-calf',name:'Smith Machine Calf Raise',muscle:'calves',region:'calves',type:'ISOLATION',equipment:'MACHINE',form:{primary:'Smith stability = max load on the calves.',cues:['Toes on plate, heels off','Bar across upper traps','Full stretch down, rise on toes','Pause 1s at top']}},
+  {id:'sl-calf',name:'Single-Leg Calf Raise',muscle:'calves',region:'calves',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Bodyweight, full ROM. Add a DB when ready.',cues:['Stand on a plate or step','One foot, free leg crossed behind','Full stretch below, rise high','High reps — 15-25 per side']}},
+  {id:'tib-raise',name:'Tibialis Raise',muscle:'calves',region:'calves',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Front of shin. Bulletproofs ankles and knees.',cues:['Back against wall, heels close to wall','Lift toes up toward shins','Hold 1s at top','High reps — 20+']}},
+
+  // Abs
+  {id:'bicycle-crunch',name:'Bicycle Crunch',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Obliques and rectus together. Slow tempo.',cues:['Lie on back, hands behind head','Alternate elbow to opposite knee','Slow — 2s per side','Tight rotation, no neck pull']}},
+  {id:'dragon-flag',name:'Dragon Flag',muscle:'abs',type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Bruce Lee\'s move. Hardest bodyweight abs.',cues:['Hold bench above head','Body straight, lift legs and torso','Lower slowly — fight gravity','Negatives first, build to full reps']}},
+  {id:'hollow-body',name:'Hollow Body Hold',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Low back pinned, arms and legs off floor.',cues:['Lower back glued to floor','Arms overhead, legs straight out','Hold for time — 20-60s','Breathe through it']}},
+  {id:'v-up',name:'V-Up',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Touch toes mid-air. Full rectus.',cues:['Lie flat, arms overhead','Lift legs and torso to meet','Touch hands to feet','Slow return — no momentum']}},
+  {id:'woodchopper',name:'Cable Woodchopper',muscle:'abs',type:'ISOLATION',equipment:'CABLE',form:{primary:'Rotational core power.',cues:['Cable high, rope or D-handle','Stand sideways to stack','Pull diagonally across body to opposite hip','Rotate hips and core together']}},
+  {id:'pallof-press',name:'Pallof Press',muscle:'abs',type:'ISOLATION',equipment:'CABLE',form:{primary:'Anti-rotation. Press out, resist the pull.',cues:['Cable at chest height, sideways stance','Hands clasped, press straight out','Hold 2s — resist rotation','Slow return, switch sides']}},
+  {id:'l-sit',name:'L-Sit Hold',muscle:'abs',secondary:['triceps'],type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Parallettes or dip bars. Legs out, hold for time.',cues:['Push down hard, lock shoulders','Legs straight out, parallel to floor','Hold for max time','Build to 30s+']}},
+
+  // Lower back
+  {id:'jefferson-curl',name:'Jefferson Curl',muscle:'lower-back',secondary:['hamstrings'],type:'ISOLATION',equipment:'BARBELL',form:{primary:'Slow segmental flexion. Spinal mobility + strength.',cues:['Stand on a box, light bar','Round down vertebra by vertebra','Light load — start with 10-20kg','Slow up and down — 5s each way']}},
 ];
 
 const MUSCLE_NAMES={'chest':'Chest','lats':'Lats','traps':'Traps','front-delts':'Front Delts','side-delts':'Side Delts','rear-delts':'Rear Delts','biceps':'Biceps','triceps':'Triceps','forearms':'Forearms','abs':'Abs','quads':'Quads','hamstrings':'Hamstrings','glutes':'Glutes','lower-back':'Lower Back','calves':'Calves'};
@@ -2089,7 +2279,177 @@ function syncTodayToSchedule(){
   if(!day)return;
   day.exercises=state.today.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null}));
 }
-function save(){try{localStorage.setItem('dumbass_state',JSON.stringify(state));}catch(e){}}
+function save(){
+  try{localStorage.setItem('dumbass_state',JSON.stringify(state));}catch(e){}
+  cloudPushDebounced();
+}
+
+// === CLOUD SYNC GLUE ===
+// syncCode and deviceId live OUTSIDE state, so they're never overwritten by remote pulls.
+function getSyncCode(){return localStorage.getItem('dumbass_sync_code')||'';}
+function setSyncCode(c){c?localStorage.setItem('dumbass_sync_code',c):localStorage.removeItem('dumbass_sync_code');}
+function getDeviceId(){
+  let d=localStorage.getItem('dumbass_device_id');
+  if(!d){d='d-'+Math.random().toString(36).slice(2,10);localStorage.setItem('dumbass_device_id',d);}
+  return d;
+}
+function _genSyncCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I
+  let s='';for(let i=0;i<8;i++)s+=chars[Math.floor(Math.random()*chars.length)];
+  return s.slice(0,4)+'-'+s.slice(4);
+}
+let _cloudPushTimer=null, _suppressCloudPush=false, _lastCloudPushAt=0;
+function cloudPushDebounced(){
+  if(_suppressCloudPush)return;
+  const code=getSyncCode();
+  if(!code||!window.__sync)return;
+  clearTimeout(_cloudPushTimer);
+  _cloudPushTimer=setTimeout(()=>{
+    window.__sync.push(code, state).then(()=>{
+      _lastCloudPushAt=Date.now();
+      const lbl=document.getElementById('sync-last');
+      if(lbl)lbl.textContent='Last sync · just now';
+    }).catch(()=>{});
+  }, 1500);
+}
+function _adoptRemoteState(remoteState){
+  _suppressCloudPush=true;
+  try{
+    state=remoteState;
+    try{localStorage.setItem('dumbass_state',JSON.stringify(state));}catch(e){}
+    loadDay(state.currentDayIdx||0);
+    renderToday&&renderToday();
+  }finally{
+    _suppressCloudPush=false;
+  }
+}
+async function cloudInitOnLoad(){
+  const code=getSyncCode();
+  if(!code||!window.__sync)return;
+  // Pull first — but DON'T blow away local if remote is empty or fails.
+  try{
+    const remote=await window.__sync.pull(code);
+    if(remote&&remote.state){
+      const remoteHistoryLen=(remote.state.history||[]).length;
+      const localHistoryLen=(state.history||[]).length;
+      // Take remote if it's from a different device AND has substance
+      if(remote.deviceId&&remote.deviceId!==getDeviceId()){
+        if(remoteHistoryLen>0||localHistoryLen===0){
+          snapshotBackup&&snapshotBackup();
+          _adoptRemoteState(remote.state);
+        }
+      }
+    }
+  }catch(e){}
+  window.__sync.subscribe(code, (remoteState, meta)=>{
+    if(!remoteState)return;
+    if(meta&&meta.deviceId===getDeviceId())return;
+    _adoptRemoteState(remoteState);
+    toast('Synced from cloud');
+  });
+}
+
+function renderSyncCard(){
+  const code=getSyncCode();
+  const card=document.getElementById('sync-card');
+  const body=document.getElementById('sync-body');
+  if(!card||!body)return;
+  if(!code){
+    card.classList.remove('on');
+    body.innerHTML=`
+      <div class="sync-status">OFF · This device is local-only</div>
+      <p class="sync-hint" style="margin:0 0 12px">Turn on to mirror lifts between phone and web. Free, no login.</p>
+      <button class="btn-primary" style="width:100%" onclick="openSyncSetup()">SET UP SYNC</button>
+    `;
+    return;
+  }
+  card.classList.add('on');
+  const last=_lastCloudPushAt?fmtAgo(Date.now()-_lastCloudPushAt):'pending first push…';
+  body.innerHTML=`
+    <div class="sync-status on">ON · Phone ↔ Web mirrored</div>
+    <div class="sync-code-row">
+      <div class="sync-code" id="sync-code-display">${code}</div>
+      <button class="sync-copy" onclick="copySyncCode()">COPY</button>
+    </div>
+    <div class="sync-last" id="sync-last">Last sync · ${last}</div>
+    <p class="sync-hint">Open this app on another device → tap SET UP SYNC → I HAVE A CODE → paste this code.</p>
+    <div class="sync-actions">
+      <button class="btn-ghost" onclick="disconnectSync()" style="color:var(--red);flex:1">DISCONNECT</button>
+    </div>
+  `;
+}
+function fmtAgo(ms){
+  if(ms<60000)return 'just now';
+  if(ms<3600000)return Math.floor(ms/60000)+' min ago';
+  if(ms<86400000)return Math.floor(ms/3600000)+' h ago';
+  return Math.floor(ms/86400000)+' d ago';
+}
+
+function openSyncSetup(){
+  document.getElementById('sync-setup-step1').style.display='';
+  document.getElementById('sync-setup-step2').style.display='none';
+  document.getElementById('sync-setup-modal').classList.add('open');
+}
+function closeSyncSetup(){document.getElementById('sync-setup-modal').classList.remove('open');}
+function syncSetupShowCodeEntry(){
+  document.getElementById('sync-setup-step1').style.display='none';
+  document.getElementById('sync-setup-step2').style.display='';
+  setTimeout(()=>{const i=document.getElementById('sync-code-input');if(i)i.focus();},80);
+}
+function syncSetupBackToStep1(){
+  document.getElementById('sync-setup-step1').style.display='';
+  document.getElementById('sync-setup-step2').style.display='none';
+}
+async function syncSetupAsPrimary(){
+  if(!window.__sync){toast('Sync not loaded yet');return;}
+  const code=_genSyncCode();
+  setSyncCode(code);
+  try{
+    await window.__sync.push(code, state);
+    _lastCloudPushAt=Date.now();
+    toast('Sync code generated');
+  }catch(e){toast('Cloud reach failed — try again');setSyncCode('');return;}
+  closeSyncSetup();
+  renderSyncCard();
+  window.__sync.subscribe(code,(remoteState,meta)=>{
+    if(meta&&meta.deviceId===getDeviceId())return;
+    _adoptRemoteState(remoteState);
+    toast('Synced from cloud');
+  });
+}
+async function syncPullByCode(){
+  if(!window.__sync){toast('Sync not loaded yet');return;}
+  const raw=(document.getElementById('sync-code-input').value||'').trim().toUpperCase();
+  const code=raw.length===8?raw.slice(0,4)+'-'+raw.slice(4):raw;
+  if(!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)){toast('Code format XXXX-XXXX');return;}
+  let remote=null;
+  try{remote=await window.__sync.pull(code);}catch(e){toast('Cloud reach failed');return;}
+  if(!remote||!remote.state){toast('No data found for that code');return;}
+  if(!confirm('Replace this device\'s data with cloud data? Local data will be backed up first.'))return;
+  snapshotBackup&&snapshotBackup();
+  setSyncCode(code);
+  _adoptRemoteState(remote.state);
+  _lastCloudPushAt=Date.now();
+  closeSyncSetup();
+  renderSyncCard();
+  toast('Pulled from cloud');
+  window.__sync.subscribe(code,(remoteState,meta)=>{
+    if(meta&&meta.deviceId===getDeviceId())return;
+    _adoptRemoteState(remoteState);
+    toast('Synced from cloud');
+  });
+}
+function copySyncCode(){
+  const code=getSyncCode();if(!code)return;
+  try{navigator.clipboard.writeText(code);toast('Code copied');}catch(e){toast(code);}
+}
+function disconnectSync(){
+  if(!confirm('Disconnect cloud sync? This device keeps its data; cloud copy stays for other devices using the code.'))return;
+  if(window.__sync)window.__sync.unsubscribe();
+  setSyncCode('');
+  renderSyncCard();
+  toast('Disconnected');
+}
 
 // ============================================================
 // DATA-SAFETY POLICY
@@ -2493,6 +2853,34 @@ function computeWeeklySets(){
   return counts;
 }
 
+// Actually-completed sets across the last N days. Mirrors the planned-vs-actual
+// math: primary muscle 1×, secondary 0.5×, count only completedSets that weren't skipped.
+function computeActualSetsSince(days){
+  const counts={};
+  const since=Date.now()-days*86400000;
+  (state.history||[]).forEach(h=>{
+    if(!h||!h.date)return;
+    const t=Date.parse(h.date);
+    if(isNaN(t)||t<since)return;
+    (h.exercises||[]).forEach(ex=>{
+      if(ex.skipped)return;
+      const lib=getLibrary().find(l=>l.id===ex.libId);
+      if(!lib)return;
+      const sets=parseInt(ex.completedSets)||0;
+      if(sets<=0)return;
+      counts[lib.muscle]=(counts[lib.muscle]||0)+sets;
+      if(Array.isArray(lib.secondary)){
+        lib.secondary.forEach(s=>{counts[s]=(counts[s]||0)+sets*0.5;});
+      }
+    });
+  });
+  return counts;
+}
+function countSessionsSince(days){
+  const since=Date.now()-days*86400000;
+  return (state.history||[]).filter(h=>h&&h.date&&!isNaN(Date.parse(h.date))&&Date.parse(h.date)>=since&&!h.partial).length;
+}
+
 function fmtSets(n){return Number.isInteger(n)?String(n):n.toFixed(1).replace(/\.0$/,'');}
 
 function computeRegionBreakdown(muscleKeys){
@@ -2613,6 +3001,9 @@ function renderVolume(){
     <div class="stat over${volumeStatusFilter==='over'?' active':''}" onclick="setVolumeStatusFilter('over')"><div class="l">Over the line</div><div class="v">${over}</div></div>
   `;
 
+  // Past-week actual vs planned — did you slack off?
+  renderPastWeekActuals(order, counts);
+
   let breakdownHtml='';
   if(grp&&grp.breakdown&&grp.muscles&&volumeStatusFilter==='all'){
     const totals=computeRegionBreakdown(grp.muscles);
@@ -2631,6 +3022,52 @@ function renderVolume(){
 
   const emptyHtml=cards?'':`<div class="vol-empty">No muscles match this filter</div>`;
   document.getElementById('volume-list').innerHTML=breakdownHtml+cards+emptyHtml;
+}
+
+function renderPastWeekActuals(order, plannedCounts){
+  const el=document.getElementById('volume-actuals');
+  if(!el)return;
+  const sessions=countSessionsSince(7);
+  if(sessions===0){
+    el.className='vol-actuals empty';
+    el.innerHTML=`<div class="va-head"><div class="va-title">PAST 7 DAYS — DID YOU SHOW UP?</div></div><div class="va-empty">No completed sessions yet · log a workout to start tracking</div>`;
+    return;
+  }
+  el.className='vol-actuals';
+  const actual=computeActualSetsSince(7);
+  const muscles=order&&order.length?order:Object.keys(plannedCounts);
+  let totalPlan=0,totalAct=0,shown=0;
+  const rows=muscles.map(m=>{
+    const plan=plannedCounts[m]||0;
+    const act=actual[m]||0;
+    if(plan===0&&act===0)return '';
+    shown++;
+    totalPlan+=plan; totalAct+=act;
+    const pct=plan>0?Math.round((act/plan)*100):(act>0?999:0);
+    const cls=plan===0?'gray':(pct>=95?'green':pct>=70?'amber':'red');
+    const barPct=Math.min(100,Math.round(plan>0?(act/plan)*100:0));
+    const pctLabel=plan===0?'bonus':(pct+'%');
+    return `<div class="va-row ${cls}">
+      <div class="va-label">${MUSCLE_NAMES[m]||m}</div>
+      <div class="va-bar"><div class="va-fill" style="width:${barPct}%"></div></div>
+      <div class="va-stat">${fmtSets(act)}<span class="planned"> / ${fmtSets(plan)}</span><span class="unit">sets</span></div>
+      <div class="va-pct">${pctLabel}</div>
+    </div>`;
+  }).join('');
+  const overall=totalPlan>0?Math.round((totalAct/totalPlan)*100):0;
+  const grade=overall>=95?'green':overall>=70?'amber':'red';
+  const verdict=overall>=95?'ON IT':overall>=70?'BEHIND':'SLACKING';
+  el.innerHTML=`
+    <div class="va-head">
+      <div class="va-title">PAST 7 DAYS — DID YOU SHOW UP?</div>
+      <div class="va-sub">${sessions} session${sessions===1?'':'s'}</div>
+    </div>
+    ${rows||'<div class="va-empty">No tracked muscles for this filter</div>'}
+    <div class="va-roll">
+      <div class="va-total">OVERALL ${fmtSets(totalAct)}/${fmtSets(totalPlan)} sets</div>
+      <div class="va-grade ${grade}">${overall}% · ${verdict}</div>
+    </div>
+  `;
 }
 
 function switchToDay(idx){loadDay(idx);showView('today');}
@@ -2667,7 +3104,8 @@ function renderToday(){
   const currentIdx=exs.findIndex(e=>!e.done);
   document.getElementById('exercise-list').innerHTML=exs.map((ex,i)=>{
     let cls='exercise';
-    if(ex.done)cls+=' done';
+    if(ex.skipped)cls+=' skipped';
+    else if(ex.done)cls+=' done';
     else if(i===currentIdx)cls+=' current';
     if(ex.primary)cls+=' primary';
     if(ex.tag==='WARM-UP')cls+=' warmup';
@@ -2678,16 +3116,18 @@ function renderToday(){
       const filled=d<ex.completedSets;
       dotsHtml+=`<span class="set-dot${filled?' filled':''}" onclick="event.stopPropagation();toggleSet(${i},${d})" title="Set ${d+1}"></span>`;
     }
-    return `<div class="${cls}">
+    const metaInner=ex.skipped
+      ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
+      : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>
+          <span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span>
+          <span class="ex-count">${ex.completedSets}/${ex.targetSets}</span>
+          ${topInfo}`;
+    return `<div class="${cls}" data-ex-idx="${i}">
+      <div class="ex-grip" title="Hold to drag · tap to open"></div>
       <div class="ex-check" onclick="event.stopPropagation();openExercise(${i})"></div>
       <div class="ex-info" onclick="openExercise(${i})">
         <div class="ex-name">${ex.name}</div>
-        <div class="ex-meta">
-          <span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>
-          <span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span>
-          <span class="ex-count">${ex.completedSets}/${ex.targetSets}</span>
-          ${topInfo}
-        </div>
+        <div class="ex-meta">${metaInner}</div>
       </div>
       <button class="ex-edit" onclick="event.stopPropagation();toggleSetsEdit(${i})" title="Edit sets / reps">✎</button>
       <button class="ex-remove" onclick="event.stopPropagation();removeExAt(${i})" title="Remove">×</button>
@@ -2900,6 +3340,38 @@ function copyFromLast(){
 }
 
 function deleteCurrentEx(){if(!confirm('Remove exercise?'))return;state.today.exercises.splice(state.currentExerciseIdx,1);syncTodayToSchedule();save();renderToday();showView('today');}
+
+// Skip — when the user is short on time. Marks done but distinct from completed.
+function skipExerciseAt(i){
+  const ex=state.today&&state.today.exercises&&state.today.exercises[i];
+  if(!ex)return;
+  ex.skipped=true;
+  ex.done=true;
+  ex.completedSets=0;
+  ex.topSet={kg:'',reps:''};
+  syncTodayToSchedule();
+  save();
+  renderToday();
+  toast(`Skipped ${ex.name}`);
+}
+function skipCurrentEx(){
+  const i=state.currentExerciseIdx;
+  if(i==null)return;
+  const ex=state.today.exercises[i];
+  if(!ex)return;
+  if(!confirm(`Skip ${ex.name}? It'll be marked as skipped (no sets logged).`))return;
+  skipExerciseAt(i);
+  showView('today');
+}
+function unskipExerciseAt(i){
+  const ex=state.today&&state.today.exercises&&state.today.exercises[i];
+  if(!ex)return;
+  ex.skipped=false;
+  ex.done=false;
+  syncTodayToSchedule();
+  save();
+  renderToday();
+}
 
 function removeExAt(i){const ex=state.today.exercises[i];if(!ex)return;if(!confirm(`Remove ${ex.name}?`))return;state.today.exercises.splice(i,1);syncTodayToSchedule();save();renderToday();}
 
@@ -3814,6 +4286,7 @@ function renderProfile(){
   }
   const status=document.getElementById('ds-status');
   if(status)status.textContent=backupStatusText();
+  renderSyncCard();
 }
 
 function saveProfileName(val){
@@ -3858,6 +4331,10 @@ else document.getElementById('intro').classList.add('hidden');
 document.getElementById('avatar-btn').textContent=avatarInitial();
 renderToday();
 
+// Cloud sync kicks in after Firebase module reports ready. Will pull-on-load if syncCode is set.
+window.addEventListener('dumbass:sync-ready',()=>{cloudInitOnLoad();});
+if(window.__sync)cloudInitOnLoad();
+
 // === LAN LIVE-RELOAD === only on local network, harmless elsewhere
 (function(){
   const h=location.hostname;
@@ -3878,6 +4355,210 @@ renderToday();
     }catch(e){}
   },3000);
 })();
+
+// ============================================================
+// LONG-PRESS DRAG-TO-REORDER for #exercise-list
+// Hold any exercise card ~350ms then swipe up/down to reorder.
+// Touch + mouse via pointer events. Phone-first.
+// ============================================================
+(function(){
+  const HOLD_MS=350, MOVE_CANCEL_PX=8;
+  let pointerId=null, holdTimer=null, dragCard=null, list=null,
+      startY=0, startX=0, startIdx=-1, currentIdx=-1, dragOffsetY=0,
+      cardHeight=0, hintEl=null, suppressClickUntil=0;
+
+  function showHint(msg){
+    if(!hintEl){hintEl=document.createElement('div');hintEl.className='reorder-hint';document.body.appendChild(hintEl);}
+    hintEl.textContent=msg;
+    requestAnimationFrame(()=>hintEl.classList.add('show'));
+  }
+  function hideHint(){if(hintEl)hintEl.classList.remove('show');}
+
+  function cardIdxFromCenter(y){
+    // Find which card's vertical center is closest to y, ignoring the dragging card
+    const cards=Array.from(list.querySelectorAll('.exercise'));
+    let best=startIdx, bestDist=Infinity;
+    for(let i=0;i<cards.length;i++){
+      if(cards[i]===dragCard)continue;
+      const r=cards[i].getBoundingClientRect();
+      const mid=r.top+r.height/2;
+      const d=Math.abs(mid-y);
+      if(d<bestDist){bestDist=d; best=i;}
+    }
+    return best;
+  }
+
+  function applyShifts(){
+    // Visually shift cards to make room for the dragging card at currentIdx.
+    const cards=Array.from(list.querySelectorAll('.exercise'));
+    cards.forEach((c,i)=>{
+      if(c===dragCard)return;
+      let shift=0;
+      if(startIdx<currentIdx && i>startIdx && i<=currentIdx)shift=-cardHeight;
+      else if(startIdx>currentIdx && i>=currentIdx && i<startIdx)shift=cardHeight;
+      c.style.transform=`translateY(${shift}px)`;
+    });
+  }
+  function clearShifts(){
+    if(!list)return;
+    Array.from(list.querySelectorAll('.exercise')).forEach(c=>{c.style.transform='';});
+  }
+
+  function onPointerDown(e){
+    if(e.button!=null && e.button!==0)return;
+    const card=e.target.closest('.exercise');
+    if(!card)return;
+    const parent=card.parentElement;
+    if(!parent||parent.id!=='exercise-list')return;
+    // Don't initiate drag from interactive bits
+    if(e.target.closest('.ex-edit, .ex-remove, .ex-unskip, .set-dot, .ex-check, .ex-skipped-badge'))return;
+    if(card.classList.contains('skipped'))return; // skipping skipped cards — they're done
+
+    list=parent;
+    dragCard=card;
+    startY=e.clientY; startX=e.clientX;
+    pointerId=e.pointerId;
+    const cards=Array.from(list.querySelectorAll('.exercise'));
+    startIdx=cards.indexOf(card);
+    currentIdx=startIdx;
+
+    holdTimer=setTimeout(()=>{
+      // Begin drag
+      holdTimer=null;
+      const rect=card.getBoundingClientRect();
+      cardHeight=rect.height+8; // include margin
+      dragOffsetY=startY-rect.top-rect.height/2;
+      card.classList.add('dragging');
+      list.classList.add('reorder-on');
+      try{card.setPointerCapture(pointerId);}catch(e){}
+      if(navigator.vibrate)try{navigator.vibrate(15);}catch(e){}
+      showHint('Drop to reorder');
+    }, HOLD_MS);
+  }
+
+  function onPointerMove(e){
+    if(!dragCard && holdTimer==null)return;
+    if(holdTimer){
+      // Still in hold-detection window — cancel if user moved (it's a scroll)
+      if(Math.abs(e.clientY-startY)>MOVE_CANCEL_PX || Math.abs(e.clientX-startX)>MOVE_CANCEL_PX){
+        clearTimeout(holdTimer); holdTimer=null;
+        list=null; dragCard=null;
+      }
+      return;
+    }
+    if(!dragCard)return;
+    // Real drag in progress
+    e.preventDefault();
+    const dy=e.clientY-startY;
+    dragCard.style.transform=`translateY(${dy}px) scale(1.02)`;
+    const newIdx=cardIdxFromCenter(e.clientY);
+    if(newIdx!==currentIdx){
+      currentIdx=newIdx;
+      applyShifts();
+    }
+  }
+
+  function onPointerUp(e){
+    if(holdTimer){clearTimeout(holdTimer);holdTimer=null;dragCard=null;list=null;return;}
+    if(!dragCard)return;
+    suppressClickUntil=Date.now()+250;
+    const card=dragCard, fromIdx=startIdx, toIdx=currentIdx;
+    try{card.releasePointerCapture(pointerId);}catch(e){}
+    card.classList.remove('dragging');
+    card.style.transform='';
+    clearShifts();
+    if(list)list.classList.remove('reorder-on');
+    hideHint();
+    dragCard=null; list=null; pointerId=null;
+    if(fromIdx!==toIdx && state.today && state.today.exercises){
+      const arr=state.today.exercises;
+      const [moved]=arr.splice(fromIdx,1);
+      arr.splice(toIdx,0,moved);
+      syncTodayToSchedule();
+      save();
+      renderToday();
+      toast(`Moved to #${toIdx+1}`);
+    }
+  }
+
+  function onClickCapture(e){
+    if(Date.now()<suppressClickUntil){e.stopPropagation();e.preventDefault();}
+  }
+
+  document.addEventListener('pointerdown', onPointerDown, true);
+  document.addEventListener('pointermove', onPointerMove, {passive:false});
+  document.addEventListener('pointerup', onPointerUp, true);
+  document.addEventListener('pointercancel', onPointerUp, true);
+  document.addEventListener('click', onClickCapture, true);
+})();
+</script>
+
+<!-- ============================================================
+     CLOUD SYNC · Firebase Firestore (single doc per sync code).
+     Reuses the legacy poengliste-17mai-jacob project — now repurposed
+     for DUMBASS LIFT. Rules are open read/write; security comes from
+     the 8-char sync code (32^8 ≈ trillion combinations).
+============================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD8cBJlSucIESwRYruh55u15xX21YEMbyM",
+  authDomain: "poengliste-17mai-jacob.firebaseapp.com",
+  projectId: "poengliste-17mai-jacob",
+  storageBucket: "poengliste-17mai-jacob.firebasestorage.app",
+  messagingSenderId: "941172987533",
+  appId: "1:941172987533:web:dca8398f89afa9e59fb4c4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const COLLECTION = "dumbass-lift";
+let unsub = null;
+
+function getDeviceIdLocal(){
+  let d=localStorage.getItem('dumbass_device_id');
+  if(!d){d='d-'+Math.random().toString(36).slice(2,10);localStorage.setItem('dumbass_device_id',d);}
+  return d;
+}
+function refOf(code){ return doc(db, COLLECTION, code); }
+
+async function push(code, stateObj){
+  if(!code)return;
+  const payload = {
+    state: JSON.stringify(stateObj),
+    deviceId: getDeviceIdLocal(),
+    updatedAt: serverTimestamp(),
+    clientTime: Date.now()
+  };
+  await setDoc(refOf(code), payload);
+}
+async function pull(code){
+  const snap = await getDoc(refOf(code));
+  if(!snap.exists())return null;
+  const data = snap.data();
+  let parsed=null;
+  try{ parsed = JSON.parse(data.state); }catch(e){ return null; }
+  return { state: parsed, deviceId: data.deviceId||'', clientTime: data.clientTime||0 };
+}
+function subscribe(code, cb){
+  if(unsub){try{unsub();}catch(e){}unsub=null;}
+  unsub = onSnapshot(refOf(code), snap=>{
+    if(!snap.exists())return;
+    const data = snap.data();
+    let parsed=null;
+    try{ parsed = JSON.parse(data.state); }catch(e){ return; }
+    cb(parsed, { deviceId: data.deviceId||'', clientTime: data.clientTime||0 });
+  }, err=>{
+    console.warn('[sync] subscribe error', err);
+  });
+}
+function unsubscribe(){ if(unsub){try{unsub();}catch(e){}unsub=null;} }
+
+window.__sync = { push, pull, subscribe, unsubscribe, getDeviceId: getDeviceIdLocal };
+window.dispatchEvent(new Event('dumbass:sync-ready'));
 </script>
 </body>
 </html>
