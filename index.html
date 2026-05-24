@@ -2505,8 +2505,9 @@ async function submitLogin(){
   }catch(e){
     if(err)err.textContent=window.__auth.mapError(e);
   }finally{
-    if(btn){btn.disabled=false;}
-    syncLoginRender();
+    // Re-enable the button WITHOUT calling syncLoginRender() — that would wipe
+    // the error message we just set, making failures look like "nothing happened".
+    if(btn){btn.disabled=false;btn.textContent=(_loginMode==='signup'?'CREATE ACCOUNT':'LOG IN');}
   }
 }
 async function doLogout(){
