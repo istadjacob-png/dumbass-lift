@@ -1242,27 +1242,15 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   </div>
 </div>
 
-<div class="modal-bg" id="sync-setup-modal" onclick="if(event.target.id==='sync-setup-modal')closeSyncSetup()">
-  <div class="modal">
-    <h2>CLOUD <span class="accent">SYNC</span></h2>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Use DUMBASS on phone AND web. Your phone stays the source of truth.</div>
-
-    <div id="sync-setup-step1">
-      <button class="btn-primary" style="margin-bottom:10px" onclick="syncSetupAsPrimary()">FIRST DEVICE · GENERATE CODE</button>
-      <p class="sync-hint" style="margin:0 0 14px">Tap this on the device where your data already lives (phone). It uploads your current lifts and shows a sync code.</p>
-      <button class="btn-secondary" style="width:100%" onclick="syncSetupShowCodeEntry()">I HAVE A CODE → PULL FROM CLOUD</button>
-      <p class="sync-hint" style="margin:10px 0 0">Use this on the second device (web). It downloads from cloud and replaces local data.</p>
-    </div>
-
-    <div id="sync-setup-step2" style="display:none">
-      <label class="sb-label">Enter sync code</label>
-      <input class="sync-modal-input" id="sync-code-input" maxlength="9" placeholder="XXXX-XXXX" autocomplete="off">
-      <p class="sync-hint" style="text-align:center;margin:0 0 14px">Replaces local data with cloud data. Cannot be undone (an auto-backup is taken first).</p>
-      <div class="sb-footer">
-        <button class="btn-ghost" onclick="syncSetupBackToStep1()" style="color:var(--text-dim)">BACK</button>
-        <button class="btn-primary" onclick="syncPullByCode()" style="flex:1">PULL FROM CLOUD</button>
-      </div>
-    </div>
+<div class="modal-bg" id="login-modal" onclick="if(event.target.id==='login-modal')closeLogin()">
+  <div class="modal login-modal-content">
+    <h2 id="login-title">LOG <span class="accent">IN</span></h2>
+    <div class="sub-text" id="login-sub">Welcome back. Your lifts load from the cloud.</div>
+    <input id="login-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="email" style="width:100%;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text);margin-bottom:10px">
+    <input id="login-pw" type="password" autocomplete="current-password" placeholder="password" style="width:100%;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text);margin-bottom:10px" onkeydown="if(event.key==='Enter')submitLogin()">
+    <div id="login-error" style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.4;margin-bottom:10px;min-height:14px"></div>
+    <button class="btn-primary" id="login-submit" onclick="submitLogin()" style="width:100%">LOG IN</button>
+    <button class="btn-ghost" id="login-toggle" onclick="toggleLoginMode()" style="width:100%;color:var(--text-dim);margin-top:12px;font-weight:500;letter-spacing:.04em;text-transform:none">New here? <b>Create an account</b></button>
   </div>
 </div>
 
@@ -2306,35 +2294,36 @@ function syncTodayToSchedule(){
   day.exercises=state.today.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null}));
 }
 function save(){
+  if(!_suppressCloudPush)state._lastModified=Date.now();
   try{localStorage.setItem('dumbass_state',JSON.stringify(state));}catch(e){}
   cloudPushDebounced();
 }
 
-// === CLOUD SYNC GLUE ===
-// syncCode and deviceId live OUTSIDE state, so they're never overwritten by remote pulls.
-function getSyncCode(){return localStorage.getItem('dumbass_sync_code')||'';}
-function setSyncCode(c){c?localStorage.setItem('dumbass_sync_code',c):localStorage.removeItem('dumbass_sync_code');}
+// ============================================================
+// ACCOUNT SYNC (email + password via Firebase Auth)
+// One login per device. Data lives at dumbass-lift/{uid} and mirrors
+// automatically. deviceId (separate from the account) prevents echo loops.
+// ============================================================
 function getDeviceId(){
   let d=localStorage.getItem('dumbass_device_id');
   if(!d){d='d-'+Math.random().toString(36).slice(2,10);localStorage.setItem('dumbass_device_id',d);}
   return d;
 }
-function _genSyncCode(){
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I
-  let s='';for(let i=0;i<8;i++)s+=chars[Math.floor(Math.random()*chars.length)];
-  return s.slice(0,4)+'-'+s.slice(4);
-}
+let _authUser=null;                 // the signed-in Firebase user (or null)
 let _cloudPushTimer=null, _suppressCloudPush=false, _lastCloudPushAt=0;
+
+function currentUid(){ return _authUser ? _authUser.uid : ''; }
+function currentEmail(){ return _authUser ? (_authUser.email||'') : ''; }
+
 function cloudPushDebounced(){
   if(_suppressCloudPush)return;
-  const code=getSyncCode();
-  if(!code||!window.__sync)return;
+  const uid=currentUid();
+  if(!uid||!window.__sync)return;
   clearTimeout(_cloudPushTimer);
   _cloudPushTimer=setTimeout(()=>{
-    window.__sync.push(code, state).then(()=>{
+    window.__sync.push(uid, state).then(()=>{
       _lastCloudPushAt=Date.now();
-      const lbl=document.getElementById('sync-last');
-      if(lbl)lbl.textContent='Last sync · just now';
+      renderSyncBanner();
     }).catch(()=>{});
   }, 1500);
 }
@@ -2349,80 +2338,62 @@ function _adoptRemoteState(remoteState){
     _suppressCloudPush=false;
   }
 }
-async function cloudInitOnLoad(){
-  const code=getSyncCode();
-  if(!code||!window.__sync)return;
-  // Pull first — but DON'T blow away local if remote is empty or fails.
+
+// Called by the Firebase auth-state listener whenever login/logout happens.
+async function onAuthChanged(user){
+  _authUser = user || null;
+  if(!user){
+    if(window.__sync)window.__sync.unsubscribe();
+    renderSyncBanner(); renderSyncCard();
+    return;
+  }
+  const uid = user.uid;
+  // Decide whether to adopt the account's data or seed it from this device.
+  // The newer side wins (last-modified timestamp), so a reload never clobbers
+  // unsynced local sets, and a second device picks up the first device's work.
   try{
-    const remote=await window.__sync.pull(code);
-    if(remote&&remote.state){
-      const remoteHistoryLen=(remote.state.history||[]).length;
-      const localHistoryLen=(state.history||[]).length;
-      // Take remote if it's from a different device AND has substance
-      if(remote.deviceId&&remote.deviceId!==getDeviceId()){
-        if(remoteHistoryLen>0||localHistoryLen===0){
-          snapshotBackup&&snapshotBackup();
-          _adoptRemoteState(remote.state);
-        }
-      }
+    const remote = await window.__sync.pull(uid);
+    const remoteState = remote && remote.state;
+    const remoteMod = remoteState ? (remoteState._lastModified||0) : -1;
+    const localMod  = state._lastModified||0;
+    const remoteHas = remoteState && ((remoteState.history||[]).length>0 || remoteMod>0);
+    const localHas  = (state.history||[]).length>0;
+    if(remoteHas && remoteMod>=localMod){
+      // Cloud is newer (or equal) — adopt it. Back up local first.
+      snapshotBackup&&snapshotBackup();
+      _adoptRemoteState(remoteState);
+      _lastCloudPushAt=Date.now();
+    } else if(localHas || !remoteHas){
+      // Local is ahead, or the account is empty — seed/refresh the cloud.
+      await window.__sync.push(uid, state);
+      _lastCloudPushAt=Date.now();
     }
-  }catch(e){}
-  window.__sync.subscribe(code, (remoteState, meta)=>{
+  }catch(e){ console.warn('[sync] init', e); }
+  // Live mirror from here on.
+  window.__sync.subscribe(uid, (remoteState, meta)=>{
     if(!remoteState)return;
     if(meta&&meta.deviceId===getDeviceId())return;
     _adoptRemoteState(remoteState);
     toast('Synced from cloud');
   });
+  renderSyncBanner(); renderSyncCard();
 }
 
-// Prominent Today-view banner. Drives users into the login flow.
-function renderSyncBanner(){
-  const el=document.getElementById('sync-banner');
-  if(!el)return;
-  const code=getSyncCode();
-  if(!code){
-    el.className='sync-banner';
-    el.style.display='';
-    el.onclick=openSyncSetup;
-    el.innerHTML=`
-      <div class="sb-icon">🔗</div>
-      <div class="sb-text">
-        <div class="sb-title">LOG IN TO SYNC</div>
-        <div class="sb-sub">Pair phone and web. Your lifts mirror across both, no login.</div>
-      </div>
-      <div class="sb-cta">LOG IN</div>
-    `;
-    return;
-  }
-  el.className='sync-banner on';
-  el.style.display='';
-  el.onclick=manualCloudPull;
-  const last=_lastCloudPushAt?fmtAgo(Date.now()-_lastCloudPushAt):'pending…';
-  el.innerHTML=`
-    <div class="sb-icon">✓</div>
-    <div class="sb-text">
-      <div class="sb-title">SYNCED · ${code}</div>
-      <div class="sb-sub">Last sync · ${last} · tap to pull latest now</div>
-    </div>
-    <div class="sb-cta">PULL NOW</div>
-  `;
+// Hook the auth listener once Firebase is ready.
+function cloudInitOnLoad(){
+  if(!window.__auth)return;
+  window.__auth.onChange(onAuthChanged);
 }
 
-// Force-pull from cloud immediately. Used when user suspects local is stale.
+// Manual immediate pull (banner "PULL NOW") for when a device looks behind.
 async function manualCloudPull(){
-  const code=getSyncCode();
-  if(!code){openSyncSetup();return;}
+  if(!currentUid()){openLogin();return;}
   if(!window.__sync){toast('Cloud not loaded yet');return;}
   toast('Pulling from cloud…');
   try{
-    const remote=await window.__sync.pull(code);
-    if(!remote||!remote.state){toast('Cloud is empty');return;}
-    if(remote.deviceId===getDeviceId()){
-      toast('Already up to date');
-      _lastCloudPushAt=Date.now();
-      renderSyncBanner();
-      return;
-    }
+    const remote=await window.__sync.pull(currentUid());
+    if(!remote||!remote.state){toast('Account has no data yet');return;}
+    if(remote.deviceId===getDeviceId()){toast('Already up to date');_lastCloudPushAt=Date.now();renderSyncBanner();return;}
     snapshotBackup&&snapshotBackup();
     _adoptRemoteState(remote.state);
     _lastCloudPushAt=Date.now();
@@ -2431,35 +2402,6 @@ async function manualCloudPull(){
   }catch(e){toast('Cloud reach failed');}
 }
 
-function renderSyncCard(){
-  const code=getSyncCode();
-  const card=document.getElementById('sync-card');
-  const body=document.getElementById('sync-body');
-  if(!card||!body)return;
-  if(!code){
-    card.classList.remove('on');
-    body.innerHTML=`
-      <div class="sync-status">OFF · This device is local-only</div>
-      <p class="sync-hint" style="margin:0 0 12px">Turn on to mirror lifts between phone and web. Free, no login.</p>
-      <button class="btn-primary" style="width:100%" onclick="openSyncSetup()">SET UP SYNC</button>
-    `;
-    return;
-  }
-  card.classList.add('on');
-  const last=_lastCloudPushAt?fmtAgo(Date.now()-_lastCloudPushAt):'pending first push…';
-  body.innerHTML=`
-    <div class="sync-status on">ON · Phone ↔ Web mirrored</div>
-    <div class="sync-code-row">
-      <div class="sync-code" id="sync-code-display">${code}</div>
-      <button class="sync-copy" onclick="copySyncCode()">COPY</button>
-    </div>
-    <div class="sync-last" id="sync-last">Last sync · ${last}</div>
-    <p class="sync-hint">Open this app on another device → tap SET UP SYNC → I HAVE A CODE → paste this code.</p>
-    <div class="sync-actions">
-      <button class="btn-ghost" onclick="disconnectSync()" style="color:var(--red);flex:1">DISCONNECT</button>
-    </div>
-  `;
-}
 function fmtAgo(ms){
   if(ms<60000)return 'just now';
   if(ms<3600000)return Math.floor(ms/60000)+' min ago';
@@ -2467,70 +2409,111 @@ function fmtAgo(ms){
   return Math.floor(ms/86400000)+' d ago';
 }
 
-function openSyncSetup(){
-  document.getElementById('sync-setup-step1').style.display='';
-  document.getElementById('sync-setup-step2').style.display='none';
-  document.getElementById('sync-setup-modal').classList.add('open');
+// Today-view banner: prompts login, or shows the signed-in account.
+function renderSyncBanner(){
+  const el=document.getElementById('sync-banner');
+  if(!el)return;
+  if(!currentUid()){
+    el.className='sync-banner';
+    el.style.display='';
+    el.onclick=openLogin;
+    el.innerHTML=`
+      <div class="sb-icon">👤</div>
+      <div class="sb-text">
+        <div class="sb-title">LOG IN</div>
+        <div class="sb-sub">One account. Your lifts sync to every device automatically.</div>
+      </div>
+      <div class="sb-cta">LOG IN</div>
+    `;
+    return;
+  }
+  el.className='sync-banner on';
+  el.style.display='';
+  el.onclick=manualCloudPull;
+  const last=_lastCloudPushAt?fmtAgo(Date.now()-_lastCloudPushAt):'syncing…';
+  el.innerHTML=`
+    <div class="sb-icon">✓</div>
+    <div class="sb-text">
+      <div class="sb-title">${currentEmail()||'SIGNED IN'}</div>
+      <div class="sb-sub">Synced · ${last} · tap to pull latest now</div>
+    </div>
+    <div class="sb-cta">PULL NOW</div>
+  `;
 }
-function closeSyncSetup(){document.getElementById('sync-setup-modal').classList.remove('open');}
-function syncSetupShowCodeEntry(){
-  document.getElementById('sync-setup-step1').style.display='none';
-  document.getElementById('sync-setup-step2').style.display='';
-  setTimeout(()=>{const i=document.getElementById('sync-code-input');if(i)i.focus();},80);
+
+function renderSyncCard(){
+  const card=document.getElementById('sync-card');
+  const body=document.getElementById('sync-body');
+  if(!card||!body)return;
+  if(!currentUid()){
+    card.classList.remove('on');
+    body.innerHTML=`
+      <div class="sync-status">NOT SIGNED IN</div>
+      <p class="sync-hint" style="margin:0 0 12px">Log in to sync your lifts across phone, web and tablet. Free.</p>
+      <button class="btn-primary" style="width:100%" onclick="openLogin()">LOG IN / CREATE ACCOUNT</button>
+    `;
+    return;
+  }
+  card.classList.add('on');
+  const last=_lastCloudPushAt?fmtAgo(Date.now()-_lastCloudPushAt):'syncing…';
+  body.innerHTML=`
+    <div class="sync-status on">SIGNED IN</div>
+    <div class="sync-code-row"><div class="sync-code" style="font-size:14px;letter-spacing:.04em">${currentEmail()}</div></div>
+    <div class="sync-last">Synced · ${last}</div>
+    <p class="sync-hint">Log in with the same account on any device — your lifts mirror automatically.</p>
+    <div class="sync-actions">
+      <button class="btn-ghost" onclick="manualCloudPull()" style="color:var(--cobalt-bright);flex:1">PULL NOW</button>
+      <button class="btn-ghost" onclick="doLogout()" style="color:var(--red);flex:1">LOG OUT</button>
+    </div>
+  `;
 }
-function syncSetupBackToStep1(){
-  document.getElementById('sync-setup-step1').style.display='';
-  document.getElementById('sync-setup-step2').style.display='none';
+
+// ---- Login modal control ----
+let _loginMode='login'; // 'login' | 'signup'
+function openLogin(){
+  _loginMode='login';
+  syncLoginRender();
+  const m=document.getElementById('login-modal'); if(m)m.classList.add('open');
+  setTimeout(()=>{const i=document.getElementById('login-email');if(i)i.focus();},80);
 }
-async function syncSetupAsPrimary(){
-  if(!window.__sync){toast('Sync not loaded yet');return;}
-  const code=_genSyncCode();
-  setSyncCode(code);
+function closeLogin(){const m=document.getElementById('login-modal'); if(m)m.classList.remove('open');}
+function setLoginMode(mode){_loginMode=mode; syncLoginRender();}
+function syncLoginRender(){
+  const isSignup=_loginMode==='signup';
+  const t=document.getElementById('login-title'); if(t)t.innerHTML=isSignup?'CREATE <span class="accent">ACCOUNT</span>':'LOG <span class="accent">IN</span>';
+  const sub=document.getElementById('login-sub'); if(sub)sub.textContent=isSignup?'New account — your current lifts on this device become the account.':'Welcome back. Your lifts load from the cloud.';
+  const btn=document.getElementById('login-submit'); if(btn)btn.textContent=isSignup?'CREATE ACCOUNT':'LOG IN';
+  const toggle=document.getElementById('login-toggle');
+  if(toggle)toggle.innerHTML=isSignup?'Have an account? <b>Log in</b>':'New here? <b>Create an account</b>';
+  const err=document.getElementById('login-error'); if(err)err.textContent='';
+}
+function toggleLoginMode(){ setLoginMode(_loginMode==='signup'?'login':'signup'); }
+async function submitLogin(){
+  const email=(document.getElementById('login-email').value||'').trim();
+  const pw=(document.getElementById('login-pw').value||'');
+  const err=document.getElementById('login-error');
+  const btn=document.getElementById('login-submit');
+  if(!email||!pw){ if(err)err.textContent='Enter email and password.'; return; }
+  if(!window.__auth){ if(err)err.textContent='Still loading — try again in a second.'; return; }
+  if(btn){btn.disabled=true;btn.textContent='…';}
   try{
-    await window.__sync.push(code, state);
-    _lastCloudPushAt=Date.now();
-    toast('Sync code generated');
-  }catch(e){toast('Cloud reach failed — try again');setSyncCode('');return;}
-  closeSyncSetup();
-  renderSyncCard();renderSyncBanner();
-  window.__sync.subscribe(code,(remoteState,meta)=>{
-    if(meta&&meta.deviceId===getDeviceId())return;
-    _adoptRemoteState(remoteState);
-    toast('Synced from cloud');
-  });
+    if(_loginMode==='signup') await window.__auth.signup(email, pw);
+    else await window.__auth.login(email, pw);
+    // onAuthChanged handles sync. Close the modal.
+    closeLogin();
+    toast(_loginMode==='signup'?'Account created':'Logged in');
+  }catch(e){
+    if(err)err.textContent=window.__auth.mapError(e);
+  }finally{
+    if(btn){btn.disabled=false;}
+    syncLoginRender();
+  }
 }
-async function syncPullByCode(){
-  if(!window.__sync){toast('Sync not loaded yet');return;}
-  const raw=(document.getElementById('sync-code-input').value||'').trim().toUpperCase();
-  const code=raw.length===8?raw.slice(0,4)+'-'+raw.slice(4):raw;
-  if(!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)){toast('Code format XXXX-XXXX');return;}
-  let remote=null;
-  try{remote=await window.__sync.pull(code);}catch(e){toast('Cloud reach failed');return;}
-  if(!remote||!remote.state){toast('No data found for that code');return;}
-  if(!confirm('Replace this device\'s data with cloud data? Local data will be backed up first.'))return;
-  snapshotBackup&&snapshotBackup();
-  setSyncCode(code);
-  _adoptRemoteState(remote.state);
-  _lastCloudPushAt=Date.now();
-  closeSyncSetup();
-  renderSyncCard();renderSyncBanner();
-  toast('Pulled from cloud');
-  window.__sync.subscribe(code,(remoteState,meta)=>{
-    if(meta&&meta.deviceId===getDeviceId())return;
-    _adoptRemoteState(remoteState);
-    toast('Synced from cloud');
-  });
-}
-function copySyncCode(){
-  const code=getSyncCode();if(!code)return;
-  try{navigator.clipboard.writeText(code);toast('Code copied');}catch(e){toast(code);}
-}
-function disconnectSync(){
-  if(!confirm('Disconnect cloud sync? This device keeps its data; cloud copy stays for other devices using the code.'))return;
-  if(window.__sync)window.__sync.unsubscribe();
-  setSyncCode('');
-  renderSyncCard();renderSyncBanner();
-  toast('Disconnected');
+async function doLogout(){
+  if(!confirm('Log out? Your lifts stay safe in the cloud and on this device.'))return;
+  try{ await window.__auth.logout(); }catch(e){}
+  toast('Logged out');
+  renderSyncBanner(); renderSyncCard();
 }
 
 // ============================================================
@@ -4416,7 +4399,7 @@ renderToday();
 
 // Cloud sync kicks in after Firebase module reports ready. Will pull-on-load if syncCode is set.
 window.addEventListener('dumbass:sync-ready',()=>{cloudInitOnLoad();});
-if(window.__sync)cloudInitOnLoad();
+if(window.__auth)cloudInitOnLoad();
 
 // === LAN LIVE-RELOAD === only on local network, harmless elsewhere
 (function(){
@@ -4585,6 +4568,7 @@ if(window.__sync)cloudInitOnLoad();
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8cBJlSucIESwRYruh55u15xX21YEMbyM",
@@ -4597,8 +4581,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch(()=>{});
 
-const COLLECTION = "dumbass-lift";
+const COLLECTION = "dumbass-lift";  // doc id = the user's auth UID
 let unsub = null;
 
 function getDeviceIdLocal(){
@@ -4606,29 +4592,29 @@ function getDeviceIdLocal(){
   if(!d){d='d-'+Math.random().toString(36).slice(2,10);localStorage.setItem('dumbass_device_id',d);}
   return d;
 }
-function refOf(code){ return doc(db, COLLECTION, code); }
+function refOf(uid){ return doc(db, COLLECTION, uid); }
 
-async function push(code, stateObj){
-  if(!code)return;
+async function push(uid, stateObj){
+  if(!uid)return;
   const payload = {
     state: JSON.stringify(stateObj),
     deviceId: getDeviceIdLocal(),
     updatedAt: serverTimestamp(),
     clientTime: Date.now()
   };
-  await setDoc(refOf(code), payload);
+  await setDoc(refOf(uid), payload);
 }
-async function pull(code){
-  const snap = await getDoc(refOf(code));
+async function pull(uid){
+  const snap = await getDoc(refOf(uid));
   if(!snap.exists())return null;
   const data = snap.data();
   let parsed=null;
   try{ parsed = JSON.parse(data.state); }catch(e){ return null; }
   return { state: parsed, deviceId: data.deviceId||'', clientTime: data.clientTime||0 };
 }
-function subscribe(code, cb){
+function subscribe(uid, cb){
   if(unsub){try{unsub();}catch(e){}unsub=null;}
-  unsub = onSnapshot(refOf(code), snap=>{
+  unsub = onSnapshot(refOf(uid), snap=>{
     if(!snap.exists())return;
     const data = snap.data();
     let parsed=null;
@@ -4641,6 +4627,27 @@ function subscribe(code, cb){
 function unsubscribe(){ if(unsub){try{unsub();}catch(e){}unsub=null;} }
 
 window.__sync = { push, pull, subscribe, unsubscribe, getDeviceId: getDeviceIdLocal };
+
+// --- ACCOUNT AUTH (email + password) ---
+function mapAuthError(e){
+  const c = (e && e.code) || '';
+  if(c==='auth/operation-not-allowed'||c==='auth/configuration-not-found') return 'Login not switched on yet. In the Firebase console: Authentication → Get started → enable Email/Password. Then try again.';
+  if(c==='auth/invalid-email') return 'That email looks invalid.';
+  if(c==='auth/email-already-in-use') return 'That email already has an account — log in instead.';
+  if(c==='auth/weak-password') return 'Password too weak — use at least 6 characters.';
+  if(c==='auth/invalid-credential'||c==='auth/wrong-password'||c==='auth/user-not-found') return 'Wrong email or password.';
+  if(c==='auth/network-request-failed') return 'No connection — check the network and try again.';
+  if(c==='auth/too-many-requests') return 'Too many attempts. Wait a moment and retry.';
+  return (e && e.message) || 'Something went wrong.';
+}
+window.__auth = {
+  signup: (email, pw) => createUserWithEmailAndPassword(auth, email, pw),
+  login:  (email, pw) => signInWithEmailAndPassword(auth, email, pw),
+  logout: () => signOut(auth),
+  onChange: (cb) => onAuthStateChanged(auth, cb),
+  current: () => auth.currentUser,
+  mapError: mapAuthError,
+};
 window.dispatchEvent(new Event('dumbass:sync-ready'));
 </script>
 </body>
