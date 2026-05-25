@@ -84,6 +84,30 @@ input,textarea{user-select:text}
 .btn-primary:active:not(:disabled){transform:scale(.985);box-shadow:0 2px 14px var(--cobalt-glow)}
 .btn-primary:active{transform:scale(.98)}
 .btn-primary:disabled{background:var(--steel-mid);box-shadow:none;color:var(--text-faint);border-color:var(--border)}
+.btn-primary.partial{background:linear-gradient(180deg,#1a1a1a,#000);color:#fff;border-color:var(--text-dim);box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.btn-primary.partial::after{content:' ';}
+
+/* Completed-day lock */
+.day-locked{display:flex;align-items:center;gap:13px;background:linear-gradient(135deg,#0d1f12,#0a0a0a);border:1px solid #1f6e3a;border-left:3px solid #2EA85A;border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:0 4px 18px rgba(46,168,90,.15)}
+.day-locked .dl-check{width:34px;height:34px;border-radius:50%;background:#2EA85A;color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 16px rgba(46,168,90,.5)}
+.day-locked .dl-title{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.24em;color:#5cd07a;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:8px}
+.day-locked .dl-sub{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:.02em;margin-top:3px}
+.day-locked .dl-tag{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.16em;background:rgba(92,208,122,.18);border:1px solid #2EA85A;color:#5cd07a;border-radius:4px;padding:2px 6px}
+.day-locked .dl-tag.partial{background:rgba(232,176,74,.16);border-color:#e8b94a;color:#e8b94a}
+.day-locked.editing{background:var(--steel-dark);border-color:var(--border);border-left-color:var(--cobalt-bright);box-shadow:none}
+.day-locked.editing .dl-check{background:var(--cobalt);border:1px solid var(--cobalt-bright);box-shadow:0 0 14px var(--cobalt-glow)}
+.day-locked.editing .dl-title{color:var(--cobalt-bright)}
+/* read-only exercise list when the day is locked */
+#exercise-list.locked{opacity:.92}
+#exercise-list.locked .exercise{cursor:default}
+#exercise-list.locked .ex-grip,
+#exercise-list.locked .ex-edit,
+#exercise-list.locked .ex-remove,
+#exercise-list.locked .set-dots,
+#exercise-list.locked .ex-check,
+#exercise-list.locked .ex-info{pointer-events:none}
+#exercise-list.locked .ex-edit,
+#exercise-list.locked .ex-remove{opacity:.25}
 .btn-secondary{width:100%;background:var(--steel);color:var(--text-mid);border:1px solid var(--border);padding:14px 0;border-radius:10px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;font-weight:600}
 .btn-secondary:active{background:var(--steel-mid)}
 .btn-ghost{background:transparent;color:var(--text-dim);border:none;padding:8px 12px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;font-weight:500}
@@ -128,13 +152,23 @@ input,textarea{user-select:text}
 .ex-unskip{background:transparent;border:0;color:var(--cobalt-bright);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;cursor:pointer;padding:2px 6px;margin-left:6px;text-transform:uppercase}
 .ex-unskip:active{transform:scale(.95)}
 
-/* DRAG-TO-REORDER */
-.ex-grip{position:absolute;top:0;bottom:0;left:0;width:14px;cursor:grab;touch-action:none}
-.ex-grip::after{content:'⋮⋮';position:absolute;top:50%;left:2px;transform:translateY(-50%);color:var(--text-faint);font-size:10px;letter-spacing:-1px;line-height:1;opacity:0;transition:opacity .15s}
+/* DRAG-TO-REORDER — uses independent `scale`/`translate` props so the lift
+   springs while the finger-follow translate stays instant. */
+.ex-grip{position:absolute;top:0;bottom:0;left:0;width:16px;cursor:grab;touch-action:none}
+.ex-grip::after{content:'⋮⋮';position:absolute;top:50%;left:3px;transform:translateY(-50%);color:var(--text-faint);font-size:11px;letter-spacing:-1px;line-height:1;opacity:0;transition:opacity .15s}
 .exercise:hover .ex-grip::after{opacity:.6}
-.exercise.dragging{z-index:20;box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 0 1px var(--cobalt-bright);transform:scale(1.02);transition:none;cursor:grabbing}
-.exercise.drag-ghost{opacity:.25;filter:saturate(.3)}
-#exercise-list.reorder-on .exercise:not(.dragging){transition:transform .18s cubic-bezier(.2,.8,.2,1)}
+#exercise-list.reorder-on .exercise .ex-grip::after{opacity:.5;color:var(--cobalt-bright)}
+.exercise.dragging{z-index:30;cursor:grabbing;position:relative;
+  scale:1.05; rotate:-1.2deg;
+  box-shadow:0 18px 50px rgba(0,0,0,.45),0 0 0 2px var(--cobalt-bright),0 0 30px var(--cobalt-glow);
+  background:var(--steel-dark);
+  transition:scale .18s cubic-bezier(.34,1.56,.64,1), rotate .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, background .18s;
+  will-change:translate,scale}
+#exercise-list.reorder-on{position:relative}
+#exercise-list.reorder-on .exercise:not(.dragging){transition:translate .26s cubic-bezier(.34,1.4,.5,1)}
+/* satisfying settle pulse on the card that was just moved */
+@keyframes justMovedPulse{0%{box-shadow:0 0 0 2px var(--cobalt-bright),0 0 24px var(--cobalt-glow);background:var(--steel-dark)}100%{box-shadow:0 0 0 0 transparent;background:var(--steel)}}
+.exercise.just-moved{animation:justMovedPulse .55s ease-out}
 #exercise-list.reorder-on .exercise .ex-check,
 #exercise-list.reorder-on .exercise .ex-info,
 #exercise-list.reorder-on .exercise .ex-edit,
@@ -291,16 +325,30 @@ input,textarea{user-select:text}
 .sync-banner.on .sb-sub{color:var(--text-dim)}
 .sync-banner.on .sb-cta{background:transparent;color:var(--cobalt-bright);border-color:var(--border)}
 
-/* Dedicated login modal (cleaner than the in-Profile flow) */
-.login-modal-content h2{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.02em;margin-bottom:6px}
-.login-modal-content .sub-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.06em;margin-bottom:18px;line-height:1.5}
-.login-modal-content .login-section{background:var(--steel-dark);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
-.login-modal-content .login-section .ls-eyebrow{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.3em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;margin-bottom:6px}
-.login-modal-content .login-section .ls-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);margin-bottom:4px}
-.login-modal-content .login-section .ls-desc{font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.5;margin-bottom:12px}
-.login-modal-content .login-section input{width:100%;background:var(--steel);border:1px solid var(--border);border-radius:6px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:.2em;color:var(--text);text-transform:uppercase;text-align:center;margin-bottom:10px}
-.login-modal-content .login-section input:focus{outline:none;border-color:var(--cobalt-bright)}
-.login-modal-content .code-display{font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:.22em;font-weight:700;color:var(--cobalt-bright);text-align:center;background:#000;padding:18px;border-radius:8px;margin-bottom:10px}
+/* ===== PREMIUM LOGIN CARD ===== */
+.login-bg{align-items:center!important;background:rgba(0,0,0,.78)!important;backdrop-filter:blur(14px) saturate(1.1)!important;padding:20px}
+.login-card{position:relative;width:100%;max-width:380px;background:var(--bg);border:1px solid var(--border);border-radius:22px;padding:30px 26px 24px;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04) inset;animation:loginPop .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes loginPop{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+.login-x{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--steel);color:var(--text-dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.login-x:active{transform:scale(.9)}
+.login-brand{display:flex;align-items:center;gap:9px;margin-bottom:20px}
+.login-brand .lb-mark{width:34px;height:34px;border-radius:9px;background:var(--cobalt);border:1.5px solid var(--cobalt-bright);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px var(--cobalt-glow);line-height:1}
+.login-brand .lb-word{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.34em;font-weight:700;color:var(--text)}
+.login-card h2{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:.01em;line-height:.92;margin-bottom:6px;color:var(--text)}
+.login-card h2 .accent{color:var(--cobalt-bright)}
+.login-sub{font-family:'Inter',sans-serif;font-size:13px;color:var(--text-dim);line-height:1.5;margin-bottom:22px}
+.login-field{display:flex;align-items:center;gap:0;background:var(--steel);border:1.5px solid var(--border-soft);border-radius:12px;margin-bottom:11px;overflow:hidden;transition:border-color .18s,box-shadow .18s}
+.login-field:focus-within{border-color:var(--cobalt-bright);box-shadow:0 0 0 3px var(--cobalt-glow)}
+.login-field .lf-ico{flex:0 0 46px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-faint);font-weight:700}
+.login-field input{flex:1;background:transparent;border:none;outline:none;padding:15px 14px 15px 0;font-family:'Inter',sans-serif;font-size:16px;color:var(--text)}
+.login-field input::placeholder{color:var(--text-faint)}
+.login-err{color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.4;min-height:14px;margin:2px 2px 10px}
+.login-cta{width:100%;background:linear-gradient(180deg,var(--cobalt),var(--cobalt-deep));color:#fff;border:1px solid var(--cobalt-bright);padding:17px 0;border-radius:12px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.34em;text-transform:uppercase;font-weight:700;cursor:pointer;box-shadow:0 8px 30px var(--cobalt-glow);transition:transform .14s cubic-bezier(.2,.8,.2,1),box-shadow .25s,filter .2s}
+.login-cta:active:not(:disabled){transform:scale(.98);box-shadow:0 4px 16px var(--cobalt-glow)}
+.login-cta:disabled{opacity:.7}
+.login-toggle{width:100%;background:none;border:none;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:13px;margin-top:16px;cursor:pointer;padding:6px}
+.login-toggle b{color:var(--cobalt-bright)}
+.login-foot{text-align:center;font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--text-faint);margin-top:14px;padding-top:14px;border-top:1px solid var(--border-soft);font-weight:600}
 .sync-status{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.25em;color:var(--text-dim);text-transform:uppercase;font-weight:600;margin:6px 0 10px}
 .sync-status.on{color:#5cd07a}
 .sync-code-row{display:flex;align-items:center;gap:8px;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin:8px 0}
@@ -424,7 +472,18 @@ input,textarea{user-select:text}
 .vol-summary .stat.active.ideal{border-color:#5cd07a;box-shadow:0 0 0 1px #5cd07a,0 4px 18px rgba(92,208,122,.3)}
 .vol-empty{background:var(--steel);border:1px dashed var(--border);border-radius:12px;padding:24px;text-align:center;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;color:var(--text-faint);text-transform:uppercase;font-weight:600}
 /* Past-week actual vs planned */
-.vol-actuals{background:var(--steel);border:1px solid var(--border);border-left:3px solid var(--cobalt-bright);border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+/* Last-week toggle (collapsed by default) */
+.past-week-toggle{width:100%;display:flex;align-items:center;gap:10px;background:var(--steel);border:1px dashed var(--border-soft);border-radius:10px;padding:11px 14px;margin-bottom:14px;cursor:pointer;font-family:'Oswald',sans-serif;text-align:left}
+.past-week-toggle:active{transform:scale(.99)}
+.past-week-toggle.open{border-style:solid;border-left:3px solid var(--text-dim)}
+.past-week-toggle .pw-caret{font-size:11px;color:var(--text-dim);width:12px}
+.past-week-toggle .pw-label{flex:1;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--text)}
+.past-week-toggle .pw-range{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.02em;color:var(--text-faint);text-transform:none}
+/* Past-week panel — muted/history treatment so it never reads as 'this week' */
+.vol-actuals{background:var(--bg-deep);border:1px solid var(--border-soft);border-left:3px solid var(--text-dim);border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:none}
+.vol-actuals .va-range{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:.04em;margin-top:2px}
+.vol-actuals .va-note{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-dim);line-height:1.4;margin:0 0 10px;font-style:italic}
+.vol-actuals .va-total{}
 .vol-actuals .va-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
 .vol-actuals .va-title{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.3em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700}
 .vol-actuals .va-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:.05em}
@@ -571,6 +630,7 @@ input,textarea{user-select:text}
 .lift-select::-webkit-scrollbar{display:none}
 .lift-chip{padding:7px 12px;background:var(--steel);border:1px solid var(--border);border-radius:8px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.15em;color:var(--text-dim);text-transform:uppercase;white-space:nowrap;flex-shrink:0;cursor:pointer;font-weight:600;transition:background .25s,border-color .25s,color .25s,box-shadow .25s,transform .12s cubic-bezier(.2,.8,.2,1)}
 .lift-chip:active{transform:scale(.95)}
+.lift-hint{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.22em;color:var(--text-faint);text-transform:uppercase;font-weight:600;margin:2px 2px 8px}
 .lift-chip.active{background:linear-gradient(135deg,var(--cobalt),var(--cobalt-deep));border-color:var(--cobalt-bright);color:#fff;box-shadow:0 0 14px var(--cobalt-glow)}
 
 .chart-box{background:var(--steel);border:1px solid var(--border);border-top:3px solid var(--cobalt);border-radius:10px;padding:16px 12px 10px;margin-bottom:18px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
@@ -1037,6 +1097,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
     <div class="daily-quote" id="daily-quote"></div>
 
+    <div id="day-locked" class="day-locked" style="display:none"></div>
+
     <div class="section-head">
       <span class="t">Today's Lifts</span>
       <span class="c" id="today-count">0 / 0</span>
@@ -1044,9 +1106,10 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
     <div id="exercise-list"></div>
 
-    <button class="add-ex-btn" onclick="openExLibrary()">+ Add Exercise</button>
+    <button class="add-ex-btn" id="add-ex-btn" onclick="openExLibrary()">+ Add Exercise</button>
 
     <button class="btn-primary" id="complete-btn" onclick="completeWorkout()" disabled>Complete Workout</button>
+    <button class="btn-ghost" id="customize-day-btn" onclick="unlockDay()" style="display:none;width:100%;color:var(--text-dim);margin-top:10px">✎ Customize / change this day</button>
   </div>
 
   <!-- PROGRAM -->
@@ -1077,7 +1140,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="subtitle">Where your week lands · MEV · MAV · MRV</div>
 
     <div id="volume-summary" class="vol-summary"></div>
-    <div id="volume-actuals" class="vol-actuals"></div>
+    <button id="past-week-toggle" class="past-week-toggle" onclick="togglePastWeek()"></button>
+    <div id="volume-actuals" class="vol-actuals" style="display:none"></div>
     <div id="volume-filters" class="lift-select"></div>
     <div id="volume-list"></div>
 
@@ -1261,15 +1325,24 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   </div>
 </div>
 
-<div class="modal-bg" id="login-modal" onclick="if(event.target.id==='login-modal')closeLogin()">
-  <div class="modal login-modal-content">
+<div class="modal-bg login-bg" id="login-modal" onclick="if(event.target.id==='login-modal')closeLogin()">
+  <div class="login-card">
+    <button class="login-x" onclick="closeLogin()" aria-label="Close">✕</button>
+    <div class="login-brand"><span class="lb-mark">D</span><span class="lb-word">DUMBASS</span></div>
     <h2 id="login-title">LOG <span class="accent">IN</span></h2>
-    <div class="sub-text" id="login-sub">Welcome back. Your lifts load from the cloud.</div>
-    <input id="login-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="email" style="width:100%;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text);margin-bottom:10px">
-    <input id="login-pw" type="password" autocomplete="current-password" placeholder="password" style="width:100%;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text);margin-bottom:10px" onkeydown="if(event.key==='Enter')submitLogin()">
-    <div id="login-error" style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.4;margin-bottom:10px;min-height:14px"></div>
-    <button class="btn-primary" id="login-submit" onclick="submitLogin()" style="width:100%">LOG IN</button>
-    <button class="btn-ghost" id="login-toggle" onclick="toggleLoginMode()" style="width:100%;color:var(--text-dim);margin-top:12px;font-weight:500;letter-spacing:.04em;text-transform:none">New here? <b>Create an account</b></button>
+    <div class="login-sub" id="login-sub">Welcome back. Your lifts load from the cloud.</div>
+    <label class="login-field">
+      <span class="lf-ico">@</span>
+      <input id="login-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="you@email.com">
+    </label>
+    <label class="login-field">
+      <span class="lf-ico">•••</span>
+      <input id="login-pw" type="password" autocomplete="current-password" placeholder="password" onkeydown="if(event.key==='Enter')submitLogin()">
+    </label>
+    <div id="login-error" class="login-err"></div>
+    <button class="login-cta" id="login-submit" onclick="submitLogin()">LOG IN</button>
+    <button class="login-toggle" id="login-toggle" onclick="toggleLoginMode()">New here? <b>Create an account</b></button>
+    <div class="login-foot">One account · syncs LIFT, STRETCH &amp; FUEL</div>
   </div>
 </div>
 
@@ -1360,7 +1433,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-25.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-25.2';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2175,7 +2248,7 @@ function dailyQuote(){
 
 let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],customExercises:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[],lastOpenDate:''};
 
-function loadDay(idx){state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};restoreLiveSessionIntoToday();save();}
+function loadDay(idx){_dayUnlocked=false;state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};restoreLiveSessionIntoToday();save();}
 
 // === LIVE SESSION PERSISTENCE ===
 // Every logged top set is immediately upserted into state.history as a "partial" session,
@@ -3203,13 +3276,31 @@ function renderVolume(){
   document.getElementById('volume-list').innerHTML=breakdownHtml+cards+emptyHtml;
 }
 
+function _last7Range(){
+  const end=new Date(); const start=new Date(); start.setDate(end.getDate()-6);
+  const f=d=>d.toLocaleDateString('en',{month:'short',day:'numeric'});
+  return f(start)+' – '+f(end);
+}
+function togglePastWeek(){
+  state.showPastWeek=!state.showPastWeek;
+  save();
+  renderVolume();
+}
 function renderPastWeekActuals(order, plannedCounts){
   const el=document.getElementById('volume-actuals');
+  const toggle=document.getElementById('past-week-toggle');
   if(!el)return;
+  const open=!!state.showPastWeek;
   const sessions=countSessionsSince(7);
+  if(toggle){
+    toggle.innerHTML=`<span class="pw-caret">${open?'▾':'▸'}</span><span class="pw-label">Last week — what you actually did</span><span class="pw-range">${_last7Range()}</span>`;
+    toggle.classList.toggle('open',open);
+  }
+  if(!open){ el.style.display='none'; return; }
+  el.style.display='';
   if(sessions===0){
     el.className='vol-actuals empty';
-    el.innerHTML=`<div class="va-head"><div class="va-title">PAST 7 DAYS — DID YOU SHOW UP?</div></div><div class="va-empty">No completed sessions yet · log a workout to start tracking</div>`;
+    el.innerHTML=`<div class="va-head"><div class="va-title">LAST WEEK · ${_last7Range()}</div><div class="va-sub">already done</div></div><div class="va-empty">No sessions logged in the last 7 days</div>`;
     return;
   }
   el.className='vol-actuals';
@@ -3238,18 +3329,36 @@ function renderPastWeekActuals(order, plannedCounts){
   const verdict=overall>=95?'ON IT':overall>=70?'BEHIND':'SLACKING';
   el.innerHTML=`
     <div class="va-head">
-      <div class="va-title">PAST 7 DAYS — DID YOU SHOW UP?</div>
-      <div class="va-sub">${sessions} session${sessions===1?'':'s'}</div>
+      <div><div class="va-title">⟲ LAST WEEK · ALREADY DONE</div><div class="va-range">${_last7Range()} · ${sessions} session${sessions===1?'':'s'}</div></div>
     </div>
+    <div class="va-note">What you actually logged — not this week's plan above.</div>
     ${rows||'<div class="va-empty">No tracked muscles for this filter</div>'}
     <div class="va-roll">
-      <div class="va-total">OVERALL ${fmtSets(totalAct)}/${fmtSets(totalPlan)} sets</div>
+      <div class="va-total">DONE ${fmtSets(totalAct)}/${fmtSets(totalPlan)} planned</div>
       <div class="va-grade ${grade}">${overall}% · ${verdict}</div>
     </div>
   `;
 }
 
 function switchToDay(idx){loadDay(idx);showView('today');}
+
+// A day counts as "done this week" if a finalized session exists for the active
+// program + this day's dayNum within the last 7 days. Such days render locked.
+let _dayUnlocked=false; // transient: tap "Customize" to edit a completed day
+function findCompletedSessionForDay(dayNum){
+  const since=Date.now()-7*86400000;
+  let best=null;
+  (state.history||[]).forEach(h=>{
+    if(!h||h.partial)return;
+    if(h.programId!==state.activeProgramId)return;
+    if(h.dayNum!==dayNum)return;
+    const t=Date.parse(h.date)||0;
+    if(t<since)return;
+    if(!best||t>(Date.parse(best.date)||0))best=h;
+  });
+  return best;
+}
+function unlockDay(){ _dayUnlocked=true; renderToday(); toast('Editing unlocked'); }
 
 function renderToday(){
   if(!state.today)loadDay(state.currentDayIdx||0);
@@ -3314,8 +3423,50 @@ function renderToday(){
     </div>${editHtml}`;
   }).join('');
   const btn=document.getElementById('complete-btn');
-  if(exs.length>0&&exs.every(e=>e.done)){btn.disabled=false;btn.textContent='Complete Workout →';}
-  else{btn.disabled=true;btn.textContent=`Complete Workout (${doneCount}/${exs.length})`;}
+  const addBtn=document.getElementById('add-ex-btn');
+  const customBtn=document.getElementById('customize-day-btn');
+  const lockedBanner=document.getElementById('day-locked');
+  const list=document.getElementById('exercise-list');
+
+  const completed=findCompletedSessionForDay(t.dayNum);
+  const locked=!!completed && !_dayUnlocked;
+
+  if(locked){
+    // Read-only: this day's already in the books this week.
+    list.classList.add('locked');
+    const cd=new Date(completed.date);
+    const dateStr=cd.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'});
+    const sets=completed.totalSets||0;
+    const vol=completed.totalVolume?Math.round(completed.totalVolume).toLocaleString():null;
+    const tag=completed.incomplete?`<span class="dl-tag partial">${completed.doneCount}/${completed.exCount} done</span>`:`<span class="dl-tag">FULL</span>`;
+    lockedBanner.style.display='';
+    lockedBanner.innerHTML=`
+      <div class="dl-check">✓</div>
+      <div class="dl-text">
+        <div class="dl-title">COMPLETED ${tag}</div>
+        <div class="dl-sub">${dateStr} · ${sets} sets logged${vol?` · ${vol} kg volume`:''}</div>
+      </div>`;
+    if(btn){btn.style.display='none';}
+    if(addBtn){addBtn.style.display='none';}
+    if(customBtn){customBtn.style.display='';}
+  }else{
+    list.classList.remove('locked');
+    lockedBanner.style.display='none';
+    if(addBtn)addBtn.style.display='';
+    if(customBtn)customBtn.style.display='none';
+    btn.style.display='';
+    btn.disabled=exs.length===0;
+    if(exs.length>0&&exs.every(e=>e.done)){btn.textContent='Complete Workout →';btn.classList.remove('partial');}
+    else{btn.textContent=`Finish Workout · ${doneCount}/${exs.length} done`;btn.classList.add('partial');}
+    if(completed&&_dayUnlocked){
+      // editing a completed day — gentle reminder banner
+      lockedBanner.style.display='';
+      lockedBanner.className='day-locked editing';
+      lockedBanner.innerHTML=`<div class="dl-check">✎</div><div class="dl-text"><div class="dl-title">EDITING A COMPLETED DAY</div><div class="dl-sub">Changes affect your split. The logged session stays in history.</div></div>`;
+    }else{
+      lockedBanner.className='day-locked';
+    }
+  }
 }
 
 function toggleDetailCustomize(){
@@ -3563,17 +3714,26 @@ window.addEventListener('beforeunload',()=>save());
 function completeWorkout(){
   const exs=state.today.exercises;
   if(exs.length===0){toast('No exercises');return;}
-  if(!exs.every(e=>e.done)){toast('Finish all exercises');return;}
-  
+  const allDone=exs.every(e=>e.done);
+  const doneCount=exs.filter(e=>e.done).length;
+  // Honest completion: you can finish any time. We only log what you actually did.
+  if(!allDone){
+    const anyProgress=exs.some(e=>(e.completedSets||0)>0||(e.topSet&&e.topSet.kg));
+    if(!anyProgress){ if(!confirm('Finish with nothing logged? Nothing will be saved as done.'))return; }
+    else if(!confirm(`Finish now? ${doneCount}/${exs.length} exercises done — only what you actually logged gets saved.`))return;
+  }
+
+  // Volume/sets from sets ACTUALLY completed, never the target — no fake progress.
   let totalVolume=0,totalSets=0;
   exs.forEach(ex=>{
+    const sets=ex.completedSets||0;
+    if(sets<=0)return;
     if(ex.topSet){
       const kg=parseFloat(ex.topSet.kg)||0;
       const reps=parseInt(ex.topSet.reps)||0;
-      const sets=ex.targetSets||0;
       totalVolume+=kg*reps*sets;
-      totalSets+=sets;
     }
+    totalSets+=sets;
   });
   
   // PR detection — compare top set weight against all-time per lift.
@@ -3608,7 +3768,9 @@ function completeWorkout(){
     totalVolume:Math.round(totalVolume),
     totalSets,
     prs,
-    partial:false
+    partial:false,
+    incomplete:!allDone,
+    doneCount, exCount:exs.length
   };
   if(found){
     state.history[found.idx]=finalized;
@@ -3623,7 +3785,8 @@ function completeWorkout(){
   const nextIdx=(state.currentDayIdx+1)%getActiveSchedule().length;
   loadDay(nextIdx);
   showView('today');
-  let msg=prs.length>0?`PR! ${prs[0].name} · ${prs[0].kg}KG`:`Session ${state.streak} locked`;
+  let msg=prs.length>0?`PR! ${prs[0].name} · ${prs[0].kg}KG`
+        :(!allDone?`Logged honest · ${doneCount}/${exs.length} done`:`Session ${state.streak} locked`);
   toast(msg);
 }
 
@@ -3778,18 +3941,29 @@ function renderHistory(){renderProgHistory();}
 function setProgTab(tab){document.querySelectorAll('.progress-tab').forEach(b=>b.classList.remove('active'));document.getElementById('pt-'+tab).classList.add('active');['lifts','history'].forEach(t=>{document.getElementById('prog-tab-'+t).style.display=t===tab?'':'none';});if(tab==='lifts')renderProgLifts();if(tab==='history')renderProgHistory();}
 function renderProgress(){renderProgLifts();renderProgHistory();}
 
+// All lifts you've ever logged, MOST RECENTLY TRAINED FIRST so your current
+// lifts sit at the front instead of being buried in insertion order.
+function _progLiftArray(){
+  const lifts=new Map();
+  state.history.forEach(h=>{
+    const t=Date.parse(h.date)||0;
+    h.exercises.forEach(ex=>{
+      const key=ex.libId||ex.name;
+      const cur=lifts.get(key);
+      if(!cur)lifts.set(key,{libId:ex.libId,name:ex.name,last:t,count:1});
+      else{if(t>cur.last)cur.last=t;cur.count++;}
+    });
+  });
+  return Array.from(lifts.values()).sort((a,b)=>b.last-a.last);
+}
 function renderProgLifts(){
   const c=document.getElementById('prog-tab-lifts');
-  const lifts=new Map();
-  state.history.forEach(h=>h.exercises.forEach(ex=>{
-    if(!lifts.has(ex.libId||ex.name))lifts.set(ex.libId||ex.name,{libId:ex.libId,name:ex.name});
-  }));
-  if(lifts.size===0){c.innerHTML='<div class="empty-state">No lift data yet.</div>';return;}
-  
-  const liftArray=Array.from(lifts.values());
-  if(!state.selectedLift||!liftArray.find(l=>l.libId===state.selectedLift.libId))state.selectedLift=liftArray[0];
+  const liftArray=_progLiftArray();
+  if(liftArray.length===0){c.innerHTML='<div class="empty-state">No lift data yet.</div>';return;}
+
+  if(!state.selectedLift||!liftArray.find(l=>(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name)))state.selectedLift=liftArray[0];
   if(!state.liftSearch)state.liftSearch='';
-  
+
   const filteredLifts=state.liftSearch
     ?liftArray.filter(l=>l.name.toLowerCase().includes(state.liftSearch.toLowerCase()))
     :liftArray;
@@ -3843,12 +4017,12 @@ function renderProgLifts(){
   }).join('');
   
   c.innerHTML=`
-    <input type="text" class="search-input" id="lift-search" placeholder="Search lifts..." value="${state.liftSearch}" oninput="updateLiftSearch(this.value)">
-    
+    <input type="text" class="search-input" id="lift-search" placeholder="🔍 Search your lifts..." value="${state.liftSearch}" oninput="updateLiftSearch(this.value)">
+    <div class="lift-hint">${state.liftSearch?'':'Most recent first'}</div>
     <div class="lift-select" id="lift-chip-row">
       ${filteredLifts.length===0
         ?'<div style="font-family:\'Oswald\',sans-serif;font-size:11px;color:var(--text-faint);letter-spacing:.15em;padding:6px 10px;text-transform:uppercase">No matches</div>'
-        :filteredLifts.map(l=>`<button class="lift-chip ${l.libId===state.selectedLift.libId?'active':''}" onclick="selectLift('${l.libId||l.name}')">${l.name}</button>`).join('')
+        :filteredLifts.map(l=>`<button class="lift-chip ${(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name)?'active':''}" onclick="selectLift('${l.libId||l.name}')">${l.name}</button>`).join('')
       }
     </div>
     
@@ -3883,20 +4057,16 @@ function renderProgLifts(){
 function updateLiftSearch(val){
   state.liftSearch=val;
   // Re-render only the chip row (not the whole tab — keeps the input focused)
-  const lifts=new Map();
-  state.history.forEach(h=>h.exercises.forEach(ex=>{
-    if(!lifts.has(ex.libId||ex.name))lifts.set(ex.libId||ex.name,{libId:ex.libId,name:ex.name});
-  }));
-  const liftArray=Array.from(lifts.values());
+  const liftArray=_progLiftArray();
   const filtered=val?liftArray.filter(l=>l.name.toLowerCase().includes(val.toLowerCase())):liftArray;
   const row=document.getElementById('lift-chip-row');
   if(row){
     row.innerHTML=filtered.length===0
       ?'<div style="font-family:\'Oswald\',sans-serif;font-size:11px;color:var(--text-faint);letter-spacing:.15em;padding:6px 10px;text-transform:uppercase">No matches</div>'
-      :filtered.map(l=>`<button class="lift-chip ${l.libId===state.selectedLift.libId?'active':''}" onclick="selectLift('${l.libId||l.name}')">${l.name}</button>`).join('');
+      :filtered.map(l=>`<button class="lift-chip ${(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name)?'active':''}" onclick="selectLift('${l.libId||l.name}')">${l.name}</button>`).join('');
   }
 }
-function selectLift(id){const lifts=new Map();state.history.forEach(h=>h.exercises.forEach(ex=>{if(!lifts.has(ex.libId||ex.name))lifts.set(ex.libId||ex.name,{libId:ex.libId,name:ex.name});}));state.selectedLift=lifts.get(id);renderProgLifts();}
+function selectLift(id){const l=_progLiftArray().find(x=>(x.libId||x.name)===id);if(l)state.selectedLift=l;renderProgLifts();}
 
 function drawChart(id,points){
   const svg=document.getElementById(id);if(!svg)return;
@@ -4600,12 +4770,12 @@ if(window.__acct)cloudInitOnLoad();
       let shift=0;
       if(startIdx<currentIdx && i>startIdx && i<=currentIdx)shift=-cardHeight;
       else if(startIdx>currentIdx && i>=currentIdx && i<startIdx)shift=cardHeight;
-      c.style.transform=`translateY(${shift}px)`;
+      c.style.translate=`0px ${shift}px`;  // springy via CSS transition on .reorder-on cards
     });
   }
   function clearShifts(){
     if(!list)return;
-    Array.from(list.querySelectorAll('.exercise')).forEach(c=>{c.style.transform='';});
+    Array.from(list.querySelectorAll('.exercise')).forEach(c=>{c.style.translate='';});
   }
 
   function onPointerDown(e){
@@ -4651,14 +4821,16 @@ if(window.__acct)cloudInitOnLoad();
       return;
     }
     if(!dragCard)return;
-    // Real drag in progress
+    // Real drag in progress — translate follows the finger instantly;
+    // scale/rotate/shadow spring in via the .dragging CSS class.
     e.preventDefault();
     const dy=e.clientY-startY;
-    dragCard.style.transform=`translateY(${dy}px) scale(1.02)`;
+    dragCard.style.translate=`0px ${dy}px`;
     const newIdx=cardIdxFromCenter(e.clientY);
     if(newIdx!==currentIdx){
       currentIdx=newIdx;
       applyShifts();
+      if(navigator.vibrate)try{navigator.vibrate(8);}catch(e){} // tick as it crosses a slot
     }
   }
 
@@ -4669,7 +4841,7 @@ if(window.__acct)cloudInitOnLoad();
     const card=dragCard, fromIdx=startIdx, toIdx=currentIdx;
     try{card.releasePointerCapture(pointerId);}catch(e){}
     card.classList.remove('dragging');
-    card.style.transform='';
+    card.style.translate='';
     clearShifts();
     if(list)list.classList.remove('reorder-on');
     hideHint();
@@ -4681,6 +4853,10 @@ if(window.__acct)cloudInitOnLoad();
       syncTodayToSchedule();
       save();
       renderToday();
+      if(navigator.vibrate)try{navigator.vibrate([12,30,12]);}catch(e){} // satisfying drop
+      // pulse the card that landed
+      const landed=document.querySelectorAll('#exercise-list .exercise')[toIdx];
+      if(landed){landed.classList.add('just-moved');setTimeout(()=>landed.classList.remove('just-moved'),560);}
       toast(`Moved to #${toIdx+1}`);
     }
   }
