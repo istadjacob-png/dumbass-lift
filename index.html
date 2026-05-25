@@ -2318,7 +2318,7 @@ function _b64(bytes){ let s=''; for(const b of bytes) s+=String.fromCharCode(b);
 function _b64url(bytes){ return _b64(bytes).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
 function _newSalt(){ const s=new Uint8Array(16); crypto.getRandomValues(s); return _b64(s); }
 async function _emailKey(email){
-  const data=new TextEncoder().encode('dumbass-lift:'+email.trim().toLowerCase());
+  const data=new TextEncoder().encode('dumbass:'+email.trim().toLowerCase());
   const h=await crypto.subtle.digest('SHA-256', data);
   return _b64url(new Uint8Array(h));
 }
