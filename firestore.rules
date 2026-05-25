@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // DUMBASS accounts: one doc per user, keyed by a hash of the email.
+    // - get: read a single account by exact id (needed for login).
+    // - create/update: signup + ongoing state sync.
+    // - list denied: nobody can enumerate the collection and harvest hashes.
+    // - delete denied from the client.
+    match /accounts/{id} {
+      allow get: if true;
+      allow create, update: if true;
+      allow list, delete: if false;
+    }
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

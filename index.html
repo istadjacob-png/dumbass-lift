@@ -2300,28 +2300,48 @@ function save(){
 }
 
 // ============================================================
-// ACCOUNT SYNC (email + password via Firebase Auth)
-// One login per device. Data lives at dumbass-lift/{uid} and mirrors
-// automatically. deviceId (separate from the account) prevents echo loops.
+// ACCOUNT SYNC (email + password, stored in Firestore — no Firebase Auth)
+// Each account is one doc in `accounts`, keyed by a hash of the email,
+// holding a PBKDF2 password hash + the synced state JSON. One login per
+// device persists locally. deviceId prevents echo loops; _lastModified
+// makes the newer side win so a reload never clobbers unsynced sets.
 // ============================================================
 function getDeviceId(){
   let d=localStorage.getItem('dumbass_device_id');
   if(!d){d='d-'+Math.random().toString(36).slice(2,10);localStorage.setItem('dumbass_device_id',d);}
   return d;
 }
-let _authUser=null;                 // the signed-in Firebase user (or null)
 let _cloudPushTimer=null, _suppressCloudPush=false, _lastCloudPushAt=0;
 
-function currentUid(){ return _authUser ? _authUser.uid : ''; }
-function currentEmail(){ return _authUser ? (_authUser.email||'') : ''; }
+// --- crypto + session helpers ---
+function _b64(bytes){ let s=''; for(const b of bytes) s+=String.fromCharCode(b); return btoa(s); }
+function _b64url(bytes){ return _b64(bytes).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function _newSalt(){ const s=new Uint8Array(16); crypto.getRandomValues(s); return _b64(s); }
+async function _emailKey(email){
+  const data=new TextEncoder().encode('dumbass-lift:'+email.trim().toLowerCase());
+  const h=await crypto.subtle.digest('SHA-256', data);
+  return _b64url(new Uint8Array(h));
+}
+async function _pbkdf2(pw, saltB64){
+  const salt=Uint8Array.from(atob(saltB64), c=>c.charCodeAt(0));
+  const keyMat=await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2', salt, iterations:200000, hash:'SHA-256'}, keyMat, 256);
+  return _b64(new Uint8Array(bits));
+}
+function _loadSession(){ try{return JSON.parse(localStorage.getItem('dumbass_account')||'null');}catch(e){return null;} }
+function _saveSession(s){ try{ if(s)localStorage.setItem('dumbass_account',JSON.stringify(s)); else localStorage.removeItem('dumbass_account'); }catch(e){} }
+let _session=_loadSession();   // {key, email} or null
+
+function currentUid(){ return _session ? _session.key : ''; }
+function currentEmail(){ return _session ? _session.email : ''; }
 
 function cloudPushDebounced(){
   if(_suppressCloudPush)return;
-  const uid=currentUid();
-  if(!uid||!window.__sync)return;
+  const key=currentUid();
+  if(!key||!window.__acct)return;
   clearTimeout(_cloudPushTimer);
   _cloudPushTimer=setTimeout(()=>{
-    window.__sync.push(uid, state).then(()=>{
+    window.__acct.writeState(key, JSON.stringify(state), state._lastModified||Date.now()).then(()=>{
       _lastCloudPushAt=Date.now();
       renderSyncBanner();
     }).catch(()=>{});
@@ -2339,63 +2359,67 @@ function _adoptRemoteState(remoteState){
   }
 }
 
-// Called by the Firebase auth-state listener whenever login/logout happens.
-async function onAuthChanged(user){
-  _authUser = user || null;
-  if(!user){
-    if(window.__sync)window.__sync.unsubscribe();
-    renderSyncBanner(); renderSyncCard();
-    return;
-  }
-  const uid = user.uid;
-  // Decide whether to adopt the account's data or seed it from this device.
-  // The newer side wins (last-modified timestamp), so a reload never clobbers
-  // unsynced local sets, and a second device picks up the first device's work.
+// Reconcile this device with the account doc: newer side wins.
+async function _syncFromAccount(key){
   try{
-    const remote = await window.__sync.pull(uid);
-    const remoteState = remote && remote.state;
-    const remoteMod = remoteState ? (remoteState._lastModified||0) : -1;
-    const localMod  = state._lastModified||0;
-    const remoteHas = remoteState && ((remoteState.history||[]).length>0 || remoteMod>0);
-    const localHas  = (state.history||[]).length>0;
-    if(remoteHas && remoteMod>=localMod){
-      // Cloud is newer (or equal) — adopt it. Back up local first.
+    const data=await window.__acct.read(key);
+    if(!data) return;
+    let remoteState=null; try{remoteState=JSON.parse(data.state||'null');}catch(e){}
+    if(!remoteState){
+      // Account has no state yet — seed it from this device.
+      await window.__acct.writeState(key, JSON.stringify(state), state._lastModified||Date.now());
+      _lastCloudPushAt=Date.now();
+      return;
+    }
+    const remoteMod=remoteState._lastModified||0;
+    const localMod=state._lastModified||0;
+    if(remoteMod>=localMod){
       snapshotBackup&&snapshotBackup();
       _adoptRemoteState(remoteState);
-      _lastCloudPushAt=Date.now();
-    } else if(localHas || !remoteHas){
-      // Local is ahead, or the account is empty — seed/refresh the cloud.
-      await window.__sync.push(uid, state);
-      _lastCloudPushAt=Date.now();
+    }else{
+      await window.__acct.writeState(key, JSON.stringify(state), localMod);
     }
-  }catch(e){ console.warn('[sync] init', e); }
-  // Live mirror from here on.
-  window.__sync.subscribe(uid, (remoteState, meta)=>{
-    if(!remoteState)return;
-    if(meta&&meta.deviceId===getDeviceId())return;
-    _adoptRemoteState(remoteState);
-    toast('Synced from cloud');
-  });
-  renderSyncBanner(); renderSyncCard();
+    _lastCloudPushAt=Date.now();
+  }catch(e){ console.warn('[acct] sync', e); }
 }
 
-// Hook the auth listener once Firebase is ready.
-function cloudInitOnLoad(){
-  if(!window.__auth)return;
-  window.__auth.onChange(onAuthChanged);
+// Live mirror from the account doc (ignore our own writes & stale data).
+function _subscribeAccount(key){
+  if(!window.__acct)return;
+  window.__acct.subscribe(key, (data)=>{
+    if(!data||!data.state)return;
+    if(data.deviceId===getDeviceId())return;
+    let rs=null; try{rs=JSON.parse(data.state);}catch(e){return;}
+    if(!rs)return;
+    if((rs._lastModified||0) < (state._lastModified||0))return; // ours is newer
+    _adoptRemoteState(rs);
+    toast('Synced from cloud');
+  });
+}
+
+// On page load: resume a saved session, reconcile, and start the live mirror.
+async function cloudInitOnLoad(){
+  if(!window.__acct){ renderSyncBanner&&renderSyncBanner(); return; }
+  if(_session){
+    await _syncFromAccount(_session.key);
+    _subscribeAccount(_session.key);
+  }
+  renderSyncBanner&&renderSyncBanner(); renderSyncCard&&renderSyncCard();
 }
 
 // Manual immediate pull (banner "PULL NOW") for when a device looks behind.
 async function manualCloudPull(){
   if(!currentUid()){openLogin();return;}
-  if(!window.__sync){toast('Cloud not loaded yet');return;}
+  if(!window.__acct){toast('Cloud not loaded yet');return;}
   toast('Pulling from cloud…');
   try{
-    const remote=await window.__sync.pull(currentUid());
-    if(!remote||!remote.state){toast('Account has no data yet');return;}
-    if(remote.deviceId===getDeviceId()){toast('Already up to date');_lastCloudPushAt=Date.now();renderSyncBanner();return;}
+    const data=await window.__acct.read(currentUid());
+    if(!data||!data.state){toast('Account has no data yet');return;}
+    let rs=null; try{rs=JSON.parse(data.state);}catch(e){}
+    if(!rs){toast('Cloud data unreadable');return;}
+    if(data.deviceId===getDeviceId()){toast('Already up to date');_lastCloudPushAt=Date.now();renderSyncBanner();return;}
     snapshotBackup&&snapshotBackup();
-    _adoptRemoteState(remote.state);
+    _adoptRemoteState(rs);
     _lastCloudPushAt=Date.now();
     renderSyncBanner();
     toast('Synced — latest pulled');
@@ -2493,26 +2517,52 @@ async function submitLogin(){
   const pw=(document.getElementById('login-pw').value||'');
   const err=document.getElementById('login-error');
   const btn=document.getElementById('login-submit');
+  const signup=_loginMode==='signup';
   if(!email||!pw){ if(err)err.textContent='Enter email and password.'; return; }
-  if(!window.__auth){ if(err)err.textContent='Still loading — try again in a second.'; return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ if(err)err.textContent='That email looks invalid.'; return; }
+  if(signup && pw.length<6){ if(err)err.textContent='Use at least 6 characters.'; return; }
+  if(!window.__acct){ if(err)err.textContent='Still loading — try again in a second.'; return; }
   if(btn){btn.disabled=true;btn.textContent='…';}
+  if(err)err.textContent='';
   try{
-    if(_loginMode==='signup') await window.__auth.signup(email, pw);
-    else await window.__auth.login(email, pw);
-    // onAuthChanged handles sync. Close the modal.
-    closeLogin();
-    toast(_loginMode==='signup'?'Account created':'Logged in');
+    const key=await _emailKey(email);
+    const existing=await window.__acct.read(key);
+    if(signup){
+      if(existing) throw new Error('That email already has an account — log in instead.');
+      const salt=_newSalt();
+      const pwHash=await _pbkdf2(pw, salt);
+      state._lastModified=state._lastModified||Date.now();
+      await window.__acct.create(key, {
+        email: email.toLowerCase(),
+        salt, pwHash,
+        state: JSON.stringify(state),
+        _lastModified: state._lastModified
+      });
+      _session={key, email:email.toLowerCase()}; _saveSession(_session);
+      _lastCloudPushAt=Date.now();
+      _subscribeAccount(key);
+      closeLogin(); toast('Account created');
+    }else{
+      if(!existing || !existing.salt) throw new Error('Wrong email or password.');
+      const pwHash=await _pbkdf2(pw, existing.salt);
+      if(pwHash!==existing.pwHash) throw new Error('Wrong email or password.');
+      _session={key, email:email.toLowerCase()}; _saveSession(_session);
+      await _syncFromAccount(key);
+      _subscribeAccount(key);
+      closeLogin(); toast('Logged in');
+    }
+    renderSyncBanner(); renderSyncCard();
   }catch(e){
-    if(err)err.textContent=window.__auth.mapError(e);
+    if(err)err.textContent=(e&&e.message)||'Something went wrong.';
   }finally{
-    // Re-enable the button WITHOUT calling syncLoginRender() — that would wipe
-    // the error message we just set, making failures look like "nothing happened".
-    if(btn){btn.disabled=false;btn.textContent=(_loginMode==='signup'?'CREATE ACCOUNT':'LOG IN');}
+    // Re-enable WITHOUT syncLoginRender() — that would wipe the error message.
+    if(btn){btn.disabled=false;btn.textContent=(signup?'CREATE ACCOUNT':'LOG IN');}
   }
 }
 async function doLogout(){
   if(!confirm('Log out? Your lifts stay safe in the cloud and on this device.'))return;
-  try{ await window.__auth.logout(); }catch(e){}
+  if(window.__acct)window.__acct.unsubscribe();
+  _session=null; _saveSession(null);
   toast('Logged out');
   renderSyncBanner(); renderSyncCard();
 }
@@ -4400,7 +4450,7 @@ renderToday();
 
 // Cloud sync kicks in after Firebase module reports ready. Will pull-on-load if syncCode is set.
 window.addEventListener('dumbass:sync-ready',()=>{cloudInitOnLoad();});
-if(window.__auth)cloudInitOnLoad();
+if(window.__acct)cloudInitOnLoad();
 
 // === LAN LIVE-RELOAD === only on local network, harmless elsewhere
 (function(){
@@ -4568,8 +4618,7 @@ if(window.__auth)cloudInitOnLoad();
 ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, updateDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8cBJlSucIESwRYruh55u15xX21YEMbyM",
@@ -4582,10 +4631,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
-setPersistence(auth, browserLocalPersistence).catch(()=>{});
 
-const COLLECTION = "dumbass-lift";  // doc id = the user's auth UID
+// Account-based sync WITHOUT Firebase Auth (Auth requires a console/billing step
+// we can't do for the user). Each account is one Firestore doc in `accounts`,
+// keyed by a hash of the email, holding the password hash + the synced state.
+const COLLECTION = "accounts";
 let unsub = null;
 
 function getDeviceIdLocal(){
@@ -4593,61 +4643,47 @@ function getDeviceIdLocal(){
   if(!d){d='d-'+Math.random().toString(36).slice(2,10);localStorage.setItem('dumbass_device_id',d);}
   return d;
 }
-function refOf(uid){ return doc(db, COLLECTION, uid); }
+function refOf(key){ return doc(db, COLLECTION, key); }
 
-async function push(uid, stateObj){
-  if(!uid)return;
-  const payload = {
-    state: JSON.stringify(stateObj),
+// Read a full account doc (auth fields + state). Returns null if missing.
+async function acctRead(key){
+  const snap = await getDoc(refOf(key));
+  if(!snap.exists()) return null;
+  return snap.data() || null;
+}
+// Create a brand-new account doc (auth + seeded state).
+async function acctCreate(key, fields){
+  await setDoc(refOf(key), {
+    ...fields,
     deviceId: getDeviceIdLocal(),
-    updatedAt: serverTimestamp(),
-    clientTime: Date.now()
-  };
-  await setDoc(refOf(uid), payload);
-}
-async function pull(uid){
-  const snap = await getDoc(refOf(uid));
-  if(!snap.exists())return null;
-  const data = snap.data();
-  let parsed=null;
-  try{ parsed = JSON.parse(data.state); }catch(e){ return null; }
-  return { state: parsed, deviceId: data.deviceId||'', clientTime: data.clientTime||0 };
-}
-function subscribe(uid, cb){
-  if(unsub){try{unsub();}catch(e){}unsub=null;}
-  unsub = onSnapshot(refOf(uid), snap=>{
-    if(!snap.exists())return;
-    const data = snap.data();
-    let parsed=null;
-    try{ parsed = JSON.parse(data.state); }catch(e){ return; }
-    cb(parsed, { deviceId: data.deviceId||'', clientTime: data.clientTime||0 });
-  }, err=>{
-    console.warn('[sync] subscribe error', err);
+    updatedAt: serverTimestamp()
   });
 }
-function unsubscribe(){ if(unsub){try{unsub();}catch(e){}unsub=null;} }
-
-window.__sync = { push, pull, subscribe, unsubscribe, getDeviceId: getDeviceIdLocal };
-
-// --- ACCOUNT AUTH (email + password) ---
-function mapAuthError(e){
-  const c = (e && e.code) || '';
-  if(c==='auth/operation-not-allowed'||c==='auth/configuration-not-found') return 'Login not switched on yet. In the Firebase console: Authentication → Get started → enable Email/Password. Then try again.';
-  if(c==='auth/invalid-email') return 'That email looks invalid.';
-  if(c==='auth/email-already-in-use') return 'That email already has an account — log in instead.';
-  if(c==='auth/weak-password') return 'Password too weak — use at least 6 characters.';
-  if(c==='auth/invalid-credential'||c==='auth/wrong-password'||c==='auth/user-not-found') return 'Wrong email or password.';
-  if(c==='auth/network-request-failed') return 'No connection — check the network and try again.';
-  if(c==='auth/too-many-requests') return 'Too many attempts. Wait a moment and retry.';
-  return (e && e.message) || 'Something went wrong.';
+// Update ONLY the synced state on an existing account (auth fields untouched).
+async function acctWriteState(key, stateJson, lastModified){
+  await updateDoc(refOf(key), {
+    state: stateJson,
+    _lastModified: lastModified,
+    deviceId: getDeviceIdLocal(),
+    updatedAt: serverTimestamp()
+  });
 }
-window.__auth = {
-  signup: (email, pw) => createUserWithEmailAndPassword(auth, email, pw),
-  login:  (email, pw) => signInWithEmailAndPassword(auth, email, pw),
-  logout: () => signOut(auth),
-  onChange: (cb) => onAuthStateChanged(auth, cb),
-  current: () => auth.currentUser,
-  mapError: mapAuthError,
+function acctSubscribe(key, cb){
+  if(unsub){try{unsub();}catch(e){}unsub=null;}
+  unsub = onSnapshot(refOf(key), snap=>{
+    if(!snap.exists())return;
+    cb(snap.data()||{});
+  }, err=>{ console.warn('[acct] subscribe error', err); });
+}
+function acctUnsubscribe(){ if(unsub){try{unsub();}catch(e){}unsub=null;} }
+
+window.__acct = {
+  read: acctRead,
+  create: acctCreate,
+  writeState: acctWriteState,
+  subscribe: acctSubscribe,
+  unsubscribe: acctUnsubscribe,
+  getDeviceId: getDeviceIdLocal,
 };
 window.dispatchEvent(new Event('dumbass:sync-ready'));
 </script>
