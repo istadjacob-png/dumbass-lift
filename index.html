@@ -1103,6 +1103,15 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .chart-svg{width:100%;height:auto;display:block;touch-action:manipulation}
 .chart-hint{text-align:center;font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.22em;color:var(--text-faint);text-transform:uppercase;margin-top:2px;font-weight:600}
 
+/* ============ PROFILE TRAINING STATS ============ */
+.pstat-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-top:10px}
+.pstat{background:var(--steel-dark);border:1px solid var(--border-soft);border-radius:9px;padding:11px 4px;text-align:center}
+.pstat .pv{font-family:'Bebas Neue',sans-serif;font-size:25px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.pstat .pv .accent{color:var(--cobalt-bright)}
+.pstat .pl{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.12em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin-top:5px}
+.pstat-foot{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-dim);margin-top:12px;line-height:1.6;text-align:center}
+.pstat-foot b{color:var(--text)}
+
 </style>
 </head>
 <body>
@@ -1304,12 +1313,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     </div>
 
     <div class="profile-card">
-      <div class="field-label">Body Weight · KG</div>
-      <div class="bw-row">
-        <input class="profile-input bw-input" id="profile-bw" type="number" inputmode="decimal" step="0.1" placeholder="—">
-        <button class="btn-secondary bw-log" onclick="logBodyWeight()">Log</button>
-      </div>
-      <div id="profile-bw-history" class="bw-history"></div>
+      <div class="ds-eyebrow">Your Training</div>
+      <div id="profile-stats"></div>
     </div>
 
     <div class="profile-card">
@@ -1509,7 +1514,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-29.8';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-29.9';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4789,21 +4794,45 @@ function avatarTap(){showView('profile');}
 
 function avatarInitial(){const n=(state.userName||'').trim();return n?n[0].toUpperCase():'J';}
 
+// Lifetime training stats from your logged history — the stuff a lifter
+// actually wants on a profile.
+function profileStats(){
+  const hist=(state.history||[]).filter(h=>h&&!h.partial);
+  let sets=0,volume=0,prs=0,firstT=Infinity;
+  const liftCounts={};
+  hist.forEach(h=>{
+    const t=Date.parse(h.date)||0; if(t&&t<firstT)firstT=t;
+    const exs=h.exercises||[];
+    // Prefer the session's stored totals; fall back to summing the logged top sets
+    // so older/seed sessions without totals still count.
+    sets+=h.totalSets||exs.reduce((a,ex)=>a+(ex.completedSets||ex.targetSets||0),0);
+    volume+=h.totalVolume||exs.reduce((a,ex)=>{const kg=parseFloat(ex.topSet&&ex.topSet.kg)||0,reps=parseInt(ex.topSet&&ex.topSet.reps)||0,ss=ex.completedSets||ex.targetSets||0;return a+kg*reps*ss;},0);
+    prs+=(h.prs&&h.prs.length)||0;
+    exs.forEach(ex=>{const k=ex.name||ex.libId; if(k)liftCounts[k]=(liftCounts[k]||0)+1;});
+  });
+  let fav='',favN=0; for(const k in liftCounts){ if(liftCounts[k]>favN){favN=liftCounts[k];fav=k;} }
+  const since=isFinite(firstT)?new Date(firstT):null;
+  const weeks=since?Math.max(1,Math.round((Date.now()-firstT)/(7*86400000))):0;
+  let streak=0; try{ streak=computeAccountability().streak||0; }catch(e){}
+  return {sessions:hist.length,sets,volume,prs,fav,since,weeks,streak};
+}
+
 function renderProfile(){
   try{updateNotifUI();}catch(e){}
   document.getElementById('profile-name').value=state.userName||'';
-  document.getElementById('profile-bw').value='';
-  const list=document.getElementById('profile-bw-history');
-  if(!state.bodyWeight||state.bodyWeight.length===0){
-    list.innerHTML='<div class="bw-empty">No weigh-ins yet</div>';
-  }else{
-    const sorted=[...state.bodyWeight].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
-    list.innerHTML=sorted.map(w=>{
-      const d=new Date(w.date);
-      const dateStr=d.toLocaleDateString('en',{month:'short',day:'numeric'}).toUpperCase();
-      return `<div class="bw-item"><span>${dateStr}</span><span class="v">${w.kg} KG</span></div>`;
-    }).join('');
-  }
+  const st=profileStats();
+  const volStr=st.volume>=1000?(st.volume/1000).toFixed(st.volume>=10000?0:1)+' t':Math.round(st.volume)+' kg';
+  const sinceStr=st.since?st.since.toLocaleDateString('en',{month:'short',year:'numeric'}):'—';
+  const el=document.getElementById('profile-stats');
+  if(el)el.innerHTML=`
+    <div class="pstat-grid">
+      <div class="pstat"><div class="pv">${st.sessions}</div><div class="pl">Sessions</div></div>
+      <div class="pstat"><div class="pv">${st.streak}</div><div class="pl">Day streak</div></div>
+      <div class="pstat"><div class="pv"><span class="accent">${st.prs}</span></div><div class="pl">PRs hit</div></div>
+      <div class="pstat"><div class="pv">${volStr}</div><div class="pl">Lifted</div></div>
+    </div>
+    ${st.sessions?`<div class="pstat-foot">Training since <b>${sinceStr}</b> · ${st.weeks} week${st.weeks!==1?'s':''} · ${st.sets} sets logged${st.fav?`<br>Most trained · <b>${esc(st.fav)}</b>`:''}</div>`:'<div class="pstat-foot">Log your first workout and your stats build up here.</div>'}
+  `;
   const status=document.getElementById('ds-status');
   if(status)status.textContent=backupStatusText();
   renderSyncCard();renderSyncBanner();
@@ -4813,18 +4842,6 @@ function saveProfileName(val){
   state.userName=val;
   save();
   document.getElementById('avatar-btn').textContent=avatarInitial();
-}
-
-function logBodyWeight(){
-  const inp=document.getElementById('profile-bw');
-  const kg=parseFloat(inp.value);
-  if(!kg||kg<=0){toast('Enter your weight first');return;}
-  if(!Array.isArray(state.bodyWeight))state.bodyWeight=[];
-  state.bodyWeight.push({date:new Date().toISOString(),kg:Math.round(kg*10)/10});
-  save();
-  inp.value='';
-  renderProfile();
-  toast(`Logged ${kg} kg`);
 }
 
 function resetAllData(){
