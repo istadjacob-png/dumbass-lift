@@ -1512,7 +1512,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-29.3';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-29.4';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3449,7 +3449,7 @@ function renderToday(){
   const isRealToday=(state.currentDayIdx===todayScheduleIdx());
   document.getElementById('today-eyebrow').textContent=isRealToday?`${wd} · TODAY`:wd;
   const nameParts=t.name.split(' & ');
-  document.getElementById('today-title').innerHTML=nameParts.length===2?`<span style="white-space:nowrap">${nameParts[0]} &amp;</span> <span class="accent">${nameParts[1]}</span>`:`<span class="accent">${t.name}</span>`;
+  document.getElementById('today-title').innerHTML=nameParts.length===2?`<span style="white-space:nowrap">${esc(nameParts[0])} &amp;</span> <span class="accent">${esc(nameParts[1])}</span>`:`<span class="accent">${esc(t.name)}</span>`;
   const dq=document.getElementById('daily-quote');
   if(dq){
     const quote=dailyQuote();
@@ -3491,7 +3491,7 @@ function renderToday(){
       <div class="ex-grip" title="Hold to drag · tap to open"></div>
       <div class="ex-check" onclick="event.stopPropagation();openExercise(${i})"></div>
       <div class="ex-info" onclick="openExercise(${i})">
-        <div class="ex-name">${ex.name}</div>
+        <div class="ex-name">${esc(ex.name)}</div>
         <div class="ex-meta">${metaInner}</div>
       </div>
       <button class="ex-edit" onclick="event.stopPropagation();toggleSetsEdit(${i})" title="Edit sets / reps">✎</button>
@@ -3884,13 +3884,13 @@ function renderProgHistory(){
     .filter(ex=>ex.topSet&&ex.topSet.kg)
     .map(ex=>{
       const isPr=lastPrSet.has(ex.name);
-      return `<div class="hl-lift${isPr?' is-pr':''}">${ex.name} · <b>${ex.topSet.kg}×${ex.topSet.reps}</b></div>`;
+      return `<div class="hl-lift${isPr?' is-pr':''}">${esc(ex.name)} · <b>${ex.topSet.kg}×${ex.topSet.reps}</b></div>`;
     }).join('');
   const lastD=new Date(last.date);
   const lastDateStr=lastD.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
   const lastHtml=`<div class="hist-last">
     <div class="hl-eyebrow">Last Session · ${lastDateStr}</div>
-    <div class="hl-title">DAY ${last.dayNum} · ${last.name.toUpperCase()}</div>
+    <div class="hl-title">DAY ${last.dayNum} · ${esc(last.name.toUpperCase())}</div>
     <div class="hl-lifts">${lastLifts}</div>
   </div>`;
 
@@ -3919,7 +3919,7 @@ function renderProgHistory(){
           :(hasPr?`<b>${h.prs.length}</b> PR`:`${h.totalSets} SETS`);
         const row=`<div class="hist-row${isOpen?' open':''}" onclick="toggleHistoryRow('${h.date}')">
           <div class="hr-date">${dateStr}</div>
-          <div class="hr-day">Day ${h.dayNum} · ${h.name}</div>
+          <div class="hr-day">Day ${h.dayNum} · ${esc(h.name)}</div>
           <div class="hr-meta">${meta}</div>
         </div>`;
         if(!isOpen)return row;
@@ -3929,7 +3929,7 @@ function renderProgHistory(){
           .map(ex=>{
             const isPr=prSet.has(ex.name);
             const key=(ex.libId||'')+'::'+(ex.name||'');
-            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${ex.name}${isPr?' · PR':''}</span><span class="t">${ex.targetSets}×${ex.targetReps}</span><span class="v">${ex.topSet.kg}KG × ${ex.topSet.reps}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this set">×</button></div>`;
+            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${esc(ex.name)}${isPr?' · PR':''}</span><span class="t">${ex.targetSets}×${ex.targetReps}</span><span class="v">${ex.topSet.kg}KG × ${ex.topSet.reps}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this set">×</button></div>`;
           }).join('');
         const liveTag=h.partial?'<span class="hd-tag">● Logging in progress</span>':'<span class="hd-tag">● Completed</span>';
         const foot=`<div class="hd-foot">${liveTag}<button class="hd-del-all" onclick="event.stopPropagation();deleteHistorySession('${safeDate}')">Delete session</button></div>`;
@@ -4047,9 +4047,9 @@ function renderProgLifts(){
     if(ex&&ex.topSet&&ex.topSet.kg){
       const w=parseFloat(ex.topSet.kg)||0;if(w<=0)return;
       const reps=parseInt(ex.topSet.reps)||0;
-      const sets=ex.targetSets||0;
+      const sets=ex.completedSets||ex.targetSets||0;   // sets actually performed, not just planned
       let val;
-      if(metric==='e1rm')val=Math.round(w*(1+reps/30)*2)/2;   // Epley estimated 1RM
+      if(metric==='e1rm')val=reps<=1?w:Math.round(w*(1+reps/30)*2)/2;   // Epley estimated 1RM (a true single IS the 1RM)
       else if(metric==='vol')val=Math.round(w*reps*sets);      // top-set tonnage
       else val=w;                                              // raw top-set weight
       sessions.push({date:h.date,weight:w,reps:reps,sets:sets,val:val});
@@ -4090,7 +4090,7 @@ function renderProgLifts(){
 
   c.innerHTML=`
     <button class="lift-picker" onclick="openLiftPicker()">
-      <div style="min-width:0"><div class="lp-l">Viewing</div><div class="lp-name">${state.selectedLift.name}</div></div>
+      <div style="min-width:0"><div class="lp-l">Viewing</div><div class="lp-name">${esc(state.selectedLift.name)}</div></div>
       <div class="lp-chev">▾</div>
     </button>
 
@@ -4107,7 +4107,7 @@ function renderProgLifts(){
     </div>
 
     <div class="chart-box">
-      <div class="chart-title">${state.selectedLift.name} · ${chartLabel}</div>
+      <div class="chart-title">${esc(state.selectedLift.name)} · ${chartLabel}</div>
       <svg class="chart-svg" id="weight-chart" viewBox="0 0 360 210" preserveAspectRatio="xMidYMid meet"></svg>
       <div class="chart-hint">${sessions.length>1?'Tap any point for the details':'Log another session to see your trend'}</div>
     </div>
@@ -4140,25 +4140,13 @@ function renderLiftPick(){
     const sub=last?`Last ${last.kg}kg × ${last.reps} · ${l.count} session${l.count>1?'s':''}`:`${l.count} session${l.count>1?'s':''}`;
     const active=(l.libId||l.name)===cur;
     const key=(l.libId||l.name).replace(/'/g,"\\'");
-    return `<div class="modal-row${active?' active':''}" onclick="pickLift('${key}')"><div style="min-width:0"><div class="name">${l.name}</div><div class="meta">${sub}</div></div>${active?'<div style="color:var(--cobalt-bright);font-size:18px;font-weight:700">✓</div>':'<div style="color:var(--text-faint);font-size:20px">›</div>'}</div>`;
+    return `<div class="modal-row${active?' active':''}" onclick="pickLift('${key}')"><div style="min-width:0"><div class="name">${esc(l.name)}</div><div class="meta">${sub}</div></div>${active?'<div style="color:var(--cobalt-bright);font-size:18px;font-weight:700">✓</div>':'<div style="color:var(--text-faint);font-size:20px">›</div>'}</div>`;
   }).join('');
   document.getElementById('liftpick-results').innerHTML=rows||'<div class="empty-state">No matches</div>';
 }
 function pickLift(id){selectLift(id);document.getElementById('liftpick-modal').classList.remove('open');}
 function setMetric(m){state.progMetric=m;try{save();}catch(e){}renderProgLifts();}
 
-function updateLiftSearch(val){
-  state.liftSearch=val;
-  // Re-render only the chip row (not the whole tab — keeps the input focused)
-  const liftArray=_progLiftArray();
-  const filtered=val?liftArray.filter(l=>l.name.toLowerCase().includes(val.toLowerCase())):liftArray;
-  const row=document.getElementById('lift-chip-row');
-  if(row){
-    row.innerHTML=filtered.length===0
-      ?'<div style="font-family:\'Oswald\',sans-serif;font-size:11px;color:var(--text-faint);letter-spacing:.15em;padding:6px 10px;text-transform:uppercase">No matches</div>'
-      :filtered.map(l=>`<button class="lift-chip ${(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name)?'active':''}" onclick="selectLift('${l.libId||l.name}')">${l.name}</button>`).join('');
-  }
-}
 function selectLift(id){const l=_progLiftArray().find(x=>(x.libId||x.name)===id);if(l)state.selectedLift=l;renderProgLifts();}
 
 // Catmull-Rom → cubic-bezier smoothing, with control points clamped inside the plot.
@@ -4278,7 +4266,7 @@ function drawChart(id,points,opts){
 let libMode='add'; // 'add' or 'swap'
 function openExLibrary(){libMode='add';document.getElementById('lib-title').innerHTML='ADD <span class="accent">EXERCISE</span>';document.getElementById('lib-search').value='';filterLib();document.getElementById('lib-modal').classList.add('open');}
 function openSwap(){libMode='swap';document.getElementById('lib-title').innerHTML='SWAP <span class="accent">EXERCISE</span>';document.getElementById('lib-search').value='';filterLib();document.getElementById('lib-modal').classList.add('open');}
-function closeModalBg(e){if(e.target.classList.contains('modal-bg'))e.target.classList.remove('open');}
+function closeModalBg(e){if(e.target.classList.contains('modal-bg')){e.target.classList.remove('open');if(e.target.id==='setsreps-modal')pendingEx=null;}}
 function openCustomExForm(){
   const sel=document.getElementById('cx-muscle');
   sel.innerHTML=Object.keys(MUSCLE_NAMES).map(k=>`<option value="${k}">${MUSCLE_NAMES[k]}</option>`).join('');
@@ -4315,7 +4303,7 @@ function deleteCustomExercise(id){
   filterLib();
   toast('Deleted');
 }
-function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=getLibrary().filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>{const custom=e.custom?` <span style="color:var(--cobalt-bright);font-size:9px;letter-spacing:.15em">· CUSTOM</span>`:'';const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';return `<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${e.name}${custom}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;}).join('');}
+function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=getLibrary().filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>{const custom=e.custom?` <span style="color:var(--cobalt-bright);font-size:9px;letter-spacing:.15em">· CUSTOM</span>`:'';const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';return `<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(e.name)}${custom}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;}).join('');}
 function openProgramPicker(){
   const active=state.activeProgramId;
   const all=getAllPrograms();
@@ -4868,6 +4856,10 @@ const VAPID_PUBLIC_KEY='BENuzycG9643G7Uuwav_VoxR0fzodkYb8DkFjszpOnr5LXTaO2lwKiyY
 
 function scheduleSnapshot(){return (getActiveSchedule()||[]).map(s=>({name:s.name||'',type:s.type||'train'}));}
 
+// Escape user-controlled text before it goes into innerHTML (custom lift names
+// are user-entered and now also arrive via cloud sync, so treat them as untrusted).
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
 // Which schedule slot a given calendar date maps to — mirrors todayScheduleIdx()
 // so accountability honors a pinned "Set day" anchor, not just the weekday.
 function scheduleIdxForDate(d){
@@ -4909,7 +4901,7 @@ function computeAccountability(){
     if(!slot||slot.type==='rest')continue;
     if(done.has(ymd(d)))break;            // trained this day → end of the skip run
     missedCount++;
-    if(catchUpIdx===-1){catchUpIdx=idx;catchUpName=slot.name||'';missedName=(typeof weekdayLabel==='function')?weekdayLabel(idx):'';}
+    if(catchUpIdx===-1){catchUpIdx=idx;catchUpName=slot.name||'';missedName=(typeof weekdayLabel==='function')?weekdayLabel((d.getDay()+6)%7):'';}
   }
   const missedPrev=missedCount>0;
   // Next upcoming training day (for the rest screen's "tomorrow" line)
