@@ -1,16 +1,35 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // DUMBASS accounts: one doc per user, keyed by a hash of the email.
-    // - get: read a single account by exact id (needed for login).
-    // - create/update: signup + ongoing state sync.
-    // - list denied: nobody can enumerate the collection and harvest hashes.
-    // - delete denied from the client.
+    // DUMBASS accounts: one doc per user, keyed by SHA-256 of the email.
+    // There is no Firebase Auth (it needs a billing step), so authorization is
+    // limited to what rules can enforce without a verified identity:
+    //   - reads stay open (login must fetch its own doc by id to check the
+    //     password), but enumeration is blocked and ids are hashes, so a read
+    //     requires already knowing the exact email — it is targeted-only.
+    //   - the password hash, salt and email are IMMUTABLE after creation, so
+    //     no one can take over an account or wipe its auth fields.
+    //   - state must be a sane-sized string, capping data-destruction and
+    //     cost-abuse via giant writes.
     match /accounts/{id} {
       allow get: if true;
-      allow create, update: if true;
-      allow list, delete: if false;
+      allow list: if false;
+      allow delete: if false;
+
+      allow create: if request.resource.data.keys().hasAll(['email', 'salt', 'pwHash', 'state'])
+                    && request.resource.data.email is string
+                    && request.resource.data.salt is string
+                    && request.resource.data.pwHash is string
+                    && request.resource.data.state is string
+                    && request.resource.data.state.size() < 800000;
+
+      allow update: if request.resource.data.pwHash == resource.data.pwHash
+                    && request.resource.data.salt == resource.data.salt
+                    && request.resource.data.email == resource.data.email
+                    && request.resource.data.state is string
+                    && request.resource.data.state.size() < 800000;
     }
+
     // Everything else is closed.
     match /{document=**} {
       allow read, write: if false;

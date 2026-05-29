@@ -29,6 +29,10 @@ function localWeekdayMon0(tz, when = new Date()) {
   const wd = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(when);
   return { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 }[wd];
 }
+function localHour(tz, when = new Date()) {
+  let h = parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', hour12: false }).format(when), 10);
+  return h === 24 ? 0 : h;   // some ICU builds render midnight as 24
+}
 
 async function main() {
   if (!EMAIL || !VAPID_PUBLIC || !VAPID_PRIVATE) { console.log('Missing env — skipping'); return; }
@@ -49,6 +53,18 @@ async function main() {
   if (!push || !push.sub || !push.sub.endpoint) { console.log('Notifications not enabled on any device.'); return; }
 
   const tz = push.tz || 'Europe/Oslo';
+
+  // Time gate: the workflow runs hourly, but we only nudge at the user's local
+  // 3 PM (push.hour, in push.tz) — DST- and timezone-correct, unlike a fixed UTC
+  // cron. A manual run with force=true bypasses it for testing.
+  const targetHour = push.hour || 15;
+  const force = String(process.env.FORCE || '').toLowerCase() === 'true';
+  const nowHour = localHour(tz);
+  if (!force && nowHour !== targetHour) {
+    console.log(`Not ${targetHour}:00 in ${tz} (local hour ${nowHour}) — skipping this hourly run.`);
+    return;
+  }
+
   const today = localDate(tz);
   const sched = Array.isArray(push.schedule) ? push.schedule : null;
   const len = sched ? sched.length : 7;

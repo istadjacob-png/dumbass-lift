@@ -1,11 +1,17 @@
 name: Daily don't-skip nudge
 
 # Sends the user a push notification if they haven't trained on a training day.
-# 13:00 UTC = 15:00 Europe/Oslo (summer / CEST). Free on public repos.
+# Runs hourly; nudge.mjs sends only when it's the user's local 3 PM (push.hour in
+# push.tz), so it stays correct across DST and any timezone. Free on public repos.
 on:
   schedule:
-    - cron: '0 13 * * *'
-  workflow_dispatch: {}   # lets you (or Claude) trigger a test run by hand
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Ignore the 3 PM time gate and send now (test)'
+        type: boolean
+        default: false
 
 jobs:
   nudge:
@@ -24,4 +30,5 @@ jobs:
           NUDGE_EMAIL: ${{ secrets.NUDGE_EMAIL }}
           VAPID_PUBLIC: ${{ secrets.VAPID_PUBLIC }}
           VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+          FORCE: ${{ inputs.force }}
         run: node nudge.mjs
