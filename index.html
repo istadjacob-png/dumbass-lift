@@ -1512,7 +1512,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-29.6';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-29.7';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4971,7 +4971,7 @@ function computeAccountability(){
 // Rest-day screen, but behind-aware: if you've skipped recent sessions it flips
 // from "you earned this" to "catch up", because a rest day after misses is just
 // a third skip in disguise. Otherwise it's the normal earned-rest message.
-let _restAccepted=false;
+var _restAccepted=false;   // var, not let: renderRest() can run at boot (rest-day pin) before this line, and a let would throw a TDZ error
 function renderRest(){
   const el=document.getElementById('rest-screen');if(!el)return;
   const a=computeAccountability();
