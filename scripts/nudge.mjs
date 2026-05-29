@@ -50,9 +50,20 @@ async function main() {
 
   const tz = push.tz || 'Europe/Oslo';
   const today = localDate(tz);
-  const wk = localWeekdayMon0(tz);
   const sched = Array.isArray(push.schedule) ? push.schedule : null;
-  const slot = sched ? sched[wk % sched.length] : null;
+  const len = sched ? sched.length : 7;
+
+  // Map a calendar date (YYYY-MM-DD) to its schedule slot, honoring a pinned
+  // "Set day" anchor exactly like the app's todayScheduleIdx() does.
+  const daysBetweenStr = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+  function schedIdxForDate(dateStr) {
+    const anc = state.dayAnchor;
+    if (anc && anc.date) return (((((anc.idx || 0) + daysBetweenStr(anc.date, dateStr)) % len) + len) % len);
+    const wd = new Date(dateStr + 'T12:00:00').getDay();   // weekday of that date (tz-stable at noon)
+    return ((wd + 6) % 7) % len;
+  }
+
+  const slot = sched ? sched[schedIdxForDate(today)] : null;
   const isRest = slot ? slot.type === 'rest' : false;
   const dayName = (slot && slot.name) ? slot.name : 'training';
 
@@ -62,14 +73,13 @@ async function main() {
   const trainedToday = doneDates.has(today);
 
   // Recent skip run: training days missed since the last one you actually did.
-  // Weekday-based, so a day i days ago maps to weekday ((wk - i) mod 7).
   function recentMissed() {
     if (!sched) return 0;
     let count = 0;
     for (let i = 1; i < 21; i++) {
-      const slot = sched[(((wk - i) % 7) + 7) % 7 % sched.length];
-      if (!slot || slot.type === 'rest') continue;
       const dstr = localDate(tz, new Date(Date.now() - i * 86400000));
+      const s = sched[schedIdxForDate(dstr)];
+      if (!s || s.type === 'rest') continue;
       if (doneDates.has(dstr)) break;
       count++;
     }
@@ -80,9 +90,9 @@ async function main() {
   if (isRest) {
     const missed = recentMissed();
     if (missed > 0) {
-      // A rest day right after skipped sessions is a third skip in disguise — don't soothe it.
-      title = `Rest day? You've had ${missed === 1 ? 'a day' : missed + ' days'} off`;
-      body = `Don't let it become ${missed + 1}. You're recovered — turn today into a quick catch-up session. 🔥`;
+      // A rest day right after skipped sessions is another skip in disguise — don't soothe it.
+      title = `Rest day? You've skipped ${missed} session${missed > 1 ? 's' : ''}`;
+      body = `Don't add another. You're recovered — turn today into a quick catch-up. 🔥`;
     } else {
       title = 'Rest day · DUMBASS LIFT';
       body = 'No session today. Eat, sleep, grow — recover well and back at it tomorrow. 💤';
