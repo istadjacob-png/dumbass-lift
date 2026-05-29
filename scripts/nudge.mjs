@@ -56,15 +56,37 @@ async function main() {
   const isRest = slot ? slot.type === 'rest' : false;
   const dayName = (slot && slot.name) ? slot.name : 'training';
 
-  const trainedToday = (state.history || []).some(h => {
-    if (!h || h.partial || !h.date) return false;
-    return localDate(tz, new Date(h.date)) === today;
-  });
+  const doneDates = new Set(
+    (state.history || []).filter(h => h && !h.partial && h.date).map(h => localDate(tz, new Date(h.date)))
+  );
+  const trainedToday = doneDates.has(today);
+
+  // Recent skip run: training days missed since the last one you actually did.
+  // Weekday-based, so a day i days ago maps to weekday ((wk - i) mod 7).
+  function recentMissed() {
+    if (!sched) return 0;
+    let count = 0;
+    for (let i = 1; i < 21; i++) {
+      const slot = sched[(((wk - i) % 7) + 7) % 7 % sched.length];
+      if (!slot || slot.type === 'rest') continue;
+      const dstr = localDate(tz, new Date(Date.now() - i * 86400000));
+      if (doneDates.has(dstr)) break;
+      count++;
+    }
+    return count;
+  }
 
   let title, body;
   if (isRest) {
-    title = 'Rest day · DUMBASS LIFT';
-    body = 'No session today. Eat, sleep, grow — recover well and back at it tomorrow. 💤';
+    const missed = recentMissed();
+    if (missed > 0) {
+      // A rest day right after skipped sessions is a third skip in disguise — don't soothe it.
+      title = `Rest day? You've had ${missed === 1 ? 'a day' : missed + ' days'} off`;
+      body = `Don't let it become ${missed + 1}. You're recovered — turn today into a quick catch-up session. 🔥`;
+    } else {
+      title = 'Rest day · DUMBASS LIFT';
+      body = 'No session today. Eat, sleep, grow — recover well and back at it tomorrow. 💤';
+    }
   } else if (trainedToday) {
     console.log('Already trained today — no nudge.'); return;
   } else {
