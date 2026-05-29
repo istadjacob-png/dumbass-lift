@@ -1512,7 +1512,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-29.5';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-29.6';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2327,7 +2327,20 @@ function dailyQuote(){
 
 let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],customExercises:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[],lastOpenDate:''};
 
-function loadDay(idx){_dayUnlocked=false;state.currentDayIdx=idx;const sched=getActiveSchedule();const t=sched[idx];if(!t)return;state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:t.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};restoreLiveSessionIntoToday();save();}
+function loadDay(idx){
+  _dayUnlocked=false;
+  // Defensive: a corrupt/empty active program (bad import, failed migration) must
+  // never leave state.today null — that blanks the whole screen. Fall back to the
+  // default split and clamp the index so we always land on a real training day.
+  let sched; try{ sched=getActiveSchedule(); }catch(e){ sched=null; }
+  if(!Array.isArray(sched)||!sched.length){ state.activeProgramId='aesthetic-6'; state.programs=state.programs||{}; try{ sched=getActiveSchedule(); }catch(e){ sched=null; } }
+  if(!Array.isArray(sched)||!sched.length)return;
+  if(typeof idx!=='number'||!isFinite(idx)||idx<0||idx>=sched.length)idx=0;
+  state.currentDayIdx=idx;
+  const t=sched[idx];if(!t)return;
+  state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:(Array.isArray(t.exercises)?t.exercises:[]).map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};
+  restoreLiveSessionIntoToday();save();
+}
 
 // === LIVE SESSION PERSISTENCE ===
 // Every logged top set is immediately upserted into state.history as a "partial" session,
@@ -4839,22 +4852,38 @@ load();
 if(!state.introSeen&&state.history.length===0)document.getElementById('intro').classList.remove('hidden');
 else document.getElementById('intro').classList.add('hidden');
 document.getElementById('avatar-btn').textContent=avatarInitial();
-try{ renderToday(); }catch(e){ console.error('renderToday failed at boot', e); }
+let _bootErr=null;
+try{ renderToday(); }catch(e){ _bootErr=e; console.error('renderToday failed at boot', e); }
 
-// Self-heal: an installed PWA can get stuck showing a cached shell with a blank
-// body (stale build, or a render throw on odd state). Never leave the user on a
-// blank screen — bust the cache once, then offer a manual reload.
+// Self-heal: never leave the user on a blank screen. A pure stale-cache blank
+// (no error) gets one cache-busting reload; a real render error shows a recovery
+// panel with the cause + a history-preserving fix.
 function _dlReload(){ try{ sessionStorage.removeItem('dl_recover'); }catch(e){} location.replace(location.pathname+'?fresh='+Date.now()); }
+function _dlSafeReset(){
+  try{
+    state.activeProgramId='aesthetic-6';
+    state.currentDayIdx=0;
+    delete state.dayAnchor;
+    state.today=null;
+    state.programs={};               // drop corrupt program tweaks; HISTORY + body weight are kept
+    save();
+  }catch(e){}
+  try{ sessionStorage.removeItem('dl_recover'); }catch(e){}
+  location.replace(location.pathname+'?fresh='+Date.now());
+}
+function _dlRecovery(){
+  var safe=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+  var diag='';
+  try{ var s=(typeof getActiveSchedule==='function')?getActiveSchedule():null; diag='build '+APP_BUILD+' · program '+(state&&state.activeProgramId)+' · day '+(state&&state.currentDayIdx)+' · sched '+(s&&s.length!=null?s.length:'none')+' · history '+((state&&state.history)?state.history.length:'?'); }catch(e){}
+  var msg=_bootErr?('Render error: '+String((_bootErr&&_bootErr.message)||_bootErr)):'The app got stuck on an old version.';
+  document.body.insertAdjacentHTML('beforeend','<div style="position:fixed;inset:0;background:#fff;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:28px"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:34px;color:#FF3300">SOMETHING BROKE</div><div style="font-family:\'Oswald\',sans-serif;color:#3A3A3A;max-width:300px;font-size:13px;line-height:1.5">'+safe(msg)+'</div><button onclick="_dlSafeReset()" style="background:#FF3300;color:#fff;border:none;border-radius:10px;padding:15px 28px;font-family:\'Oswald\',sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;cursor:pointer">Fix it · keeps your history</button><button onclick="_dlReload()" style="background:none;border:none;color:#7A7A7A;font-family:\'Oswald\',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer">Just reload</button><div style="font-family:monospace;font-size:9px;color:#B0B0B0;margin-top:6px;max-width:320px;word-break:break-word">'+safe(diag)+'</div></div>');
+}
 try{
-  const _av=document.querySelector('.view.active');
-  const _hasContent=_av && (_av.textContent||'').replace(/\s+/g,'').length>5;
+  var _av=document.querySelector('.view.active');
+  var _hasContent=_av && (_av.textContent||'').replace(/\s+/g,'').length>5;
   if(_hasContent){ try{ sessionStorage.removeItem('dl_recover'); }catch(e){} }
-  else if(!sessionStorage.getItem('dl_recover')){
-    sessionStorage.setItem('dl_recover','1');
-    location.replace(location.pathname+'?fresh='+Date.now());
-  }else{
-    document.body.insertAdjacentHTML('beforeend','<div style="position:fixed;inset:0;background:#fff;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:34px;color:#FF3300">REFRESH NEEDED</div><div style="font-family:\'Oswald\',sans-serif;color:#3A3A3A;max-width:280px;font-size:14px;line-height:1.5">The app got stuck on an old version. Tap below to load the latest.</div><button onclick="_dlReload()" style="background:#FF3300;color:#fff;border:none;border-radius:10px;padding:15px 30px;font-family:\'Oswald\',sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;cursor:pointer">Reload App</button></div>');
-  }
+  else if(!_bootErr && !sessionStorage.getItem('dl_recover')){ sessionStorage.setItem('dl_recover','1'); location.replace(location.pathname+'?fresh='+Date.now()); }
+  else{ _dlRecovery(); }
 }catch(e){}
 
 // Cloud sync kicks in after Firebase module reports ready. Will pull-on-load if syncCode is set.
