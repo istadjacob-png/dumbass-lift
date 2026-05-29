@@ -1060,18 +1060,15 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .target-edit .te-x{font-family:'Inter',sans-serif;font-weight:900;font-size:24px;color:#000;align-self:center;margin-top:18px}
 
 /* ============ ACCOUNTABILITY STRIP (TODAY) ============ */
-.acct{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;margin:0 0 16px;border:1px solid var(--border);background:var(--steel-dark)}
-.acct-ico{font-size:22px;line-height:1;flex-shrink:0}
+.acct{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:9px;margin:0 0 16px;background:var(--steel);border-left:3px solid var(--text-faint)}
+.acct-ico{font-size:14px;line-height:1;flex-shrink:0;opacity:.8}
 .acct-body{flex:1;min-width:0}
-.acct-title{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text);line-height:1.1}
-.acct-sub{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-dim);letter-spacing:.01em;margin-top:3px}
-.acct.behind{background:rgba(255,51,0,.07);border-color:var(--red);border-left:4px solid var(--red);animation:pulseGlow 2.4s ease-in-out infinite}
+.acct-title{font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--text);line-height:1.15}
+.acct-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.01em;margin-top:2px}
+.acct.behind{border-left-color:var(--red)}
 .acct.behind .acct-title{color:var(--red)}
-.acct.streak{border-left:4px solid var(--cobalt-bright)}
-.acct.done{background:#000;border-color:#000}
-.acct.done .acct-title{color:#fff}
-.acct.done .acct-sub{color:#bdbdbd}
-.acct.rest{border-left:4px solid var(--text-faint);background:var(--steel)}
+.acct.streak{border-left-color:var(--cobalt-bright)}
+.acct.done{border-left-color:#000}
 .acct .acct-flame{font-variant-numeric:tabular-nums}
 
 /* ============ SETS × REPS PROMPT ============ */
@@ -1512,7 +1509,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-29.7';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-29.8';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -5013,26 +5010,26 @@ function renderAccountability(){
   const a=computeAccountability();
   if(a.todayIsRest){el.style.display='none';return;}
   const wk=`${a.doneThisWeek}/${a.weekTotal} this week`;
-  let cls='acct',ico='🔥',title='',sub='';
+  let cls='acct',ico='',title='',sub='';
   if(a.trainedToday){
     cls+=' done';ico='✓';
-    title=a.streak>1?`${a.streak}-day streak — locked in`:'Done today — nice work';
+    title=a.streak>1?`${a.streak}-day streak`:'Done today';
     sub=`${wk} · back tomorrow`;
   }else if(a.missedPrev){
-    cls+=' behind';ico='⚠️';
-    title=`You skipped ${a.missedName||'your last session'}`;
-    sub=`Don't make it two — train today · ${wk}`;
+    cls+=' behind';ico='';
+    title=`Missed ${a.missedName||'last session'}`;
+    sub=`Back on it today · ${wk}`;
   }else if(a.streak>0){
     cls+=' streak';ico='🔥';
-    title=`${a.streak}-day streak — don't break it`;
-    sub=`Today's session keeps it alive · ${wk}`;
+    title=`${a.streak}-day streak`;
+    sub=`Keep it going · ${wk}`;
   }else{
-    cls+=' streak';ico='💪';
-    title='Start your streak today';
-    sub=`One session and you're rolling · ${wk}`;
+    cls+=' streak';ico='';
+    title='Start your streak';
+    sub=wk;
   }
   el.className=cls;el.style.display='';
-  el.innerHTML=`<div class="acct-ico">${ico}</div><div class="acct-body"><div class="acct-title">${title}</div><div class="acct-sub">${sub}</div></div>`;
+  el.innerHTML=`${ico?`<div class="acct-ico">${ico}</div>`:''}<div class="acct-body"><div class="acct-title">${title}</div><div class="acct-sub">${sub}</div></div>`;
 }
 
 function urlB64ToUint8Array(s){
