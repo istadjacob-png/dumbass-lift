@@ -1104,7 +1104,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .chart-hint{text-align:center;font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.22em;color:var(--text-faint);text-transform:uppercase;margin-top:2px;font-weight:600}
 
 /* ============ PROFILE TRAINING STATS ============ */
-.pstat-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-top:10px}
+.pstat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .pstat{background:var(--steel-dark);border:1px solid var(--border-soft);border-radius:9px;padding:11px 4px;text-align:center}
 .pstat .pv{font-family:'Bebas Neue',sans-serif;font-size:25px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:.01em}
 .pstat .pv .accent{color:var(--cobalt-bright)}
@@ -1514,7 +1514,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-29.9';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-29.10';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4827,9 +4827,7 @@ function renderProfile(){
   if(el)el.innerHTML=`
     <div class="pstat-grid">
       <div class="pstat"><div class="pv">${st.sessions}</div><div class="pl">Sessions</div></div>
-      <div class="pstat"><div class="pv">${st.streak}</div><div class="pl">Day streak</div></div>
-      <div class="pstat"><div class="pv"><span class="accent">${st.prs}</span></div><div class="pl">PRs hit</div></div>
-      <div class="pstat"><div class="pv">${volStr}</div><div class="pl">Lifted</div></div>
+      <div class="pstat"><div class="pv"><span class="accent">${volStr}</span></div><div class="pl">Total lifted</div></div>
     </div>
     ${st.sessions?`<div class="pstat-foot">Training since <b>${sinceStr}</b> · ${st.weeks} week${st.weeks!==1?'s':''} · ${st.sets} sets logged${st.fav?`<br>Most trained · <b>${esc(st.fav)}</b>`:''}</div>`:'<div class="pstat-foot">Log your first workout and your stats build up here.</div>'}
   `;
