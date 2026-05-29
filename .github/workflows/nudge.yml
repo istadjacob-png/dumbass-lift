@@ -1,0 +1,27 @@
+name: Daily don't-skip nudge
+
+# Sends the user a push notification if they haven't trained on a training day.
+# 13:00 UTC = 15:00 Europe/Oslo (summer / CEST). Free on public repos.
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch: {}   # lets you (or Claude) trigger a test run by hand
+
+jobs:
+  nudge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        working-directory: scripts
+        run: npm install --no-audit --no-fund
+      - name: Send nudge
+        working-directory: scripts
+        env:
+          NUDGE_EMAIL: ${{ secrets.NUDGE_EMAIL }}
+          VAPID_PUBLIC: ${{ secrets.VAPID_PUBLIC }}
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+        run: node nudge.mjs

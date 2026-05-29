@@ -1058,6 +1058,53 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .target-edit .te-input::-webkit-outer-spin-button,.target-edit .te-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .target-edit .te-x{font-family:'Inter',sans-serif;font-weight:900;font-size:24px;color:#000;align-self:center;margin-top:18px}
 
+/* ============ ACCOUNTABILITY STRIP (TODAY) ============ */
+.acct{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;margin:0 0 16px;border:1px solid var(--border);background:var(--steel-dark)}
+.acct-ico{font-size:22px;line-height:1;flex-shrink:0}
+.acct-body{flex:1;min-width:0}
+.acct-title{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text);line-height:1.1}
+.acct-sub{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-dim);letter-spacing:.01em;margin-top:3px}
+.acct.behind{background:rgba(255,51,0,.07);border-color:var(--red);border-left:4px solid var(--red);animation:pulseGlow 2.4s ease-in-out infinite}
+.acct.behind .acct-title{color:var(--red)}
+.acct.streak{border-left:4px solid var(--cobalt-bright)}
+.acct.done{background:#000;border-color:#000}
+.acct.done .acct-title{color:#fff}
+.acct.done .acct-sub{color:#bdbdbd}
+.acct.rest{border-left:4px solid var(--text-faint);background:var(--steel)}
+.acct .acct-flame{font-variant-numeric:tabular-nums}
+
+/* ============ SETS × REPS PROMPT ============ */
+.sr-modal{text-align:left}
+.sr-exname{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--cobalt-bright);letter-spacing:.01em;margin:2px 0 2px}
+.sr-hint{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.08em;color:var(--text-dim);text-transform:uppercase;margin:0 0 18px;font-weight:500}
+.sr-row{display:flex;align-items:flex-end;justify-content:center;gap:14px;margin-bottom:18px}
+.sr-field{flex:1;text-align:center}
+.sr-flabel{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin-bottom:7px}
+.sr-times{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--text-faint);padding-bottom:12px}
+.sr-stepper{display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--steel-dark)}
+.sr-stepper button{width:42px;height:50px;border:none;background:var(--steel-mid);color:var(--text);font-size:24px;font-weight:700;cursor:pointer;font-family:'Oswald',sans-serif;line-height:1}
+.sr-stepper button:active{background:var(--cobalt-bright);color:#fff}
+.sr-stepper input{flex:1;width:100%;border:none;background:transparent;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--text);height:50px;-moz-appearance:textfield;font-variant-numeric:tabular-nums}
+.sr-stepper input::-webkit-outer-spin-button,.sr-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.sr-reps-input{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--steel-dark);text-align:center;font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--text);height:50px;box-sizing:border-box}
+.sr-quick{display:flex;gap:8px;margin-bottom:20px}
+.sr-quick button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;border:1px solid var(--border-soft);border-radius:10px;background:var(--steel-dark);cursor:pointer}
+.sr-quick button:active{border-color:var(--cobalt-bright);background:var(--cobalt-soft)}
+.sr-quick button b{font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:var(--text);letter-spacing:.02em}
+.sr-quick button span{font-family:'Oswald',sans-serif;font-size:8.5px;letter-spacing:.18em;color:var(--text-faint);text-transform:uppercase;font-weight:600}
+
+/* ============ LIFT PICKER + METRIC TOGGLE (PROGRESS) ============ */
+.lift-picker{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--border);border-left:4px solid var(--cobalt-bright);border-radius:12px;background:var(--steel-dark);cursor:pointer;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.lift-picker:active{background:var(--steel-mid)}
+.lift-picker .lp-l{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.3em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin-bottom:3px}
+.lift-picker .lp-name{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--text);letter-spacing:.01em}
+.lift-picker .lp-chev{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:var(--cobalt-bright);color:#fff;font-size:15px;flex-shrink:0;box-shadow:0 0 12px var(--cobalt-glow)}
+.metric-toggle{display:flex;gap:6px;margin-bottom:14px;background:var(--steel-mid);border-radius:10px;padding:4px}
+.metric-toggle .mt{flex:1;padding:9px 4px;border:none;background:transparent;border-radius:7px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;font-weight:700;cursor:pointer;transition:background .2s,color .2s}
+.metric-toggle .mt.active{background:var(--bg);color:var(--cobalt-bright);box-shadow:0 1px 5px rgba(0,0,0,.12)}
+.chart-svg{width:100%;height:auto;display:block;touch-action:manipulation}
+.chart-hint{text-align:center;font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.22em;color:var(--text-faint);text-transform:uppercase;margin-top:2px;font-weight:600}
+
 </style>
 </head>
 <body>
@@ -1092,6 +1139,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     </div>
 
     <div id="sync-banner" class="sync-mini" style="display:none"></div>
+
+    <div id="accountability-strip" style="display:none"></div>
 
     <div class="daily-quote" id="daily-quote"></div>
 
@@ -1275,10 +1324,12 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     </div>
 
     <div class="profile-card">
-      <div class="field-label">Daily Reminders</div>
-      <p class="ds-hint" style="margin:6px 0 12px">A daily 12:00 nudge with today's training, straight to your phone. Free, no account, works on iPhone, Android and desktop.</p>
-      <button class="btn-secondary" onclick="downloadReminders()" style="width:100%">⏰ ACTIVATE DAILY REMINDER</button>
-      <p class="ds-hint" style="margin-top:10px;font-size:11px">Tap → opens your Calendar app → tap "Add" / "Subscribe". Re-activate if you switch split.</p>
+      <div class="field-label">Don't Skip · Daily Nudge</div>
+      <p class="ds-hint" style="margin:6px 0 12px">A 3 PM check-in so you never skip a session by accident. On rest days it just says "recover well". Turn on both for the best safety net.</p>
+      <button class="btn-secondary" id="notif-btn" onclick="enableNotifications()" style="width:100%;margin-bottom:8px">🔔 TURN ON PHONE NOTIFICATIONS</button>
+      <p class="ds-hint" id="notif-hint" style="margin:0 0 14px;font-size:11px">Pings you in-app and on your phone when it's open. On iPhone, add the app to your Home Screen first.</p>
+      <button class="btn-secondary" onclick="downloadReminders()" style="width:100%">📅 ADD CALENDAR REMINDER</button>
+      <p class="ds-hint" style="margin-top:10px;font-size:11px">The most reliable nudge — fires even when the app is fully closed. Tap → opens Calendar → "Add". Re-add if you switch split.</p>
     </div>
 
     <div class="profile-card sync-card" id="sync-card">
@@ -1311,6 +1362,45 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <input class="modal-input" id="lib-search" placeholder="Search..." oninput="filterLib()">
     <button class="add-ex-btn" style="margin-top:0;margin-bottom:12px" onclick="openCustomExForm()">+ CREATE CUSTOM EXERCISE</button>
     <div id="lib-results"></div>
+  </div>
+</div>
+
+<!-- SETS × REPS prompt (shown before an added/swapped lift lands in the day) -->
+<div class="modal-bg" id="setsreps-modal" onclick="closeModalBg(event)">
+  <div class="modal sr-modal">
+    <h2 id="sr-title">SET IT <span class="accent">UP</span></h2>
+    <div class="sr-exname" id="sr-exname">Exercise</div>
+    <div class="sr-hint">How many sets and reps for this lift?</div>
+    <div class="sr-row">
+      <div class="sr-field">
+        <div class="sr-flabel">Sets</div>
+        <div class="sr-stepper">
+          <button type="button" onclick="srBump(-1)">−</button>
+          <input id="sr-sets" type="number" min="1" max="12" value="3" inputmode="numeric">
+          <button type="button" onclick="srBump(1)">+</button>
+        </div>
+      </div>
+      <div class="sr-times">×</div>
+      <div class="sr-field">
+        <div class="sr-flabel">Reps</div>
+        <input id="sr-reps" class="sr-reps-input" type="text" value="8-10" placeholder="8-10">
+      </div>
+    </div>
+    <div class="sr-quick">
+      <button type="button" onclick="srPreset(4,'6-8')"><b>4 × 6-8</b><span>Strength</span></button>
+      <button type="button" onclick="srPreset(3,'8-12')"><b>3 × 8-12</b><span>Build</span></button>
+      <button type="button" onclick="srPreset(3,'12-15')"><b>3 × 12-15</b><span>Pump</span></button>
+    </div>
+    <button class="log-btn" id="sr-confirm" onclick="confirmSetsReps()">Add to today →</button>
+  </div>
+</div>
+
+<!-- LIFT PICKER sheet (fast way to find a lift on the Progress screen) -->
+<div class="modal-bg" id="liftpick-modal" onclick="closeModalBg(event)">
+  <div class="modal">
+    <h2>YOUR <span class="accent">LIFTS</span></h2>
+    <input class="modal-input" id="liftpick-search" placeholder="Search your lifts..." oninput="renderLiftPick()">
+    <div id="liftpick-results"></div>
   </div>
 </div>
 
@@ -1430,7 +1520,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-28.2';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-29.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2780,11 +2870,11 @@ function exportData(){
 // ============================================================
 function _icsEscape(s){return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
 function _icsDateLocal(d){
-  // Floating local time (no Z) — fires at 12:00 wherever the user is
-  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T120000';
+  // Floating local time (no Z) — fires at 15:00 (3 PM) wherever the user is
+  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T150000';
 }
 function _icsDateLocalEnd(d){
-  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T120100';
+  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T150100';
 }
 function buildRemindersIcs(){
   const sched=getActiveSchedule();
@@ -2809,7 +2899,7 @@ function buildRemindersIcs(){
     const isRest=!slot||slot.type==='rest';
     const trainingName=isRest?'HVILE':(slot.name||'TRAINING');
     const wd=weekdayShort(wkIdx);
-    const title=isRest?`DUMBASS LIFT · ${wd}: HVILE · Spis. Sov. Voks.`:`DUMBASS LIFT · ${wd}: ${trainingName}`;
+    const title=isRest?`DUMBASS LIFT · ${wd}: HVILE · Spis. Sov. Voks.`:`DUMBASS LIFT · ${wd}: ${trainingName} — ikke hopp over!`;
     const quote=DAILY_QUOTES[i % DAILY_QUOTES.length];
     const desc=isRest?`Hviledag. Kroppen vokser når du ikke trener. Velg én ting du gjør for å bli bedre i morgen.\n\n"${quote.q}"${quote.a?` — ${quote.a}`:''}`:`I dag: ${trainingName}\nMuskler: ${slot.muscles||''}\n\n"${quote.q}"${quote.a?` — ${quote.a}`:''}\n\nÅpne appen: https://istadjacob-png.github.io/dumbass-lift/`;
     const ymdStr=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -3362,6 +3452,7 @@ function renderToday(){
   if(pn)pn.textContent=prog.name;
   renderSyncBanner();
   if(t.type==='rest'){showView('rest');return;}
+  try{renderAccountability();refreshPushSchedule();}catch(e){}
   const wd=weekdayLabel(t.dayNum-1);
   const isRealToday=(state.currentDayIdx===todayScheduleIdx());
   document.getElementById('today-eyebrow').textContent=isRealToday?`${wd} · TODAY`:wd;
@@ -3952,55 +4043,51 @@ function _progLiftArray(){
 function renderProgLifts(){
   const c=document.getElementById('prog-tab-lifts');
   const liftArray=_progLiftArray();
-  if(liftArray.length===0){c.innerHTML='<div class="empty-state">No lift data yet.</div>';return;}
+  if(liftArray.length===0){c.innerHTML='<div class="empty-state">No lift data yet. Log a workout and your progress shows up here.</div>';return;}
 
   if(!state.selectedLift||!liftArray.find(l=>(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name)))state.selectedLift=liftArray[0];
-  if(!state.liftSearch)state.liftSearch='';
+  const metric=state.progMetric||'top';
 
-  const filteredLifts=state.liftSearch
-    ?liftArray.filter(l=>l.name.toLowerCase().includes(state.liftSearch.toLowerCase()))
-    :liftArray;
-  
-  // Build points for currently selected lift
+  // Per-session series for the selected lift, scored by the chosen metric
   const sessions=[];
   state.history.forEach(h=>{
     const ex=h.exercises.find(e=>(e.libId||e.name)===(state.selectedLift.libId||state.selectedLift.name));
     if(ex&&ex.topSet&&ex.topSet.kg){
-      const topW=parseFloat(ex.topSet.kg)||0;
-      if(topW>0){
-        sessions.push({
-          date:h.date,
-          weight:topW,
-          reps:parseInt(ex.topSet.reps)||0,
-          sets:ex.targetSets||0
-        });
-      }
+      const w=parseFloat(ex.topSet.kg)||0;if(w<=0)return;
+      const reps=parseInt(ex.topSet.reps)||0;
+      const sets=ex.targetSets||0;
+      let val;
+      if(metric==='e1rm')val=Math.round(w*(1+reps/30)*2)/2;   // Epley estimated 1RM
+      else if(metric==='vol')val=Math.round(w*reps*sets);      // top-set tonnage
+      else val=w;                                              // raw top-set weight
+      sessions.push({date:h.date,weight:w,reps:reps,sets:sets,val:val});
     }
   });
   sessions.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  
-  const pr=sessions.length>0?Math.max(...sessions.map(s=>s.weight)):0;
-  const firstWeight=sessions.length>0?sessions[0].weight:0;
-  const latestWeight=sessions.length>0?sessions[sessions.length-1].weight:0;
-  const progressKg=latestWeight-firstWeight;
-  const progressPct=firstWeight>0?Math.round((progressKg/firstWeight)*100):0;
-  
-  // Build session-by-session table (most recent first)
-  const reversedSessions=[...sessions].reverse();
-  const tableRows=reversedSessions.map((s,i)=>{
-    const d=new Date(s.date);
-    const dateStr=d.toLocaleDateString('en',{month:'short',day:'numeric'});
-    const isPR=s.weight===pr&&i===reversedSessions.findIndex(x=>x.weight===pr);
-    let deltaCell='';
-    if(i<reversedSessions.length-1){
-      const diff=s.weight-reversedSessions[i+1].weight;
-      if(isPR)deltaCell=`<span class="delta-c pr">PR</span>`;
-      else if(diff>0)deltaCell=`<span class="delta-c up">+${diff.toFixed(1)}</span>`;
-      else if(diff<0)deltaCell=`<span class="delta-c down">${diff.toFixed(1)}</span>`;
+
+  const unit=metric==='vol'?'':'kg';
+  const fmt=v=>metric==='vol'?Math.round(v).toLocaleString():v;
+  const peak=sessions.length?Math.max(...sessions.map(s=>s.val)):0;
+  const first=sessions.length?sessions[0].val:0;
+  const latest=sessions.length?sessions[sessions.length-1].val:0;
+  const prog=latest-first;
+  const progPct=first>0?Math.round((prog/first)*100):0;
+  const peakLabel=metric==='e1rm'?'Best Est 1RM':metric==='vol'?'Top Volume':'All-Time Best';
+  const chartLabel=metric==='e1rm'?'Estimated 1RM':metric==='vol'?'Top-Set Volume':'Top Set';
+
+  // Session log (most recent first); delta tracks the selected metric
+  const rev=[...sessions].reverse();
+  const peakIdx=rev.findIndex(s=>s.val===peak);
+  const tableRows=rev.map((s,i)=>{
+    const dateStr=new Date(s.date).toLocaleDateString('en',{month:'short',day:'numeric'});
+    let deltaCell;
+    if(i===peakIdx)deltaCell=`<span class="delta-c pr">BEST</span>`;
+    else if(i<rev.length-1){
+      const diff=s.val-rev[i+1].val;
+      if(diff>0)deltaCell=`<span class="delta-c up">+${fmt(diff)}</span>`;
+      else if(diff<0)deltaCell=`<span class="delta-c down">${fmt(diff)}</span>`;
       else deltaCell=`<span class="delta-c same">—</span>`;
-    }else{
-      deltaCell=`<span class="delta-c same">—</span>`;
-    }
+    }else deltaCell=`<span class="delta-c same">—</span>`;
     return `<div class="session-row">
       <span class="date-c">${dateStr.toUpperCase()}</span>
       <span class="lift-c">${s.weight}kg × ${s.reps}</span>
@@ -4008,33 +4095,36 @@ function renderProgLifts(){
       ${deltaCell}
     </div>`;
   }).join('');
-  
-  const showSearch=liftArray.length>8;
+
   c.innerHTML=`
-    ${showSearch?`<input type="text" class="search-input" id="lift-search" placeholder="🔍 Search your lifts..." value="${state.liftSearch}" oninput="updateLiftSearch(this.value)">`:''}
-    <div class="lift-select" id="lift-chip-row">
-      ${filteredLifts.length===0
-        ?'<div style="font-family:\'Oswald\',sans-serif;font-size:11px;color:var(--text-faint);letter-spacing:.15em;padding:6px 10px;text-transform:uppercase">No matches</div>'
-        :filteredLifts.map(l=>`<button class="lift-chip ${(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name)?'active':''}" onclick="selectLift('${l.libId||l.name}')">${l.name}</button>`).join('')
-      }
+    <button class="lift-picker" onclick="openLiftPicker()">
+      <div style="min-width:0"><div class="lp-l">Viewing</div><div class="lp-name">${state.selectedLift.name}</div></div>
+      <div class="lp-chev">▾</div>
+    </button>
+
+    <div class="metric-toggle">
+      <button class="mt ${metric==='top'?'active':''}" onclick="setMetric('top')">Top Set</button>
+      <button class="mt ${metric==='e1rm'?'active':''}" onclick="setMetric('e1rm')">Est 1RM</button>
+      <button class="mt ${metric==='vol'?'active':''}" onclick="setMetric('vol')">Volume</button>
     </div>
-    
+
     <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <div class="big-stat"><div class="l">All-Time PR</div><div class="v" style="font-size:24px"><span class="accent">${pr}</span><span class="unit">kg</span></div></div>
+      <div class="big-stat"><div class="l">${peakLabel}</div><div class="v" style="font-size:24px"><span class="accent">${fmt(peak)}</span>${unit?`<span class="unit">${unit}</span>`:''}</div></div>
       <div class="big-stat"><div class="l">Sessions</div><div class="v" style="font-size:24px">${sessions.length}</div></div>
-      <div class="big-stat"><div class="l">Progress</div><div class="v" style="font-size:22px"><span class="accent">${progressKg>=0?'+':''}${progressKg.toFixed(1)}</span><span class="unit">kg</span></div><div class="sub">${progressPct>=0?'+':''}${progressPct}% all-time</div></div>
+      <div class="big-stat"><div class="l">Progress</div><div class="v" style="font-size:22px"><span class="accent">${prog>=0?'+':''}${fmt(prog)}</span>${unit?`<span class="unit">${unit}</span>`:''}</div><div class="sub">${progPct>=0?'+':''}${progPct}% all-time</div></div>
     </div>
-    
+
     <div class="chart-box">
-      <div class="chart-title">${state.selectedLift.name} · Top Set Over Time</div>
-      <svg class="chart-svg" id="weight-chart" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="chart-title">${state.selectedLift.name} · ${chartLabel}</div>
+      <svg class="chart-svg" id="weight-chart" viewBox="0 0 360 210" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="chart-hint">${sessions.length>1?'Tap any point for the details':'Log another session to see your trend'}</div>
     </div>
-    
+
     <div class="section-head" style="margin-top:18px">
       <span class="t">Session Log</span>
       <span class="c">${sessions.length} TOTAL</span>
     </div>
-    
+
     <div class="session-row head">
       <span>DATE</span>
       <span>WEIGHT × REPS</span>
@@ -4043,9 +4133,27 @@ function renderProgLifts(){
     </div>
     ${tableRows}
   `;
-  
-  drawChart('weight-chart',sessions.map(s=>({y:s.weight,date:s.date})));
+
+  drawChart('weight-chart',sessions,{unit:unit});
 }
+
+function openLiftPicker(){const s=document.getElementById('liftpick-search');if(s)s.value='';renderLiftPick();document.getElementById('liftpick-modal').classList.add('open');}
+function renderLiftPick(){
+  const q=(document.getElementById('liftpick-search').value||'').toLowerCase();
+  const arr=_progLiftArray();
+  const cur=state.selectedLift&&(state.selectedLift.libId||state.selectedLift.name);
+  const rows=arr.filter(l=>l.name.toLowerCase().includes(q)).map(l=>{
+    let last=null,lastT=-1;
+    state.history.forEach(h=>{const ex=h.exercises.find(e=>(e.libId||e.name)===(l.libId||l.name));if(ex&&ex.topSet&&ex.topSet.kg){const t=Date.parse(h.date)||0;if(t>=lastT){lastT=t;last=ex.topSet;}}});
+    const sub=last?`Last ${last.kg}kg × ${last.reps} · ${l.count} session${l.count>1?'s':''}`:`${l.count} session${l.count>1?'s':''}`;
+    const active=(l.libId||l.name)===cur;
+    const key=(l.libId||l.name).replace(/'/g,"\\'");
+    return `<div class="modal-row${active?' active':''}" onclick="pickLift('${key}')"><div style="min-width:0"><div class="name">${l.name}</div><div class="meta">${sub}</div></div>${active?'<div style="color:var(--cobalt-bright);font-size:18px;font-weight:700">✓</div>':'<div style="color:var(--text-faint);font-size:20px">›</div>'}</div>`;
+  }).join('');
+  document.getElementById('liftpick-results').innerHTML=rows||'<div class="empty-state">No matches</div>';
+}
+function pickLift(id){selectLift(id);document.getElementById('liftpick-modal').classList.remove('open');}
+function setMetric(m){state.progMetric=m;try{save();}catch(e){}renderProgLifts();}
 
 function updateLiftSearch(val){
   state.liftSearch=val;
@@ -4061,82 +4169,117 @@ function updateLiftSearch(val){
 }
 function selectLift(id){const l=_progLiftArray().find(x=>(x.libId||x.name)===id);if(l)state.selectedLift=l;renderProgLifts();}
 
-function drawChart(id,points){
+// Catmull-Rom → cubic-bezier smoothing, with control points clamped inside the plot.
+function _smoothPath(pts,top,bot){
+  if(pts.length<2)return pts.length?('M'+pts[0].x.toFixed(1)+','+pts[0].y.toFixed(1)):'';
+  const cl=y=>Math.max(top,Math.min(bot,y));
+  let d='M'+pts[0].x.toFixed(1)+','+pts[0].y.toFixed(1);
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+    const c1x=p1.x+(p2.x-p0.x)/6,c1y=cl(p1.y+(p2.y-p0.y)/6);
+    const c2x=p2.x-(p3.x-p1.x)/6,c2y=cl(p2.y-(p3.y-p1.y)/6);
+    d+=' C'+c1x.toFixed(1)+','+c1y.toFixed(1)+' '+c2x.toFixed(1)+','+c2y.toFixed(1)+' '+p2.x.toFixed(1)+','+p2.y.toFixed(1);
+  }
+  return d;
+}
+function _niceStep(range){
+  const raw=(range||1)/4;const mag=Math.pow(10,Math.floor(Math.log10(raw)));const n=raw/mag;
+  let s;if(n<1.5)s=1;else if(n<3)s=2;else if(n<7)s=5;else s=10;return s*mag;
+}
+let _chartTips={};
+// Tap-a-point: reveal that session's tooltip and fatten its dot, reset the rest.
+function chartTip(id,i){
+  (_chartTips[id]||[]).forEach((g,j)=>{const el=document.getElementById(g);if(el)el.setAttribute('opacity',j===i?'1':'0');});
+  document.querySelectorAll('[data-cdot="'+id+'"]').forEach(d=>{
+    const on=parseInt(d.getAttribute('data-i'))===i,pr=d.getAttribute('data-pr')==='1';
+    d.setAttribute('r',on?(pr?'8':'5.5'):(pr?'6':'3.2'));
+  });
+}
+function drawChart(id,points,opts){
   const svg=document.getElementById(id);if(!svg)return;
-  if(points.length===0){svg.innerHTML='<text x="170" y="100" fill="#8A9199" font-family="Oswald" font-size="10" text-anchor="middle" letter-spacing="2">NO DATA</text>';return;}
+  opts=opts||{};const unit=opts.unit||'';
+  _chartTips[id]=[];
+  const fmtV=v=>unit===''?Math.round(v).toLocaleString():v;
+  const dStr=d=>new Date(d).toLocaleDateString('en',{month:'short',day:'numeric'}).toUpperCase();
+  if(points.length===0){svg.innerHTML='<text x="180" y="105" fill="#B0B0B0" font-family="Oswald" font-size="11" text-anchor="middle" letter-spacing="3">NO DATA YET</text>';return;}
   if(points.length===1){
-    const d=new Date(points[0].date);
-    const dateStr=d.toLocaleDateString('en',{month:'short',day:'numeric'});
-    svg.innerHTML=`<circle cx="170" cy="100" r="6" fill="#2E6BE6"/><text x="170" y="135" fill="#F0F2F5" font-family="Oswald" font-size="14" text-anchor="middle" font-weight="600">${points[0].y} kg</text><text x="170" y="155" fill="#8A9199" font-family="Oswald" font-size="9" text-anchor="middle" letter-spacing="2">${dateStr.toUpperCase()}</text>`;
+    const p=points[0];
+    svg.innerHTML=`<circle cx="180" cy="92" r="8" fill="#FF3300" stroke="#fff" stroke-width="2"/><text x="180" y="138" fill="#000" font-family="Bebas Neue" font-size="30" text-anchor="middle">${fmtV(p.val)}${unit}</text><text x="180" y="160" fill="#7A7A7A" font-family="Oswald" font-size="10" text-anchor="middle" letter-spacing="2">${p.weight}KG × ${p.reps} · ${dStr(p.date)}</text>`;
     return;
   }
-  const ys=points.map(p=>p.y);
-  const min=Math.min(...ys),max=Math.max(...ys);
-  // Pad min/max so chart isn't squished against edges, and make round numbers
-  const pad=Math.max(2.5,(max-min)*0.1);
-  const yMin=Math.max(0,Math.floor((min-pad)/2.5)*2.5);
-  const yMax=Math.ceil((max+pad)/2.5)*2.5;
-  const range=yMax-yMin||1;
-  
-  const W=320,H=180,PX=44,PT=18,PB=32;
-  const cW=W-PX-12,cH=H-PT-PB;
-  
-  // Find ONLY the all-time PR (the absolute peak)
-  let prIdx=-1;
-  let prVal=0;
-  points.forEach((p,i)=>{if(p.y>prVal){prVal=p.y;prIdx=i;}});
-  
-  const coords=points.map((p,i)=>({
+  const vals=points.map(p=>p.val);
+  const min=Math.min(...vals),max=Math.max(...vals);
+  const step=_niceStep(max-min||max||1);
+  let yMin=Math.max(0,Math.floor(min/step-0.35)*step);
+  let yMax=Math.ceil(max/step+0.35)*step;
+  if(yMax<=yMin)yMax=yMin+step;
+  const range=yMax-yMin;
+  const W=360,H=210,PX=42,PR=14,PT=22,PB=34;
+  const cW=W-PX-PR,cH=H-PT-PB;
+  let prIdx=0,prV=-Infinity;points.forEach((p,i)=>{if(p.val>prV){prV=p.val;prIdx=i;}});
+  const coords=points.map((p,i)=>Object.assign({},p,{
     x:PX+(i/(points.length-1))*cW,
-    y:PT+(1-(p.y-yMin)/range)*cH,
-    val:p.y,date:p.date,
-    isPR:i===prIdx
+    y:PT+(1-(p.val-yMin)/range)*cH,
+    isPR:i===prIdx,i:i
   }));
-  
-  const pathLine=coords.map((c,i)=>(i===0?'M':'L')+c.x+','+c.y).join(' ');
-  const pathArea=pathLine+` L${coords[coords.length-1].x},${PT+cH} L${coords[0].x},${PT+cH} Z`;
-  
-  // Y-axis ticks: 5 evenly spaced
-  const yTicks=[];
-  for(let i=0;i<=4;i++){
-    const v=yMin+(range*i/4);
-    const y=PT+cH-(cH*i/4);
-    // Round to nearest 2.5
-    const vRounded=Math.round(v*2)/2;
-    yTicks.push({y,label:vRounded});
+  const lineP=_smoothPath(coords,PT,PT+cH);
+  const areaP=lineP+` L${coords[coords.length-1].x.toFixed(1)},${PT+cH} L${coords[0].x.toFixed(1)},${PT+cH} Z`;
+
+  let grid='';
+  for(let v=yMin;v<=yMax+1e-6;v+=step){
+    const y=PT+(1-(v-yMin)/range)*cH;
+    const lab=(unit===''&&v>=1000)?(v/1000)+'k':(Number.isInteger(v)?v:Math.round(v*10)/10);
+    grid+=`<line x1="${PX}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="#E4E4E4" stroke-dasharray="2 4"/><text x="${PX-6}" y="${(y+3).toFixed(1)}" fill="#B0B0B0" font-family="Oswald" font-size="9" text-anchor="end">${lab}</text>`;
   }
-  
-  // X-axis: first, mid, last dates
-  const firstDate=new Date(points[0].date).toLocaleDateString('en',{month:'short',day:'numeric'});
-  const lastDate=new Date(points[points.length-1].date).toLocaleDateString('en',{month:'short',day:'numeric'});
-  const midIdx=Math.floor(points.length/2);
-  const midDate=new Date(points[midIdx].date).toLocaleDateString('en',{month:'short',day:'numeric'});
-  
+  const lastIdx=points.length-1;
+  const dots=coords.map(c=>{
+    if(c.isPR)return `<circle data-cdot="${id}" data-i="${c.i}" data-pr="1" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="6" fill="#FF3300" stroke="#fff" stroke-width="2"/>`;
+    if(c.i===lastIdx)return `<circle data-cdot="${id}" data-i="${c.i}" data-pr="0" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="4.5" fill="#000" stroke="#fff" stroke-width="1.5"/>`;
+    return `<circle data-cdot="${id}" data-i="${c.i}" data-pr="0" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="3.2" fill="#fff" stroke="#000" stroke-width="2"/>`;
+  }).join('');
+  // Readouts on the chart: all-time best (red) and the most recent session (black).
+  const anchorFor=x=>x<46?'start':(x>W-46?'end':'middle');
+  let labels='';
+  if(prIdx===lastIdx){
+    const c=coords[lastIdx];
+    labels=`<text x="${c.x.toFixed(1)}" y="${(c.y-13).toFixed(1)}" fill="#FF3300" font-family="Oswald" font-size="9" font-weight="700" text-anchor="${anchorFor(c.x)}" letter-spacing=".5">BEST · LAST ${fmtV(c.val)}${unit}</text>`;
+  }else{
+    const b=coords[prIdx],l=coords[lastIdx];
+    labels=`<text x="${b.x.toFixed(1)}" y="${(b.y-13).toFixed(1)}" fill="#FF3300" font-family="Oswald" font-size="9" font-weight="700" text-anchor="${anchorFor(b.x)}" letter-spacing=".5">BEST ${fmtV(b.val)}${unit}</text>`
+      +`<text x="${l.x.toFixed(1)}" y="${(l.y-13).toFixed(1)}" fill="#000" font-family="Oswald" font-size="9" font-weight="700" text-anchor="${anchorFor(l.x)}" letter-spacing=".5">LAST ${fmtV(l.val)}${unit}</text>`;
+  }
+  const slot=cW/(points.length-1);
+  let tips='',hits='';
+  coords.forEach((c,i)=>{
+    const gid=`tip-${id}-${i}`;_chartTips[id].push(gid);
+    const tw=98,th=40;
+    let tx=c.x-tw/2;if(tx<2)tx=2;if(tx+tw>W)tx=W-tw;
+    let ty=c.y-th-12;if(ty<2)ty=c.y+12;
+    tips+=`<g id="${gid}" opacity="0" style="pointer-events:none;transition:opacity .12s">
+      <rect x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" width="${tw}" height="${th}" rx="8" fill="#000"/>
+      <text x="${(tx+tw/2).toFixed(1)}" y="${(ty+18).toFixed(1)}" fill="#FF3300" font-family="Bebas Neue" font-size="17" text-anchor="middle">${fmtV(c.val)}${unit}</text>
+      <text x="${(tx+tw/2).toFixed(1)}" y="${(ty+32).toFixed(1)}" fill="#fff" font-family="Oswald" font-size="8.5" text-anchor="middle" letter-spacing=".5">${c.weight}KG × ${c.reps} · ${dStr(c.date)}</text>
+    </g>`;
+    hits+=`<rect x="${(c.x-slot/2).toFixed(1)}" y="${PT}" width="${slot.toFixed(1)}" height="${cH}" fill="transparent" style="cursor:pointer" onclick="chartTip('${id}',${i})"/>`;
+  });
+  const midI=Math.floor((points.length-1)/2);
   svg.innerHTML=`
-    <defs>
-      <linearGradient id="cg-${id}" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stop-color="#2E6BE6" stop-opacity=".5"/>
-        <stop offset="100%" stop-color="#2E6BE6" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    ${yTicks.map(t=>`
-      <line x1="${PX}" y1="${t.y}" x2="${W}" y2="${t.y}" stroke="#3A4048" stroke-dasharray="2 4" opacity=".5"/>
-      <text x="${PX-6}" y="${t.y+3}" fill="#8A9199" font-family="Oswald" font-size="9" text-anchor="end">${t.label}</text>
-    `).join('')}
-    <line x1="${PX}" y1="${PT+cH}" x2="${W}" y2="${PT+cH}" stroke="#4A5661"/>
-    <line x1="${PX}" y1="${PT}" x2="${PX}" y2="${PT+cH}" stroke="#4A5661"/>
-    <text x="6" y="${PT-2}" fill="#8A9199" font-family="Oswald" font-size="8" letter-spacing="1">KG</text>
-    <path d="${pathArea}" fill="url(#cg-${id})"/>
-    <path d="${pathLine}" fill="none" stroke="#2E6BE6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    ${coords.map((c,i)=>{
-      if(c.isPR){
-        return `<circle cx="${c.x}" cy="${c.y}" r="6" fill="#D4222C" stroke="#fff" stroke-width="1.5"/><text x="${c.x}" y="${c.y-10}" fill="#D4222C" font-family="Oswald" font-size="9" font-weight="700" text-anchor="middle" letter-spacing="1">PR</text>`;
-      }
-      return `<circle cx="${c.x}" cy="${c.y}" r="2.5" fill="#0E0C09" stroke="#E8A22C" stroke-width="1.8"/>`;
-    }).join('')}
-    <text x="${PX}" y="${H-8}" fill="#8A9199" font-family="Oswald" font-size="9" text-anchor="start" letter-spacing="1">${firstDate.toUpperCase()}</text>
-    <text x="${PX+(W-PX)/2}" y="${H-8}" fill="#8A9199" font-family="Oswald" font-size="9" text-anchor="middle" letter-spacing="1">${midDate.toUpperCase()}</text>
-    <text x="${W-4}" y="${H-8}" fill="#8A9199" font-family="Oswald" font-size="9" text-anchor="end" letter-spacing="1">${lastDate.toUpperCase()}</text>
+    <defs><linearGradient id="cg-${id}" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#FF3300" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="#FF3300" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${grid}
+    <line x1="${PX}" y1="${PT+cH}" x2="${W-PR}" y2="${PT+cH}" stroke="#000" stroke-width="1.2"/>
+    <text x="6" y="${PT-6}" fill="#B0B0B0" font-family="Oswald" font-size="8" letter-spacing="1">${unit==='kg'?'KG':'VOL'}</text>
+    <path d="${areaP}" fill="url(#cg-${id})"/>
+    <path d="${lineP}" fill="none" stroke="#FF3300" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+    ${labels}
+    ${tips}
+    <text x="${PX}" y="${H-10}" fill="#B0B0B0" font-family="Oswald" font-size="9" text-anchor="start" letter-spacing="1">${dStr(points[0].date)}</text>
+    <text x="${(PX+cW/2).toFixed(1)}" y="${H-10}" fill="#B0B0B0" font-family="Oswald" font-size="9" text-anchor="middle" letter-spacing="1">${dStr(points[midI].date)}</text>
+    <text x="${W-PR}" y="${H-10}" fill="#B0B0B0" font-family="Oswald" font-size="9" text-anchor="end" letter-spacing="1">${dStr(points[points.length-1].date)}</text>
+    ${hits}
   `;
 }
 
@@ -4180,7 +4323,7 @@ function deleteCustomExercise(id){
   filterLib();
   toast('Deleted');
 }
-function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=getLibrary().filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const handler=libMode==='swap'?'swapLibEx':'addLibExToToday';const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>{const custom=e.custom?` <span style="color:var(--cobalt-bright);font-size:9px;letter-spacing:.15em">· CUSTOM</span>`:'';const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';return `<div class="modal-row" onclick="${handler}('${e.id}')"><div><div class="name">${e.name}${custom}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;}).join('');}
+function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=getLibrary().filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>{const custom=e.custom?` <span style="color:var(--cobalt-bright);font-size:9px;letter-spacing:.15em">· CUSTOM</span>`:'';const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';return `<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${e.name}${custom}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;}).join('');}
 function openProgramPicker(){
   const active=state.activeProgramId;
   const all=getAllPrograms();
@@ -4603,8 +4746,51 @@ function saveImportedSplit(){
   showView('today');
 }
 
-function addLibExToToday(libId){const libEx=getLibrary().find(e=>e.id===libId);if(!libEx)return;if(state.today.type==='rest'){toast('Not a training day');return;}state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:3,targetReps:'8-10',primary:false,tag:null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`${libEx.name} added`);}
-function swapLibEx(libId){const libEx=getLibrary().find(e=>e.id===libId);if(!libEx)return;const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur)return;state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:cur.targetSets||3,targetReps:cur.targetReps||'8-10',primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};syncTodayToSchedule();save();document.getElementById('lib-modal').classList.remove('open');renderToday();showView('today');toast(`Swapped to ${libEx.name}`);}
+// Adding or swapping a lift now asks for sets × reps FIRST, so nothing lands
+// in your day with a guessed prescription. pendingEx holds the choice in flight.
+let pendingEx=null; // {libId, mode:'add'|'swap', name}
+function openSetsReps(libId,mode){
+  const libEx=getLibrary().find(e=>e.id===libId);if(!libEx)return;
+  if(mode==='add'&&state.today.type==='rest'){toast('Not a training day');return;}
+  let sets,reps;
+  if(mode==='swap'){
+    const cur=state.today.exercises[state.currentExerciseIdx];
+    sets=(cur&&cur.targetSets)||3;reps=(cur&&cur.targetReps)||'8-10';
+  }else{
+    // Sensible starting point by lift type — compound heavier, isolation higher reps
+    if(libEx.type==='COMPOUND'){sets=4;reps='6-8';}
+    else{sets=3;reps='10-12';}
+  }
+  pendingEx={libId:libEx.id,mode:mode,name:libEx.name};
+  document.getElementById('lib-modal').classList.remove('open');
+  document.getElementById('sr-title').innerHTML=(mode==='swap'?'SWAP <span class="accent">IN</span>':'NEW <span class="accent">LIFT</span>');
+  document.getElementById('sr-exname').textContent=libEx.name;
+  document.getElementById('sr-sets').value=sets;
+  document.getElementById('sr-reps').value=reps;
+  document.getElementById('sr-confirm').textContent=(mode==='swap'?'Swap it in →':'Add to today →');
+  document.getElementById('setsreps-modal').classList.add('open');
+}
+function srBump(d){const el=document.getElementById('sr-sets');let v=(parseInt(el.value)||3)+d;v=Math.max(1,Math.min(12,v));el.value=v;}
+function srPreset(s,r){document.getElementById('sr-sets').value=s;document.getElementById('sr-reps').value=r;}
+function confirmSetsReps(){
+  if(!pendingEx)return;
+  const libEx=getLibrary().find(e=>e.id===pendingEx.libId);if(!libEx){pendingEx=null;return;}
+  let sets=parseInt(document.getElementById('sr-sets').value)||3;sets=Math.max(1,Math.min(12,sets));
+  let reps=(document.getElementById('sr-reps').value||'').trim()||'8-10';
+  if(pendingEx.mode==='swap'){
+    const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur){pendingEx=null;return;}
+    state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};
+    toast(`Swapped to ${libEx.name} · ${sets}×${reps}`);
+  }else{
+    if(state.today.type==='rest'){toast('Not a training day');pendingEx=null;return;}
+    state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:false,tag:null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});
+    toast(`${libEx.name} added · ${sets}×${reps}`);
+  }
+  pendingEx=null;
+  syncTodayToSchedule();save();
+  document.getElementById('setsreps-modal').classList.remove('open');
+  renderToday();showView('today');
+}
 
 let toastTimeout;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);}
@@ -4614,6 +4800,7 @@ function avatarTap(){showView('profile');}
 function avatarInitial(){const n=(state.userName||'').trim();return n?n[0].toUpperCase():'J';}
 
 function renderProfile(){
+  try{updateNotifUI();}catch(e){}
   document.getElementById('profile-name').value=state.userName||'';
   document.getElementById('profile-bw').value='';
   const list=document.getElementById('profile-bw-history');
@@ -4677,6 +4864,135 @@ renderToday();
 // Cloud sync kicks in after Firebase module reports ready. Will pull-on-load if syncCode is set.
 window.addEventListener('dumbass:sync-ready',()=>{cloudInitOnLoad();});
 if(window.__acct)cloudInitOnLoad();
+
+/* ============================================================
+   ANTI-SKIP ACCOUNTABILITY + PUSH NOTIFICATIONS
+   Three layers so a session never slips by accident:
+   1) in-app strip on TODAY (streak / behind / done)
+   2) phone push at 3 PM, sent by a free daily GitHub Action
+   3) calendar reminder as the always-on fallback
+   ============================================================ */
+const VAPID_PUBLIC_KEY='BENuzycG9643G7Uuwav_VoxR0fzodkYb8DkFjszpOnr5LXTaO2lwKiyYgEUiRtrWaXp9H06hcbn8R2UJSY2JtM8';
+
+function scheduleSnapshot(){return (getActiveSchedule()||[]).map(s=>({name:s.name||'',type:s.type||'train'}));}
+
+// Read of history + schedule: am I on track today?
+function computeAccountability(){
+  const sched=getActiveSchedule()||[];
+  const len=sched.length||7;
+  const done=new Set();
+  (state.history||[]).forEach(h=>{if(h&&!h.partial&&h.date)done.add(h.date.slice(0,10));});
+  const todayKey=ymd();
+  const todayIsRest=!!(state.today&&state.today.type==='rest');
+  const trainedToday=done.has(todayKey)||!!(state.today&&Array.isArray(state.today.exercises)&&state.today.exercises.some(e=>e.done));
+  // Streak: consecutive days back where every TRAINING day was done. Rest days
+  // don't break it; today-not-yet-done doesn't break it (you still have time).
+  let streak=0;
+  for(let i=0;i<120;i++){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const slot=sched[((d.getDay()+6)%7)%len];
+    if(!slot||slot.type==='rest')continue;
+    if(done.has(ymd(d))){streak++;continue;}
+    if(i===0)continue;
+    break;
+  }
+  // Most recent prior training day — skipped?
+  let missedPrev=false,missedName='';
+  for(let i=1;i<14;i++){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const slot=sched[((d.getDay()+6)%7)%len];
+    if(!slot||slot.type==='rest')continue;
+    missedPrev=!done.has(ymd(d));
+    missedName=(typeof weekdayLabel==='function')?weekdayLabel(((d.getDay()+6)%7)%len):'';
+    break;
+  }
+  // This calendar week so far (Mon→today)
+  let plannedThisWeek=0,doneThisWeek=0;
+  const dow=(new Date().getDay()+6)%7;
+  for(let i=0;i<=dow;i++){
+    const d=new Date();d.setDate(d.getDate()-(dow-i));
+    const slot=sched[((d.getDay()+6)%7)%len];
+    if(slot&&slot.type!=='rest'){plannedThisWeek++;if(done.has(ymd(d)))doneThisWeek++;}
+  }
+  const weekTotal=sched.filter(s=>s&&s.type!=='rest').length||plannedThisWeek;
+  return {todayIsRest,trainedToday,streak,missedPrev,missedName,doneThisWeek,weekTotal};
+}
+
+function renderAccountability(){
+  const el=document.getElementById('accountability-strip');
+  if(!el)return;
+  const a=computeAccountability();
+  if(a.todayIsRest){el.style.display='none';return;}
+  const wk=`${a.doneThisWeek}/${a.weekTotal} this week`;
+  let cls='acct',ico='🔥',title='',sub='';
+  if(a.trainedToday){
+    cls+=' done';ico='✓';
+    title=a.streak>1?`${a.streak}-day streak — locked in`:'Done today — nice work';
+    sub=`${wk} · back tomorrow`;
+  }else if(a.missedPrev){
+    cls+=' behind';ico='⚠️';
+    title=`You skipped ${a.missedName||'your last session'}`;
+    sub=`Don't make it two — train today · ${wk}`;
+  }else if(a.streak>0){
+    cls+=' streak';ico='🔥';
+    title=`${a.streak}-day streak — don't break it`;
+    sub=`Today's session keeps it alive · ${wk}`;
+  }else{
+    cls+=' streak';ico='💪';
+    title='Start your streak today';
+    sub=`One session and you're rolling · ${wk}`;
+  }
+  el.className=cls;el.style.display='';
+  el.innerHTML=`<div class="acct-ico">${ico}</div><div class="acct-body"><div class="acct-title">${title}</div><div class="acct-sub">${sub}</div></div>`;
+}
+
+function urlB64ToUint8Array(s){
+  const pad='='.repeat((4-s.length%4)%4);
+  const b64=(s+pad).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(b64);const arr=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+function registerSW(){
+  if(!('serviceWorker' in navigator))return Promise.resolve(null);
+  return navigator.serviceWorker.register('sw.js').catch(e=>{console.warn('SW reg failed',e);return null;});
+}
+async function enableNotifications(){
+  if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
+    toast("This device can't do app notifications — use the calendar reminder below");return;
+  }
+  try{
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){toast('Notifications blocked — turn them on in settings');updateNotifUI();return;}
+    const reg=await registerSW();
+    await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8Array(VAPID_PUBLIC_KEY)});
+    state.push={sub:sub.toJSON(),tz:(Intl.DateTimeFormat().resolvedOptions().timeZone)||'Europe/Oslo',hour:15,schedule:scheduleSnapshot(),enabledAt:Date.now()};
+    save();
+    reg.showNotification('DUMBASS LIFT',{body:"You're set. I'll nudge you at 3 PM on any training day you haven't logged.",icon:'icon-192.png',badge:'icon-192.png'});
+    if(!currentUid())toast('On ✓ — log in (Profile) so the 3 PM nudge works when the app is closed');
+    else toast('Notifications on ✓');
+    updateNotifUI();
+  }catch(e){console.warn(e);toast("Couldn't turn on notifications");}
+}
+function updateNotifUI(){
+  const btn=document.getElementById('notif-btn'),hint=document.getElementById('notif-hint');
+  if(!btn)return;
+  const on=('Notification' in window)&&Notification.permission==='granted'&&state.push&&state.push.sub;
+  if(on){btn.textContent='🔔 NOTIFICATIONS ON ✓';btn.style.opacity='.65';if(hint)hint.textContent=currentUid()?"You're covered. I check at 3 PM daily and only ping on a training day you haven't logged.":"Almost — log in below so the nudge reaches you when the app is closed.";}
+  else{btn.textContent='🔔 TURN ON PHONE NOTIFICATIONS';btn.style.opacity='';if(hint)hint.textContent='Pings you at 3 PM if you haven\'t trained. On iPhone, add the app to your Home Screen first.';}
+}
+
+// Keep the cloud copy of the schedule fresh so the daily job knows your rest days.
+function refreshPushSchedule(){
+  if(!state.push)return;
+  const snap=scheduleSnapshot();
+  if(JSON.stringify(state.push.schedule||[])!==JSON.stringify(snap)){state.push.schedule=snap;save();}
+}
+
+registerSW();
+try{updateNotifUI();}catch(e){}
 
 // === LAN LIVE-RELOAD === only on local network, harmless elsewhere
 (function(){

@@ -1,0 +1,9 @@
+{
+  "name": "dumbass-lift-nudge",
+  "private": true,
+  "type": "module",
+  "description": "Daily don't-skip push sender (runs in GitHub Actions).",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}
