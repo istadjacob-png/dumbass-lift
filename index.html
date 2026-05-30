@@ -90,6 +90,11 @@ input,textarea{user-select:text}
 /* Completed-day lock */
 .day-locked{display:flex;align-items:center;gap:13px;background:linear-gradient(135deg,#0d1f12,#0a0a0a);border:1px solid #1f6e3a;border-left:3px solid #2EA85A;border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:0 4px 18px rgba(46,168,90,.15)}
 .day-locked .dl-check{width:34px;height:34px;border-radius:50%;background:#2EA85A;color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 16px rgba(46,168,90,.5)}
+.day-locked.slim{display:flex;align-items:center;gap:10px;background:none;border:none;border-left:3px solid #2EA85A;border-radius:0;padding:5px 0 5px 12px;box-shadow:none;margin:0 0 14px}
+.day-locked.slim .dl-done{font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1f9e52}
+.day-locked.slim .dl-meta{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-dim)}
+.day-locked.slim .dl-edit{margin-left:auto;background:none;border:none;color:var(--text-dim);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;padding:4px 8px}
+.day-locked.slim .dl-edit:active{color:var(--cobalt-bright)}
 .day-locked .dl-title{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.24em;color:#5cd07a;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:8px}
 .day-locked .dl-sub{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:.02em;margin-top:3px}
 .day-locked .dl-tag{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.16em;background:rgba(92,208,122,.18);border:1px solid #2EA85A;color:#5cd07a;border-radius:4px;padding:2px 6px}
@@ -335,9 +340,7 @@ input,textarea{user-select:text}
 .profile-input::placeholder{color:var(--text-faint)}
 .profile-input::-webkit-outer-spin-button,.profile-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .profile-input[type=number]{-moz-appearance:textfield}
-.bw-row{display:flex;gap:8px;align-items:stretch;width:100%;min-width:0}
-.bw-row .bw-input{flex:1 1 auto;min-width:0;width:auto}
-.bw-row .bw-log{flex:0 0 auto;width:auto;padding:0 22px;font-size:14px;white-space:nowrap}
+
 /* DATA SAFETY CARD */
 .profile-card.data-safety{border-left:3px solid var(--cobalt-bright)}
 .profile-card.sync-card{border-left:3px solid var(--cobalt)}
@@ -407,10 +410,6 @@ input,textarea{user-select:text}
 .ds-status{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.08em;background:var(--steel-dark);border:1px solid var(--border);padding:8px 10px;border-radius:6px;margin-bottom:10px}
 .ds-actions{display:flex;gap:8px;margin-bottom:10px}
 .ds-hint{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.5;color:var(--text-faint);margin:0;letter-spacing:.04em}
-.bw-history{margin-top:12px;display:flex;flex-direction:column;gap:6px}
-.bw-history .bw-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--steel-dark);border-radius:8px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-mid)}
-.bw-history .bw-item .v{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.02em;color:var(--text)}
-.bw-history .bw-empty{color:var(--text-faint);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;text-transform:uppercase;text-align:center;padding:8px 0}
 
 .topset-rpe{
   background:var(--steel-dark);border:1.5px solid var(--border);border-radius:10px;
@@ -1175,7 +1174,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="app">
 
   <div class="header">
-    <div class="logo"><svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#000"/><polygon points="4.5,6.5 19.5,6.5 12,19.5" fill="#FF3300"/></svg>DUMBASS<span class="ver">v1.8·LIFT</span></div>
+    <div class="logo"><svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#000"/><polygon points="4.5,6.5 19.5,6.5 12,19.5" fill="#FF3300"/></svg>DUMBASS</div>
     <div class="avatar" onclick="avatarTap()" id="avatar-btn">J</div>
   </div>
 
@@ -1194,8 +1193,6 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div id="sync-banner" class="sync-mini" style="display:none"></div>
 
     <div id="accountability-strip" style="display:none"></div>
-
-    <div class="daily-quote" id="daily-quote"></div>
 
     <div id="day-locked" class="day-locked" style="display:none"></div>
 
@@ -1560,7 +1557,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-30.3';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-30.4';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3575,17 +3572,12 @@ function renderToday(){
     const dateStr=cd.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'});
     const sets=completed.totalSets||0;
     const vol=completed.totalVolume?Math.round(completed.totalVolume).toLocaleString():null;
-    const tag=completed.incomplete?`<span class="dl-tag partial">${completed.doneCount}/${completed.exCount} done</span>`:`<span class="dl-tag">FULL</span>`;
     lockedBanner.style.display='';
-    lockedBanner.innerHTML=`
-      <div class="dl-check">✓</div>
-      <div class="dl-text">
-        <div class="dl-title">COMPLETED ${tag}</div>
-        <div class="dl-sub">${dateStr} · ${sets} sets logged${vol?` · ${vol} kg volume`:''}</div>
-      </div>`;
+    lockedBanner.className='day-locked slim';
+    lockedBanner.innerHTML=`<span class="dl-done">${completed.incomplete?'✓ Logged':'✓ Done'}</span><span class="dl-meta">${dateStr} · ${sets} sets</span><button class="dl-edit" onclick="unlockDay()">Edit</button>`;
     if(btn){btn.style.display='none';}
     if(addBtn){addBtn.style.display='none';}
-    if(customBtn){customBtn.style.display='';}
+    if(customBtn){customBtn.style.display='none';}
   }else{
     list.classList.remove('locked');
     lockedBanner.style.display='none';
@@ -3650,8 +3642,6 @@ function updateReps(i,v){
   ex.targetReps=(v||'').trim()||'8-10';
   syncTodayToSchedule();save();
 }
-
-function quickToggleEx(i){openExercise(i);}
 
 function openExercise(i){
   state.currentExerciseIdx=i;
@@ -4730,9 +4720,6 @@ function inferImport(){
   // --- 5. SAFE GENERIC DEFAULT (smarter than always 'push': a balanced PPL week) ---
   return mk('ppl','ppl',true,'low','No clear signal — defaulted to a balanced Push / Pull / Legs week');
 }
-
-// Back-compat: existing callers ask for a single focus string.
-function inferImportFocus(){return inferImport().focus;}
 
 // A detected focus expands into a complete weekly split. Style depends on focus:
 //   push/pull/legs/ppl    → 6-day PPL × 2 (push/pull/legs/push/pull/legs/rest)
