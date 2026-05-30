@@ -163,16 +163,12 @@ input,textarea{user-select:text}
 /* DRAG-TO-REORDER — premium. Independent `scale`/`translate`/`rotate` props so
    the lift springs while the finger-follow translate stays instant. The card
    leaves a visible accent INSERTION LINE marking exactly where it will land. */
-.ex-grip{position:absolute;top:0;bottom:0;left:0;width:18px;cursor:grab;touch-action:none;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
-.ex-grip::after{content:'⋮⋮';color:var(--text-faint);font-size:13px;letter-spacing:-1px;line-height:1;opacity:.32;transition:opacity .15s,color .15s,transform .15s}
-.exercise:hover .ex-grip::after{opacity:.7}
-.ex-grip:active::after{transform:scale(1.25);color:var(--cobalt-bright);opacity:1}
-/* strong, always-on grip affordance once reorder mode is live (touch-friendly) */
-#exercise-list.reorder-on .exercise .ex-grip::after{opacity:.85;color:var(--cobalt-bright)}
-@media (hover:none){
-  .ex-grip{width:20px}
-  .ex-grip::after{opacity:.5;font-size:14px}
-}
+/* Visible drag handle. Full card height = easy to grab. touch-action:none so a
+   press here never scrolls the page — drag starts instantly. */
+.ex-grip{flex-shrink:0;width:22px;align-self:stretch;margin:-14px 2px -14px -8px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none;-webkit-tap-highlight-color:transparent;border-radius:10px 0 0 10px}
+.ex-grip::after{content:'⠿';color:var(--text-faint);font-size:16px;line-height:1;opacity:.55;transition:opacity .15s,color .15s,background .15s}
+.ex-grip:active{cursor:grabbing;background:var(--cobalt-soft)}
+.ex-grip:active::after,.exercise.dragging .ex-grip::after{color:var(--cobalt-bright);opacity:1}
 
 /* PICK-UP: the dragged card lifts, tilts, casts a deep shadow */
 .exercise.dragging{z-index:40;cursor:grabbing;position:relative;
@@ -1557,7 +1553,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-30.4';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-30.5';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -5433,14 +5429,17 @@ try{updateNotifUI();}catch(e){}
 
   function onPointerDown(e){
     if(e.button!=null && e.button!==0)return;
+    // Drag ONLY from the grip handle. The handle is touch-action:none, so iOS
+    // never claims the press for scrolling or a system long-press (which was
+    // silently killing the old hold-to-drag). Grabbing the handle starts the
+    // drag IMMEDIATELY — no hold needed.
+    if(!e.target.closest('.ex-grip'))return;
     const card=e.target.closest('.exercise');
     if(!card)return;
     const parent=card.parentElement;
     if(!parent||parent.id!=='exercise-list')return;
     if(parent.classList.contains('locked'))return; // read-only day
-    // Don't initiate drag from interactive bits
-    if(e.target.closest('.ex-edit, .ex-remove, .ex-unskip, .set-dot, .ex-check, .ex-skipped-badge'))return;
-    if(card.classList.contains('skipped'))return; // skipped cards — they're done
+    if(card.classList.contains('skipped'))return;
 
     list=parent;
     dragCard=card;
@@ -5450,34 +5449,20 @@ try{updateNotifUI();}catch(e){}
     startIdx=cards.indexOf(card);
     currentIdx=startIdx;
 
-    holdTimer=setTimeout(()=>{
-      // Begin drag
-      holdTimer=null;
-      const rect=card.getBoundingClientRect();
-      cardHeight=rect.height+8; // include margin
-      dragOffsetY=startY-rect.top-rect.height/2;
-      // lock the page: no scroll, no text selection while dragging
-      document.body.style.userSelect='none';
-      document.documentElement.style.touchAction='none';
-      card.classList.add('dragging');
-      list.classList.add('reorder-on');
-      ensureLine(); positionLine();
-      try{card.setPointerCapture(pointerId);}catch(_){}
-      buzz(18); // satisfying pick-up
-      showHint('Drop to reorder');
-    }, HOLD_MS);
+    const rect=card.getBoundingClientRect();
+    cardHeight=rect.height+8; // include margin
+    document.body.style.userSelect='none';
+    document.documentElement.style.touchAction='none';
+    card.classList.add('dragging');
+    list.classList.add('reorder-on');
+    ensureLine(); positionLine();
+    try{card.setPointerCapture(pointerId);}catch(_){}
+    try{e.preventDefault();}catch(_){}
+    buzz(18); // satisfying pick-up
+    showHint('Drag to reorder · let go to drop');
   }
 
   function onPointerMove(e){
-    if(!dragCard && holdTimer==null)return;
-    if(holdTimer){
-      // Still in hold-detection window — cancel if user moved (it's a scroll)
-      if(Math.abs(e.clientY-startY)>MOVE_CANCEL_PX || Math.abs(e.clientX-startX)>MOVE_CANCEL_PX){
-        clearTimeout(holdTimer); holdTimer=null;
-        list=null; dragCard=null;
-      }
-      return;
-    }
     if(!dragCard)return;
     // Real drag — translate follows the finger instantly; scale/rotate/shadow
     // spring in via the .dragging CSS class. Block scroll + selection.
@@ -5505,7 +5490,6 @@ try{updateNotifUI();}catch(e){}
   }
 
   function onPointerUp(e){
-    if(holdTimer){clearTimeout(holdTimer);holdTimer=null;dragCard=null;list=null;return;}
     if(!dragCard)return;
     suppressClickUntil=Date.now()+250;
     const card=dragCard, fromIdx=startIdx, toIdx=currentIdx;
