@@ -1554,7 +1554,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-30.7';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-30.9';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3492,6 +3492,10 @@ function findCompletedSessionForDay(dayNum){
 function unlockDay(){ _dayUnlocked=true; renderToday(); toast('Editing unlocked'); }
 
 function renderToday(){
+  // Self-heal: clear any stuck reorder state so taps are NEVER dead. The
+  // .reorder-on class puts pointer-events:none on every card body; if a drag
+  // was interrupted it could otherwise stay on and block all tapping.
+  try{ var _xl=document.getElementById('exercise-list'); if(_xl)_xl.classList.remove('reorder-on'); if(window.__dlResetReorder)window.__dlResetReorder(); }catch(e){}
   if(!state.today)loadDay(state.currentDayIdx||0);
   const t=state.today;
   const prog=getActiveProgram();
@@ -5310,10 +5314,10 @@ try{updateNotifUI();}catch(e){}
 // Touch + mouse via pointer events. Phone-first.
 // ============================================================
 (function(){
-  const HOLD_MS=330, MOVE_CANCEL_PX=8;
+  const DRAG_START_PX=6; // finger must move this far before a drag begins
   const EDGE_PX=72, EDGE_MAX_SPEED=16; // auto-scroll zone + px/frame
-  let pointerId=null, holdTimer=null, dragCard=null, list=null,
-      startY=0, startX=0, startIdx=-1, currentIdx=-1, dragOffsetY=0,
+  let pointerId=null, dragCard=null, list=null, armed=false, dragStarted=false,
+      startY=0, startX=0, startIdx=-1, currentIdx=-1,
       cardHeight=0, hintEl=null, lineEl=null, suppressClickUntil=0,
       lastClientY=0, autoRAF=null, autoVel=0;
 
@@ -5429,10 +5433,10 @@ try{updateNotifUI();}catch(e){}
 
   function onPointerDown(e){
     if(e.button!=null && e.button!==0)return;
-    // Drag ONLY from the grip handle. The handle is touch-action:none, so iOS
-    // never claims the press for scrolling or a system long-press (which was
-    // silently killing the old hold-to-drag). Grabbing the handle starts the
-    // drag IMMEDIATELY — no hold needed.
+    // Drag ONLY from the grip handle. ARM a potential drag here, but DON'T lift
+    // the card yet: a quick TAP on the handle should OPEN the exercise (the
+    // handle sits over the checkbox), and a drag only begins once the finger
+    // actually moves. That's what lets tap-to-log and drag-to-reorder coexist.
     if(!e.target.closest('.ex-grip'))return;
     const card=e.target.closest('.exercise');
     if(!card)return;
@@ -5441,6 +5445,7 @@ try{updateNotifUI();}catch(e){}
     if(parent.classList.contains('locked'))return; // read-only day
     if(card.classList.contains('skipped'))return;
 
+    armed=true; dragStarted=false;
     list=parent;
     dragCard=card;
     startY=e.clientY; startX=e.clientX; lastClientY=e.clientY;
@@ -5448,26 +5453,27 @@ try{updateNotifUI();}catch(e){}
     const cards=Array.from(list.querySelectorAll('.exercise'));
     startIdx=cards.indexOf(card);
     currentIdx=startIdx;
+  }
 
-    const rect=card.getBoundingClientRect();
+  function beginDrag(){
+    dragStarted=true;
+    const rect=dragCard.getBoundingClientRect();
     cardHeight=rect.height+8; // include margin
-    // Scroll during drag is already blocked by the grip's touch-action:none and
-    // preventDefault() in onPointerMove. We deliberately do NOT touch global
-    // <html>/<body> styles — if a gesture were interrupted, a stuck global
-    // touch-action:none would freeze the whole page.
-    card.classList.add('dragging');
+    dragCard.classList.add('dragging');
     list.classList.add('reorder-on');
     ensureLine(); positionLine();
-    try{card.setPointerCapture(pointerId);}catch(_){}
-    try{e.preventDefault();}catch(_){}
+    try{dragCard.setPointerCapture(pointerId);}catch(_){}
     buzz(18); // satisfying pick-up
     showHint('Drag to reorder · let go to drop');
   }
 
   function onPointerMove(e){
-    if(!dragCard)return;
-    // Real drag — translate follows the finger instantly; scale/rotate/shadow
-    // spring in via the .dragging CSS class. Block scroll + selection.
+    if(!armed)return;
+    if(!dragStarted){
+      // Don't lift until the finger has actually moved (so a tap stays a tap).
+      if(Math.abs(e.clientY-startY)<DRAG_START_PX && Math.abs(e.clientX-startX)<DRAG_START_PX)return;
+      beginDrag();
+    }
     e.preventDefault();
     lastClientY=e.clientY;
     const dy=e.clientY-startY;
@@ -5485,14 +5491,34 @@ try{updateNotifUI();}catch(e){}
 
   function endVisuals(){
     stopAutoScroll();
-    document.body.style.userSelect='';
-    document.documentElement.style.touchAction='';
     hideLine();
     hideHint();
   }
+  function resetDragState(){
+    armed=false; dragStarted=false;
+    try{ if(dragCard){dragCard.classList.remove('dragging');dragCard.style.translate='';} }catch(_){}
+    try{ clearShifts(); }catch(_){}
+    try{ var el=document.getElementById('exercise-list'); if(el)el.classList.remove('reorder-on'); }catch(_){}
+    try{ hideLine(); hideHint(); stopAutoScroll(); }catch(_){}
+    dragCard=null; list=null; pointerId=null;
+  }
+  // Expose so renderToday() can self-heal a stuck reorder state: if a drag is
+  // ever interrupted (tab backgrounded, pointer lost) the .reorder-on class
+  // would otherwise leave pointer-events:none on every card and kill ALL taps.
+  window.__dlResetReorder=resetDragState;
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden')resetDragState(); });
+  window.addEventListener('blur',function(){ resetDragState(); });
 
   function onPointerUp(e){
-    if(!dragCard)return;
+    if(!armed)return;
+    if(!dragStarted){
+      // It was a TAP on the handle → open the exercise so the user can log it.
+      const idx=startIdx;
+      resetDragState();
+      if(typeof openExercise==='function' && idx>=0)openExercise(idx);
+      return;
+    }
+    // Real drag → commit the reorder.
     suppressClickUntil=Date.now()+250;
     const card=dragCard, fromIdx=startIdx, toIdx=currentIdx;
     try{card.releasePointerCapture(pointerId);}catch(_){}
@@ -5501,7 +5527,7 @@ try{updateNotifUI();}catch(e){}
     clearShifts();
     if(list)list.classList.remove('reorder-on');
     endVisuals();
-    dragCard=null; list=null; pointerId=null;
+    resetDragState();
     if(fromIdx!==toIdx && state.today && state.today.exercises){
       const arr=state.today.exercises;
       const [moved]=arr.splice(fromIdx,1);
@@ -5528,6 +5554,19 @@ try{updateNotifUI();}catch(e){}
     }
   }
 
+  function onPointerCancel(e){
+    if(!armed)return;
+    if(dragStarted){
+      try{dragCard.releasePointerCapture(pointerId);}catch(_){}
+      dragCard.classList.remove('dragging');
+      dragCard.style.translate='';
+      clearShifts();
+      if(list)list.classList.remove('reorder-on');
+      endVisuals();
+    }
+    resetDragState(); // interrupted gesture — clean up, do NOT open
+  }
+
   function onClickCapture(e){
     if(Date.now()<suppressClickUntil){e.stopPropagation();e.preventDefault();}
   }
@@ -5535,7 +5574,7 @@ try{updateNotifUI();}catch(e){}
   document.addEventListener('pointerdown', onPointerDown, true);
   document.addEventListener('pointermove', onPointerMove, {passive:false});
   document.addEventListener('pointerup', onPointerUp, true);
-  document.addEventListener('pointercancel', onPointerUp, true);
+  document.addEventListener('pointercancel', onPointerCancel, true);
   document.addEventListener('click', onClickCapture, true);
 })();
 </script>
