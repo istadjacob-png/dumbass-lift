@@ -139,7 +139,10 @@ input,textarea{user-select:text}
 .section-head .c{font-family:'Oswald',sans-serif;font-size:11px;color:var(--cobalt-bright);letter-spacing:.15em;font-weight:700}
 
 /* EXERCISE CARD WITH F BADGE */
-.exercise{background:var(--steel);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 0 rgba(255,255,255,.02) inset;cursor:pointer;position:relative}
+#exercise-list{position:relative}
+/* No text selection / iOS callout on cards — otherwise a long-press selects the
+   exercise name instead of picking the card up to drag. */
+.exercise{background:var(--steel);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 0 rgba(255,255,255,.02) inset;cursor:pointer;position:relative;-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none}
 .exercise:active{transform:scale(.99)}
 .exercise.done{opacity:.5;border-left-color:var(--steel-light);background:var(--steel-dark)}
 .exercise.done .ex-name{text-decoration:line-through;color:var(--text-dim)}
@@ -191,8 +194,19 @@ input,textarea{user-select:text}
   background:var(--cobalt-bright);box-shadow:0 0 10px var(--cobalt-glow)}
 
 /* satisfying settle pulse on the card that was just moved */
-@keyframes justMovedPulse{0%{box-shadow:0 0 0 2px var(--cobalt-bright),0 0 24px var(--cobalt-glow);background:var(--steel-dark)}100%{box-shadow:0 0 0 0 transparent;background:var(--steel)}}
-.exercise.just-moved{animation:justMovedPulse .55s ease-out}
+/* DROP CONFIRMATION — the card bounces into place with a bright accent ring,
+   and an accent bar flashes at the exact gap it landed in. */
+@keyframes justLanded{
+  0%{transform:scale(1.05);box-shadow:0 0 0 3px var(--cobalt-bright),0 14px 38px rgba(0,0,0,.22),0 0 26px var(--cobalt-glow);background:var(--steel-dark)}
+  60%{transform:scale(.985)}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,51,0,0);background:var(--steel)}
+}
+.exercise.just-moved{animation:justLanded .72s cubic-bezier(.34,1.56,.64,1);border-color:var(--cobalt-bright)}
+.drop-confirm{position:absolute;left:2px;right:2px;height:3px;border-radius:3px;z-index:36;pointer-events:none;
+  background:var(--cobalt-bright);box-shadow:0 0 14px var(--cobalt-glow);transform-origin:center;
+  animation:dropConfirm .78s ease-out forwards}
+.drop-confirm::after{content:'';position:absolute;left:-3px;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--cobalt-bright);box-shadow:0 0 10px var(--cobalt-glow)}
+@keyframes dropConfirm{0%{opacity:0;transform:scaleX(.35)}18%{opacity:1;transform:scaleX(1)}70%{opacity:1}100%{opacity:0;transform:scaleX(1)}}
 
 #exercise-list.reorder-on .exercise .ex-check,
 #exercise-list.reorder-on .exercise .ex-info,
@@ -1546,7 +1560,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-30.2';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-30.3';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -5523,9 +5537,20 @@ try{updateNotifUI();}catch(e){}
       save();
       renderToday();
       buzz([12,30,12]); // satisfying drop
-      // pulse the card that landed
-      const landed=document.querySelectorAll('#exercise-list .exercise')[toIdx];
-      if(landed){landed.classList.add('just-moved');setTimeout(()=>landed.classList.remove('just-moved'),560);}
+      // Make the drop location unmistakable: bounce + accent ring on the landed
+      // card, and an accent bar flashes at the exact gap it dropped into.
+      const lst=document.getElementById('exercise-list');
+      const landed=lst?lst.querySelectorAll('.exercise')[toIdx]:null;
+      if(landed){
+        landed.classList.add('just-moved');
+        setTimeout(()=>landed.classList.remove('just-moved'),740);
+        const cl=document.createElement('div');cl.className='drop-confirm';
+        const lr=lst.getBoundingClientRect(), cr=landed.getBoundingClientRect();
+        cl.style.top=(cr.top-lr.top-2)+'px';
+        lst.appendChild(cl);
+        setTimeout(()=>{try{lst.removeChild(cl);}catch(_){}},800);
+        landed.scrollIntoView({block:'nearest',behavior:'smooth'});
+      }
       toast(`Moved to #${toIdx+1}`);
     }
   }
