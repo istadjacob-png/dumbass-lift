@@ -1139,6 +1139,11 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .pstat-foot{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-dim);margin-top:12px;line-height:1.6;text-align:center}
 .pstat-foot b{color:var(--text)}
 
+/* import inference transparency */
+.ilp-infer{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#555;letter-spacing:.02em;line-height:1.4;margin-bottom:10px}
+.ilp-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+.ilp-sure{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#9A9A9A;margin-left:auto;white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -1541,7 +1546,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-30.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-30.2';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4529,9 +4534,16 @@ function extractYouTubeId(url){
   return m?m[1]:null;
 }
 function guessChannelFromUrl(url){
-  const m=url.match(/youtube\.com\/@([A-Za-z0-9_.\-]+)/);
-  return m?'@'+m[1]:null;
+  if(!url)return null;
+  // Modern @handle, plus legacy /c/Name and /user/Name forms.
+  let m=url.match(/youtube\.com\/@([A-Za-z0-9_.\-]+)/);
+  if(m)return '@'+m[1];
+  m=url.match(/youtube\.com\/(?:c|user)\/([A-Za-z0-9_.\-]+)/);
+  if(m)return '@'+m[1];
+  return null;
 }
+// Normalize a channel handle/name to a lowercase key for matching.
+function channelKey(s){return (s||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
 function fetchYouTubeTitle(url){
   const endpoint='https://www.youtube.com/oembed?url='+encodeURIComponent(url)+'&format=json';
   return fetch(endpoint).then(r=>r.ok?r.json():null).then(j=>j&&j.title?j.title:null);
@@ -4613,23 +4625,100 @@ const IMPORT_TEMPLATES={
     {libId:'pullup',sets:3,reps:'6-10'}]}
 };
 
-function inferImportFocus(){
-  // Combine title + user-typed name as the haystack.
-  const hay=((importState.title||'')+' '+(document.getElementById('il-name').value||'')).toLowerCase();
-  // PPL is a multi-day split, handle separately.
-  if(/\bppl\b|push.?pull.?legs|p\/p\/l/.test(hay))return 'ppl';
-  if(/full.?body|fullbody/.test(hay))return 'fullbody';
-  if(/\bupper\b/.test(hay)&&!/lower/.test(hay))return 'upper';
-  if(/\blower\b/.test(hay)&&!/upper/.test(hay))return 'lower';
-  if(/\bpush\b/.test(hay))return 'push';
-  if(/\bpull\b/.test(hay))return 'pull';
-  if(/\bleg|quad|hamstring|glute/.test(hay))return 'legs';
-  if(/chest|bench|pec/.test(hay))return 'chest';
-  if(/\bback\b|lat|row|deadlift/.test(hay))return 'back';
-  if(/shoulder|delt|press day|ohp/.test(hay))return 'shoulders';
-  if(/\barm|bicep|tricep|curl day/.test(hay))return 'arms';
-  return 'push'; // safe default
+// Known creators → sensible defaults when the title alone is ambiguous.
+// volume: 'high' bumps sets on bro/single-day splits; 'moderate' is science-based;
+// 'classic' is golden-era bodybuilding. defaultFocus seeds the split when nothing
+// else is detected in the title.
+const CHANNEL_PROFILES={
+  samsulek:{name:'Sam Sulek',volume:'high',defaultFocus:'chest',note:'high-volume bro split'},
+  renaissanceperiodization:{name:'Renaissance Periodization',volume:'moderate',defaultFocus:'ppl',note:'science-based, moderate volume'},
+  rpstrength:{name:'Renaissance Periodization',volume:'moderate',defaultFocus:'ppl',note:'science-based, moderate volume'},
+  drmikeisraetel:{name:'Dr. Mike Israetel',volume:'moderate',defaultFocus:'ppl',note:'science-based, moderate volume'},
+  jeffnippard:{name:'Jeff Nippard',volume:'moderate',defaultFocus:'upper',note:'science-based, moderate volume'},
+  chrisbumstead:{name:'Chris Bumstead',volume:'classic',defaultFocus:'chest',note:'classic bodybuilding'},
+  cbum:{name:'Chris Bumstead',volume:'classic',defaultFocus:'chest',note:'classic bodybuilding'}
+};
+function channelProfile(){
+  // Try the URL handle first, then any @handle mentioned in the title.
+  const fromUrl=channelKey(guessChannelFromUrl(importState.url||''));
+  if(fromUrl&&CHANNEL_PROFILES[fromUrl])return CHANNEL_PROFILES[fromUrl];
+  const t=(importState.title||'')+' '+((document.getElementById('il-name')||{}).value||'');
+  const at=t.match(/@([A-Za-z0-9_.\-]+)/);
+  if(at){const k=channelKey(at[1]);if(CHANNEL_PROFILES[k])return CHANNEL_PROFILES[k];}
+  // Fuzzy name match against the haystack (e.g. "Jeff Nippard's PPL").
+  const hk=channelKey(t);
+  for(const k in CHANNEL_PROFILES){if(k.length>=5&&hk.indexOf(k)>=0)return CHANNEL_PROFILES[k];}
+  return null;
 }
+
+// Robust inference. Returns a rich result so the preview can be transparent:
+//   { focus, style, multi, confidence:'high'|'medium'|'low', reason, channel, volume }
+// focus is the legacy single-key used by templates; style is the schedule shape.
+function inferImport(){
+  const title=(importState.title||'').trim();
+  const named=((document.getElementById('il-name')||{}).value||'').trim();
+  // Title carries the real signal; the user-typed name is a weak secondary hint.
+  const hay=(title+' '+named).toLowerCase();
+  const prof=channelProfile();
+  const mk=(focus,style,multi,confidence,reason)=>({focus,style,multi,confidence,reason,channel:prof?prof.name:null,volume:prof?prof.volume:null});
+
+  // --- 1. MULTI-DAY SPLIT NAMES (highest priority — these define the whole week) ---
+  if(/\bppl\b|push[\s\/.-]*pull[\s\/.-]*legs?|p\s*\/\s*p\s*\/\s*l/.test(hay))
+    return mk('ppl','ppl',true,'high','Detected a Push / Pull / Legs split');
+  if(/\barnold\s+split\b|\barnold\b/.test(hay))
+    return mk('chest','arnold',true,'high','Detected the Arnold split (chest+back / shoulders+arms / legs)');
+  if(/upper[\s\/.-]*lower|\bu\s*\/\s*l\b|\bupper\b.*\blower\b|\blower\b.*\bupper\b/.test(hay))
+    return mk('upper','upperlower',true,'high','Detected an Upper / Lower split');
+  if(/full[\s.-]*body|\bfullbody\b|\bfbw\b/.test(hay))
+    return mk('fullbody','fullbody',true,'high','Detected a Full Body routine');
+  if(/\bbro\s*split\b/.test(hay))
+    return mk(prof?prof.defaultFocus:'chest','bro',true,'high','Detected a bro split (one muscle per day)');
+
+  // --- 2. SINGLE NAMED DAY (build a full split rotating that day to the front) ---
+  // Word-boundary matched, ordered so the most specific signal wins.
+  if(/\bupper\s*(body|day)\b/.test(hay))
+    return mk('upper','upperlower',true,'high','Upper day → built an Upper / Lower split');
+  if(/\blower\s*(body|day)\b/.test(hay)&&!/lower\s*back/.test(hay))
+    return mk('lower','upperlower',true,'high','Lower day → built an Upper / Lower split');
+  if(/\bpush\b|\bpush\s*day\b/.test(hay))
+    return mk('push','ppl',true,'high','Push day → built a full Push / Pull / Legs week');
+  if(/\bpull\b|\bpull\s*day\b/.test(hay))
+    return mk('pull','ppl',true,'high','Pull day → built a full Push / Pull / Legs week');
+  if(/\bleg\s*day\b|\blegs?\b|\bquad|\bham(string)?s?\b|\bglute|\bcalf|\bcalves\b/.test(hay))
+    return mk('legs','ppl',true,'high','Leg day → built a full Push / Pull / Legs week');
+  // Chest needs care: "chest & back" leans bro/back; "chest & tris" is a push/chest day.
+  if(/\bchest\b|\bpecs?\b|\bbench\s*press\b/.test(hay)){
+    if(/\bchest\b.*\bback\b|\bback\b.*\bchest\b/.test(hay))
+      return mk('chest','bro',true,'high','Chest & Back day → built a 5-day bro split');
+    return mk('chest','bro',true,'high','Chest day → built a 5-day bro split');
+  }
+  // Back: avoid matching "back" inside words; require boundary and ignore "lower back".
+  if(/\bback\b|\blats?\b|\brow(s|ing)?\b|\bdeadlift|\bpull[\s-]*up/.test(hay)&&!/lower\s*back/.test(hay))
+    return mk('back','bro',true,'high','Back day → built a 5-day bro split');
+  if(/\bshoulders?\b|\bdelts?\b|\boverhead\s*press\b|\bohp\b|\bmilitary\s*press\b/.test(hay))
+    return mk('shoulders','bro',true,'high','Shoulder day → built a 5-day bro split');
+  if(/\barms?\b|\bbiceps?\b|\btriceps?\b|\bcurls?\s*day\b/.test(hay))
+    return mk('arms','bro',true,'high','Arm day → built a 5-day bro split');
+
+  // --- 3. WEAK SIGNALS (medium confidence) ---
+  if(/\bpress\b/.test(hay)&&!/leg\s*press/.test(hay))
+    return mk('push','ppl',true,'medium','Saw a pressing movement → assumed a Push day');
+  if(/\bcurl|\bchin[\s-]*up/.test(hay))
+    return mk('back','bro',true,'medium','Saw a pulling movement → assumed a Back day');
+
+  // --- 4. CHANNEL-AWARE FALLBACK (no title signal, but we know the creator) ---
+  if(prof){
+    const f=prof.defaultFocus;
+    const style=(f==='ppl')?'ppl':(f==='upper'||f==='lower')?'upperlower':'bro';
+    return mk(f,style,true,'low','Couldn\u2019t read the title \u2014 used '+prof.name+'\u2019s usual style ('+prof.note+')');
+  }
+
+  // --- 5. SAFE GENERIC DEFAULT (smarter than always 'push': a balanced PPL week) ---
+  return mk('ppl','ppl',true,'low','No clear signal — defaulted to a balanced Push / Pull / Legs week');
+}
+
+// Back-compat: existing callers ask for a single focus string.
+function inferImportFocus(){return inferImport().focus;}
 
 // A detected focus expands into a complete weekly split. Style depends on focus:
 //   push/pull/legs/ppl    → 6-day PPL × 2 (push/pull/legs/push/pull/legs/rest)
@@ -4642,58 +4731,87 @@ function trainFromTpl(num,tplKey,nameOverride){
   const t=IMPORT_TEMPLATES[tplKey]||IMPORT_TEMPLATES.push;
   return buildTrainingDay(num,(nameOverride||t.label).toUpperCase(),t.muscles,t.lifts);
 }
-function buildImportSchedule(focus){
-  // PPL style for push/pull/legs/PPL signals
-  if(focus==='ppl'||focus==='push'||focus==='pull'||focus==='legs'){
+// Accepts EITHER the rich result from inferImport() OR a legacy focus string.
+// The schedule shape is driven by inf.style; high-volume channels get a set bump.
+function buildImportSchedule(inf){
+  if(typeof inf==='string')inf={focus:inf,style:null,volume:null};
+  const focus=inf.focus||'push';
+  // Derive style from focus if not supplied (legacy string callers).
+  let style=inf.style;
+  if(!style){
+    if(focus==='ppl'||focus==='push'||focus==='pull'||focus==='legs')style='ppl';
+    else if(focus==='upper'||focus==='lower')style='upperlower';
+    else if(focus==='fullbody')style='fullbody';
+    else style='bro';
+  }
+  const hi=inf.volume==='high';
+  const sched=(()=>{
+    if(style==='ppl'){
+      return [
+        trainFromTpl(1,'push','PUSH A'),
+        trainFromTpl(2,'pull','PULL A'),
+        trainFromTpl(3,'legs','LEGS A'),
+        trainFromTpl(4,'push','PUSH B'),
+        trainFromTpl(5,'pull','PULL B'),
+        trainFromTpl(6,'legs','LEGS B'),
+        restDay(7,'Eat. Sleep. Grow.')
+      ];
+    }
+    if(style==='upperlower'){
+      return [
+        trainFromTpl(1,'upper','UPPER A'),
+        trainFromTpl(2,'lower','LOWER A'),
+        restDay(3,'Mid-week reset'),
+        trainFromTpl(4,'upper','UPPER B'),
+        trainFromTpl(5,'lower','LOWER B'),
+        restDay(6,'Weekend reset'),
+        restDay(7,'Eat. Sleep. Grow.')
+      ];
+    }
+    if(style==='fullbody'){
+      return [
+        trainFromTpl(1,'fullbody','FULL BODY A'),
+        restDay(2,'Active recovery'),
+        trainFromTpl(3,'fullbody','FULL BODY B'),
+        restDay(4,'Eat. Sleep.'),
+        trainFromTpl(5,'fullbody','FULL BODY C'),
+        restDay(6,'Weekend'),
+        restDay(7,'Long walk. Sunlight.')
+      ];
+    }
+    if(style==='arnold'){
+      // Arnold split: Chest+Back / Shoulders+Arms / Legs, twice over.
+      return [
+        trainFromTpl(1,'chest','CHEST & BACK A'),
+        trainFromTpl(2,'shoulders','SHOULDERS & ARMS A'),
+        trainFromTpl(3,'legs','LEGS A'),
+        trainFromTpl(4,'back','CHEST & BACK B'),
+        trainFromTpl(5,'arms','SHOULDERS & ARMS B'),
+        trainFromTpl(6,'legs','LEGS B'),
+        restDay(7,'Eat. Sleep. Grow.')
+      ];
+    }
+    // Bro split — rotate so the detected focus day comes first.
+    const bro=['chest','back','shoulders','arms','legs'];
+    const startIdx=bro.indexOf(focus);
+    const ordered=startIdx>=0
+      ?[...bro.slice(startIdx),...bro.slice(0,startIdx)]
+      :bro;
     return [
-      trainFromTpl(1,'push','PUSH A'),
-      trainFromTpl(2,'pull','PULL A'),
-      trainFromTpl(3,'legs','LEGS A'),
-      trainFromTpl(4,'push','PUSH B'),
-      trainFromTpl(5,'pull','PULL B'),
-      trainFromTpl(6,'legs','LEGS B'),
+      trainFromTpl(1,ordered[0]),
+      trainFromTpl(2,ordered[1]),
+      trainFromTpl(3,ordered[2]),
+      trainFromTpl(4,ordered[3]),
+      trainFromTpl(5,ordered[4]),
+      restDay(6,'Weekend off'),
       restDay(7,'Eat. Sleep. Grow.')
     ];
+  })();
+  // High-volume creators (e.g. Sulek): add one set to every working exercise.
+  if(hi){
+    sched.forEach(d=>{if(d.type==='train')d.exercises.forEach(e=>{e.targetSets=(e.targetSets||3)+1;});});
   }
-  // Upper/Lower 4-day
-  if(focus==='upper'||focus==='lower'){
-    return [
-      trainFromTpl(1,'upper','UPPER A'),
-      trainFromTpl(2,'lower','LOWER A'),
-      restDay(3,'Mid-week reset'),
-      trainFromTpl(4,'upper','UPPER B'),
-      trainFromTpl(5,'lower','LOWER B'),
-      restDay(6,'Weekend reset'),
-      restDay(7,'Eat. Sleep. Grow.')
-    ];
-  }
-  // Full Body 3x
-  if(focus==='fullbody'){
-    return [
-      trainFromTpl(1,'fullbody','FULL BODY A'),
-      restDay(2,'Active recovery'),
-      trainFromTpl(3,'fullbody','FULL BODY B'),
-      restDay(4,'Eat. Sleep.'),
-      trainFromTpl(5,'fullbody','FULL BODY C'),
-      restDay(6,'Weekend'),
-      restDay(7,'Long walk. Sunlight.')
-    ];
-  }
-  // Bro split (chest/back/shoulders/arms/legs) — rotate so focus day comes first.
-  const bro=['chest','back','shoulders','arms','legs'];
-  const startIdx=bro.indexOf(focus);
-  const ordered=startIdx>=0
-    ?[...bro.slice(startIdx),...bro.slice(0,startIdx)]
-    :bro;
-  return [
-    trainFromTpl(1,ordered[0]),
-    trainFromTpl(2,ordered[1]),
-    trainFromTpl(3,ordered[2]),
-    trainFromTpl(4,ordered[3]),
-    trainFromTpl(5,ordered[4]),
-    restDay(6,'Weekend off'),
-    restDay(7,'Eat. Sleep. Grow.')
-  ];
+  return sched;
 }
 function buildTrainingDay(num,name,muscles,lifts){
   const lib=getLibrary();
@@ -4715,21 +4833,37 @@ function renderImportPreview(){
     box.innerHTML='<div class="il-preview-empty">Paste a link and name it → preview shows up here</div>';
     return;
   }
-  const focus=inferImportFocus();
-  const schedule=buildImportSchedule(focus);
+  const inf=inferImport();
+  const schedule=buildImportSchedule(inf);
   const trainDays=schedule.filter(d=>d.type==='train');
   const restCount=schedule.filter(d=>d.type==='rest').length;
   const liftCount=trainDays.reduce((a,d)=>a+d.exercises.length,0);
-  const styleLabel=splitStyleLabel(focus);
+  const styleLabel=splitStyleLabel(inf);
   const titleLine=importState.title?`<div class="ilp-title">${importState.title}</div>`:'';
+  // Transparency row: show WHAT was read and HOW sure we are, so it's not a black box.
+  const dot={high:'#1DB954',medium:'#E6A700',low:'#FF3300'}[inf.confidence]||'#7A7A7A';
+  const sure={high:'sure',medium:'best guess',low:'rough guess'}[inf.confidence]||'';
+  const chanBit=inf.channel?` · ${inf.channel}`:'';
+  const inferLine=`<div class="ilp-infer"><span class="ilp-dot" style="background:${dot}"></span>${inf.reason}<span class="ilp-sure">${sure}${chanBit}</span></div>`;
   const lifts=trainDays.map(d=>`<div class="ilp-day"><div class="ilp-day-head">${d.name}<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A;font-weight:400;letter-spacing:0;margin-left:8px">${d.muscles}</span></div>${d.exercises.map(e=>`<div class="ilp-lift">→ ${e.name} <span class="ilp-sxr">${e.targetSets}×${e.targetReps}</span></div>`).join('')}</div>`).join('');
-  box.innerHTML=`${titleLine}<div class="ilp-summary">Building <b>${styleLabel}</b> · ${trainDays.length} training + ${restCount} rest · ${liftCount} lifts</div>${lifts}<div class="ilp-foot">Swap or add any lift after.</div>`;
+  box.innerHTML=`${titleLine}${inferLine}<div class="ilp-summary">Building <b>${styleLabel}</b> · ${trainDays.length} training + ${restCount} rest · ${liftCount} lifts</div>${lifts}<div class="ilp-foot">Not right? Swap or add any lift after — it’s yours.</div>`;
 }
 
-function splitStyleLabel(focus){
-  if(focus==='ppl'||focus==='push'||focus==='pull'||focus==='legs')return 'PUSH / PULL / LEGS · 6 DAYS';
-  if(focus==='upper'||focus==='lower')return 'UPPER / LOWER · 4 DAYS';
-  if(focus==='fullbody')return 'FULL BODY · 3 DAYS';
+// Accepts the rich inferImport() result OR a legacy focus string.
+function splitStyleLabel(inf){
+  if(typeof inf==='string')inf={focus:inf,style:null};
+  const focus=inf.focus||'push';
+  let style=inf.style;
+  if(!style){
+    if(focus==='ppl'||focus==='push'||focus==='pull'||focus==='legs')style='ppl';
+    else if(focus==='upper'||focus==='lower')style='upperlower';
+    else if(focus==='fullbody')style='fullbody';
+    else style='bro';
+  }
+  if(style==='ppl')return 'PUSH / PULL / LEGS · 6 DAYS';
+  if(style==='upperlower')return 'UPPER / LOWER · 4 DAYS';
+  if(style==='fullbody')return 'FULL BODY · 3 DAYS';
+  if(style==='arnold')return 'ARNOLD SPLIT · 6 DAYS';
   const label=(IMPORT_TEMPLATES[focus]||IMPORT_TEMPLATES.push).label;
   return `BRO SPLIT · 5 DAYS · ${label} first`;
 }
@@ -4738,17 +4872,18 @@ function saveImportedSplit(){
   const url=(document.getElementById('il-url').value||'').trim();
   const name=(document.getElementById('il-name').value||'').trim();
   if(!name){toast('Name your split');return;}
-  const focus=inferImportFocus();
-  const schedule=buildImportSchedule(focus);
+  const inf=inferImport();
+  const schedule=buildImportSchedule(inf);
   const trainDays=schedule.filter(d=>d.type==='train');
   const liftCount=trainDays.reduce((a,d)=>a+d.exercises.length,0);
 
   let author='From video';
   const ch=guessChannelFromUrl(url);
-  if(ch)author=ch;
+  if(inf.channel)author=inf.channel;
+  else if(ch)author=ch;
 
   const id='import-'+Date.now().toString(36);
-  const styleLabel=splitStyleLabel(focus);
+  const styleLabel=splitStyleLabel(inf);
   const prog={
     id,name:name.toUpperCase(),author,
     sourceUrl:url||undefined,
