@@ -102,17 +102,7 @@ input,textarea{user-select:text}
 .day-locked.editing{background:var(--steel-dark);border-color:var(--border);border-left-color:var(--cobalt-bright);box-shadow:none}
 .day-locked.editing .dl-check{background:var(--cobalt);border:1px solid var(--cobalt-bright);box-shadow:0 0 14px var(--cobalt-glow)}
 .day-locked.editing .dl-title{color:var(--cobalt-bright)}
-/* read-only exercise list when the day is locked */
-#exercise-list.locked{opacity:.92}
-#exercise-list.locked .exercise{cursor:default}
-#exercise-list.locked .ex-grip,
-#exercise-list.locked .ex-edit,
-#exercise-list.locked .ex-remove,
-#exercise-list.locked .set-dots,
-#exercise-list.locked .ex-check,
-#exercise-list.locked .ex-info{pointer-events:none}
-#exercise-list.locked .ex-edit,
-#exercise-list.locked .ex-remove{opacity:.25}
+/* lock removed — today's exercise list is always interactive */
 .btn-secondary{width:100%;background:var(--steel);color:var(--text-mid);border:1px solid var(--border);padding:14px 0;border-radius:10px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;font-weight:600}
 .btn-secondary:active{background:var(--steel-mid)}
 .btn-ghost{background:transparent;color:var(--text-dim);border:none;padding:8px 12px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;font-weight:500}
@@ -187,9 +177,9 @@ input,textarea{user-select:text}
 /* SET DOTS — set counter under exercise meta */
 .ex-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--cobalt-bright);letter-spacing:.05em}
-.set-dots{display:inline-flex;gap:6px;align-items:center;padding:4px 0}
+.set-dots{display:inline-flex;gap:4px;align-items:center;padding:2px 0;flex-wrap:wrap}
 .set-dot{
-  width:20px;height:20px;border-radius:50%;
+  width:30px;height:30px;border-radius:50%;
   background:transparent;border:2px solid var(--steel-light);
   cursor:pointer;flex-shrink:0;
   transition:background .12s,border-color .12s,transform .1s;
@@ -1496,7 +1486,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-30.12';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-30.13';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3484,13 +3474,11 @@ function renderToday(){
           <span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span>
           <span class="ex-count">${ex.completedSets}/${ex.targetSets}</span>
           ${topInfo}`;
-    return `<div class="${cls}" data-ex-idx="${i}">
-      <div class="ex-info" onclick="openExercise(${i})">
+    return `<div class="${cls}" data-ex-idx="${i}" onclick="openExercise(${i})">
+      <div class="ex-info">
         <div class="ex-name">${esc(ex.name)}</div>
         <div class="ex-meta">${metaInner}</div>
       </div>
-      <button class="ex-edit" onclick="event.stopPropagation();toggleSetsEdit(${i})" title="Edit sets / reps">✎</button>
-      <button class="ex-remove" onclick="event.stopPropagation();removeExAt(${i})" title="Remove">×</button>
     </div>${editHtml}`;
   }).join('');
   const btn=document.getElementById('complete-btn');
@@ -3499,40 +3487,15 @@ function renderToday(){
   const lockedBanner=document.getElementById('day-locked');
   const list=document.getElementById('exercise-list');
 
-  const completed=findCompletedSessionForDay(t.dayNum);
-  const locked=!!completed && !_dayUnlocked;
-
-  if(locked){
-    // Read-only: this day's already in the books this week.
-    list.classList.add('locked');
-    const cd=new Date(completed.date);
-    const dateStr=cd.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'});
-    const sets=completed.totalSets||0;
-    const vol=completed.totalVolume?Math.round(completed.totalVolume).toLocaleString():null;
-    lockedBanner.style.display='';
-    lockedBanner.className='day-locked slim';
-    lockedBanner.innerHTML=`<span class="dl-done">${completed.incomplete?'✓ Logged':'✓ Done'}</span><span class="dl-meta">${dateStr} · ${sets} sets</span><button class="dl-edit" onclick="unlockDay()">Edit</button>`;
-    if(btn){btn.style.display='none';}
-    if(addBtn){addBtn.style.display='none';}
-    if(customBtn){customBtn.style.display='none';}
-  }else{
-    list.classList.remove('locked');
-    lockedBanner.style.display='none';
-    if(addBtn)addBtn.style.display='';
-    if(customBtn)customBtn.style.display='none';
-    btn.style.display='';
-    btn.disabled=exs.length===0;
-    if(exs.length>0&&exs.every(e=>e.done)){btn.textContent='Complete Workout →';btn.classList.remove('partial');}
-    else{btn.textContent=`Finish Workout · ${doneCount}/${exs.length} done`;btn.classList.add('partial');}
-    if(completed&&_dayUnlocked){
-      // editing a completed day — gentle reminder banner
-      lockedBanner.style.display='';
-      lockedBanner.className='day-locked editing';
-      lockedBanner.innerHTML=`<div class="dl-check">✎</div><div class="dl-text"><div class="dl-title">EDITING A COMPLETED DAY</div><div class="dl-sub">Changes affect your split. The logged session stays in history.</div></div>`;
-    }else{
-      lockedBanner.className='day-locked';
-    }
-  }
+  // Today is ALWAYS editable/loggable — never lock, never show the DONE banner.
+  list.classList.remove('locked');
+  if(lockedBanner)lockedBanner.style.display='none';
+  if(addBtn)addBtn.style.display='';
+  if(customBtn)customBtn.style.display='none';
+  btn.style.display='';
+  btn.disabled=exs.length===0;
+  if(exs.length>0&&exs.every(e=>e.done)){btn.textContent='Complete Workout →';btn.classList.remove('partial');}
+  else{btn.textContent=`Finish Workout · ${doneCount}/${exs.length} done`;btn.classList.add('partial');}
 }
 
 function toggleDetailCustomize(){
