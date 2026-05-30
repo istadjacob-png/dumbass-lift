@@ -1327,6 +1327,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     </div>
 
     <button class="btn-ghost" onclick="resetAllData()" style="color:var(--red);width:100%;margin-top:6px">Reset All Data · Requires Typing DELETE</button>
+    <div id="build-line" style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);margin-top:14px;letter-spacing:.04em"></div>
   </div>
 
 </div>
@@ -1495,7 +1496,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-30.10';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-30.11';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4919,6 +4920,7 @@ function profileStats(){
 
 function renderProfile(){
   try{updateNotifUI();}catch(e){}
+  try{ var _bl=document.getElementById('build-line'); if(_bl)_bl.textContent='Build '+APP_BUILD; }catch(e){}
   document.getElementById('profile-name').value=state.userName||'';
   const st=profileStats();
   const volStr=st.volume>=1000?(st.volume/1000).toFixed(st.volume>=10000?0:1)+' t':Math.round(st.volume)+' kg';
@@ -5221,8 +5223,9 @@ try{updateNotifUI();}catch(e){}
 (function(){
   if(!/^https?:$/.test(location.protocol))return; // only over http(s)
   if(/^(localhost|127\.|192\.168\.|10\.)/.test(location.hostname))return; // LAN reloader handles dev
-  if(sessionStorage.getItem('__dba_updated'))return; // at most one auto-reload per session
-  setTimeout(async()=>{
+  let checking=false;
+  async function checkUpdate(){
+    if(checking)return; checking=true;
     try{
       const base=location.pathname.replace(/\?.*$/,'');
       const r=await fetch(base+'?_u='+Date.now(),{cache:'no-store'});
@@ -5231,12 +5234,20 @@ try{updateNotifUI();}catch(e){}
       const m=txt.match(/APP_BUILD\s*=\s*['"]([^'"]+)['"]/);
       if(m&&m[1]&&m[1]!==APP_BUILD){
         const a=document.activeElement;
-        if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA')&&a.value)return;
-        sessionStorage.setItem('__dba_updated','1');
+        if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA')&&a.value)return; // don't interrupt typing
+        const last=+(sessionStorage.getItem('__dba_reload_at')||0);
+        if(Date.now()-last<8000)return; // guard against reload loops
+        sessionStorage.setItem('__dba_reload_at',String(Date.now()));
         location.replace(base+'?v='+encodeURIComponent(m[1]));
       }
-    }catch(e){}
-  },1800);
+    }catch(e){}finally{checking=false;}
+  }
+  setTimeout(checkUpdate,1500);
+  // iOS resumes a suspended PWA WITHOUT a fresh load, so a one-shot check never
+  // ran on reopen — leaving the user stuck on an old build. Re-check whenever the
+  // app becomes visible or regains focus.
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible')checkUpdate(); });
+  window.addEventListener('focus',checkUpdate);
 })();
 
 </script>
