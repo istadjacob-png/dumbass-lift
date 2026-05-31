@@ -905,6 +905,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
 /* COMPACT TODAY META + SYNC */
 .today-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 18px}
+.today-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.today-count-chip{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);font-weight:700;letter-spacing:.06em;flex-shrink:0}
 .today-meta .tm-link{background:#FFF;border:1px solid #000;color:#000;padding:8px 13px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;line-height:1;transition:background .12s,color .12s}
 .today-meta .tm-link:active{background:#000;color:#FFF}
 .today-meta .tm-link.strong{border-left:4px solid #FF3300;padding-left:11px}
@@ -1130,32 +1132,27 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
   <!-- TODAY -->
   <div class="view active" id="view-today">
-    <div class="eyebrow" id="today-eyebrow">Monday</div>
+    <div class="today-top">
+      <div class="eyebrow" id="today-eyebrow">Monday</div>
+      <span class="today-count-chip" id="today-count">0 / 0</span>
+    </div>
     <div class="title" id="today-title">CHEST & <span class="accent">BACK</span></div>
 
     <div class="today-meta">
       <button class="tm-link strong" id="program-current-name" onclick="openProgramPicker()">Aesthetic Physique</button>
-      <button class="tm-link" onclick="showView('volume')">Weekly sets</button>
-      <button class="tm-link" onclick="openDayPicker()">Set day</button>
+      <button class="tm-link" onclick="showView('volume')">Sets per muscle</button>
+      <button class="tm-link" onclick="openDayPicker()">Train another day</button>
     </div>
 
     <div id="sync-banner" class="sync-mini" style="display:none"></div>
 
     <div id="accountability-strip" style="display:none"></div>
 
-    <div id="day-locked" class="day-locked" style="display:none"></div>
-
-    <div class="section-head">
-      <span class="t">Today's Lifts</span>
-      <span class="c" id="today-count">0 / 0</span>
-    </div>
-
     <div id="exercise-list"></div>
 
     <button class="add-ex-btn" id="add-ex-btn" onclick="openExLibrary()">+ Add Exercise</button>
 
     <button class="btn-primary" id="complete-btn" onclick="completeWorkout()" disabled>Complete Workout</button>
-    <button class="btn-ghost" id="customize-day-btn" onclick="unlockDay()" style="display:none;width:100%;color:var(--text-dim);margin-top:10px">✎ Customize / change this day</button>
   </div>
 
   <!-- PROGRAM -->
@@ -1507,7 +1504,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-31.6';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-31.7';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2661,16 +2658,13 @@ function renderSyncBanner(){
   const el=document.getElementById('sync-banner');
   if(!el)return;
   if(!currentUid()){
-    el.className='sync-banner';
+    el.className='sync-mini';
     el.style.display='';
     el.onclick=openLogin;
     el.innerHTML=`
-      <div class="sb-icon">👤</div>
-      <div class="sb-text">
-        <div class="sb-title">LOG IN</div>
-        <div class="sb-sub">One account. Your lifts sync to every device automatically.</div>
-      </div>
-      <div class="sb-cta">LOG IN</div>
+      <span class="sm-dot" style="color:var(--text-faint)">○</span>
+      <span>Not synced · log in to back up</span>
+      <span class="sm-pull">LOG IN</span>
     `;
     return;
   }
@@ -3468,7 +3462,7 @@ function logInline(i){
   save();
   if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}
   renderToday();
-  toast(firstLog?(ex.done?'Logged · all sets done ✓':'Logged · '+ex.completedSets+'/'+(ex.targetSets||0)):'Top set updated');
+  toast(firstLog?(ex.done?'Logged · all sets done ✓':'Logged · '+ex.completedSets+'/'+(ex.targetSets||0)):'Updated');
 }
 function swapInline(i){
   const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
@@ -3478,9 +3472,11 @@ function swapInline(i){
 function removeInline(i){
   const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
   if(!confirm('Remove '+ex.name+'?'))return;
+  if(typeof removeLiveExercise==='function')removeLiveExercise(ex);
   state.today.exercises.splice(i,1);
   syncTodayToSchedule();
   save();
+  document.querySelectorAll('.inline-log.show').forEach(p=>p.classList.remove('show'));
   renderToday();
   toast('Removed '+ex.name);
 }
@@ -3510,11 +3506,6 @@ function renderToday(){
   document.getElementById('today-eyebrow').textContent=isRealToday?`${wd} · TODAY`:wd;
   const nameParts=t.name.split(' & ');
   document.getElementById('today-title').innerHTML=nameParts.length===2?`<span style="white-space:nowrap">${esc(nameParts[0])} &amp;</span> <span class="accent">${esc(nameParts[1])}</span>`:`<span class="accent">${esc(t.name)}</span>`;
-  const dq=document.getElementById('daily-quote');
-  if(dq){
-    const quote=dailyQuote();
-    dq.innerHTML=isRealToday?`"${quote.q}"${quote.a?`<span class="dq-author">— ${quote.a}</span>`:''}`:'';
-  }
   const exs=t.exercises;
   // Backfill completedSets for legacy data (ex.done=true from old versions)
   exs.forEach(ex=>{
@@ -3527,6 +3518,7 @@ function renderToday(){
   const doneCount=exs.filter(e=>e.done).length;
   document.getElementById('today-count').textContent=`${doneCount} / ${exs.length}`;
   const currentIdx=exs.findIndex(e=>!e.done);
+  const _openPanelId=(document.querySelector('.inline-log.show')||{}).id||'';
   document.getElementById('exercise-list').innerHTML=exs.map((ex,i)=>{
     let cls='exercise';
     if(ex.skipped)cls+=' skipped';
@@ -3547,7 +3539,7 @@ function renderToday(){
       : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
     const rightSets=ex.skipped?"":`<div class="ex-sets"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div>`;
     const _fk=(ex.topSet&&ex.topSet.kg)?ex.topSet.kg:(_last?_last.kg:'');
-    const _fr=(ex.topSet&&ex.topSet.reps)?ex.topSet.reps:(_last?_last.reps:'');
+    const _fr=(ex.topLogged&&ex.topSet)?(ex.topSet.reps||''):'';
     const inlineHtml=ex.skipped?'':`<div class="inline-log" id="inline-${i}">
       <div class="il-row">
         <div class="il-field"><label>WEIGHT · KG</label><input class="il-input" id="il-kg-${i}" type="number" inputmode="decimal" placeholder="${_last?_last.kg:'kg'}" value="${_fk}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
@@ -3556,10 +3548,11 @@ function renderToday(){
       </div>
       <div class="il-actions">
         <button class="il-act" onclick="event.stopPropagation();swapInline(${i})">⇄ Swap</button>
+        <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— Skip today</button>
         <button class="il-act danger" onclick="event.stopPropagation();removeInline(${i})">✕ Remove</button>
       </div>
     </div>`;
-    return `<div class="${cls}" data-ex-idx="${i}" onclick="toggleInlineLog(${i})">
+    return `<div class="${cls}" data-ex-idx="${i}" onclick="${ex.skipped?`unskipExerciseAt(${i})`:`toggleInlineLog(${i})`}">
       <div class="ex-info">
         <div class="ex-name">${esc(ex.name)}</div>
         <div class="ex-meta">${leftMeta}</div>
@@ -3567,6 +3560,7 @@ function renderToday(){
       ${rightSets}
     </div>${inlineHtml}`;
   }).join('');
+  if(_openPanelId){const _op=document.getElementById(_openPanelId);if(_op)_op.classList.add('show');}
   const btn=document.getElementById('complete-btn');
   const addBtn=document.getElementById('add-ex-btn');
   const customBtn=document.getElementById('customize-day-btn');
@@ -3603,6 +3597,9 @@ function toggleSet(i,setIdx){
     ex.completedSets=Math.min(target,setIdx+1);
   }
   ex.done=ex.completedSets>=target&&target>0;
+  if(ex.completedSets===0)ex.topLogged=false;
+  if(ex.completedSets>0||(ex.topSet&&ex.topSet.kg)){if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);}
+  else{if(typeof removeLiveExercise==='function')removeLiveExercise(ex);}
   save();
   renderToday();
 }
@@ -3793,8 +3790,10 @@ function skipExerciseAt(i){
   ex.done=true;
   ex.completedSets=0;
   ex.topSet={kg:'',reps:''};
+  if(typeof removeLiveExercise==='function')removeLiveExercise(ex);
   syncTodayToSchedule();
   save();
+  document.querySelectorAll('.inline-log.show').forEach(p=>p.classList.remove('show'));
   renderToday();
   toast(`Skipped ${ex.name}`);
 }
@@ -4924,6 +4923,7 @@ function confirmSetsReps(){
   let reps=(document.getElementById('sr-reps').value||'').trim()||'8-10';
   if(pendingEx.mode==='swap'){
     const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur){pendingEx=null;return;}
+    if(typeof removeLiveExercise==='function')removeLiveExercise(cur);
     state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};
     toast(`Swapped to ${libEx.name} · ${sets}×${reps}`);
   }else{
@@ -5145,7 +5145,7 @@ function renderRest(){
       <div class="icon behind"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="0.4" fill="#fff" stroke="#fff" stroke-width="1.4"/></svg></div>
       <h1>NOT REST · <span class="accent">CATCH UP</span></h1>
       <p>You've already skipped <b>${sk}</b>. A rest day now just adds another. You're recovered — make this a workout and get your week back.</p>
-      <div class="rest-tip"><b>Why</b>A rest day right after missed workouts isn't recovery, it's another skip. One session today saves the week's volume.</div>
+      <div class="rest-tip"><b>Why</b>A rest day right after missed workouts isn't recovery, it's another skip. One session today keeps your week on track.</div>
       <button class="btn-primary" onclick="trainInsteadOfRest()">Train ${a.catchUpName||'today'} now →</button>
       <button class="btn-ghost" onclick="restAnyway()" style="width:100%;margin-top:12px;color:var(--text-dim)">I really do need the rest today</button>`;
     return;
@@ -5154,7 +5154,7 @@ function renderRest(){
     <div class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></div>
     <h1>REST <span class="accent">DAY</span></h1>
     <p><b>Recovery is where growth happens.</b> Muscles rebuild, nervous system resets. You earned this.</p>
-    <div class="rest-tip"><b>Today's Protocol</b>Eat at maintenance or a slight surplus. Sleep 8+ hours. Light walking is fine — no heavy training.${a.nextTrainName?` Tomorrow: <b>${a.nextTrainName}</b>.`:''}</div>
+    <div class="rest-tip"><b>How to rest</b>Eat at maintenance or a slight surplus. Sleep 8+ hours. Light walking is fine — no heavy training.${a.nextTrainName?` Tomorrow: <b>${a.nextTrainName}</b>.`:''}</div>
     <button class="btn-secondary" onclick="showView('program')" style="width:100%">View Full Program</button>`;
 }
 function trainInsteadOfRest(){
