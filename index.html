@@ -178,6 +178,8 @@ input,textarea{user-select:text}
 .ex-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--cobalt-bright);letter-spacing:.05em}
 .set-dots{display:inline-flex;gap:4px;align-items:center;padding:2px 0;flex-wrap:wrap}
+.ex-sets{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;padding-left:10px}
+.ex-sets .ex-count{min-width:30px;text-align:right}
 .set-dot{
   width:30px;height:30px;border-radius:50%;
   background:transparent;border:2px solid var(--steel-light);
@@ -1486,7 +1488,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-30.13';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-31.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3468,17 +3470,16 @@ function renderToday(){
       const filled=d<ex.completedSets;
       dotsHtml+=`<span class="set-dot${filled?' filled':''}" onclick="event.stopPropagation();toggleSet(${i},${d})" title="Set ${d+1}"></span>`;
     }
-    const metaInner=ex.skipped
+    const leftMeta=ex.skipped
       ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
-      : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>
-          <span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span>
-          <span class="ex-count">${ex.completedSets}/${ex.targetSets}</span>
-          ${topInfo}`;
+      : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${topInfo}`;
+    const rightSets=ex.skipped?"":`<div class="ex-sets"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div>`;
     return `<div class="${cls}" data-ex-idx="${i}" onclick="openExercise(${i})">
       <div class="ex-info">
         <div class="ex-name">${esc(ex.name)}</div>
-        <div class="ex-meta">${metaInner}</div>
+        <div class="ex-meta">${leftMeta}</div>
       </div>
+      ${rightSets}
     </div>${editHtml}`;
   }).join('');
   const btn=document.getElementById('complete-btn');
@@ -5089,25 +5090,22 @@ function renderAccountability(){
   const a=computeAccountability();
   if(a.todayIsRest){el.style.display='none';return;}
   const wk=`${a.doneThisWeek}/${a.weekTotal} this week`;
+  // No streak — it makes no sense with programmed rest days. Just neutral
+  // weekly progress, and a quiet "done" once today is logged.
   let cls='acct',ico='',title='',sub='';
   if(a.trainedToday){
     cls+=' done';ico='✓';
-    title=a.streak>1?`${a.streak}-day streak`:'Done today';
-    sub=`${wk} · back tomorrow`;
-  }else if(a.missedPrev){
-    // User asked to drop the "Missed <day>" nag — stay silent when behind.
-    el.style.display='none';return;
-  }else if(a.streak>0){
-    cls+=' streak';ico='🔥';
-    title=`${a.streak}-day streak`;
-    sub=`Keep it going · ${wk}`;
-  }else{
-    cls+=' streak';ico='';
-    title='Start your streak';
+    title='Done today';
     sub=wk;
+  }else if(a.missedPrev){
+    el.style.display='none';return;   // no nag when behind
+  }else{
+    cls+=' streak';
+    title=wk;
+    sub='';
   }
   el.className=cls;el.style.display='';
-  el.innerHTML=`${ico?`<div class="acct-ico">${ico}</div>`:''}<div class="acct-body"><div class="acct-title">${title}</div><div class="acct-sub">${sub}</div></div>`;
+  el.innerHTML=`${ico?`<div class="acct-ico">${ico}</div>`:''}<div class="acct-body"><div class="acct-title">${title}</div>${sub?`<div class="acct-sub">${sub}</div>`:''}</div>`;
 }
 
 function urlB64ToUint8Array(s){
