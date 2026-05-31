@@ -179,6 +179,17 @@ input,textarea{user-select:text}
 .ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--cobalt-bright);letter-spacing:.05em}
 .set-dots{display:inline-flex;gap:4px;align-items:center;padding:2px 0;flex-wrap:wrap}
 .ex-sets{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;padding-left:10px}
+.inline-log{max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease,opacity .18s ease,margin .22s ease;margin:0 0 0 0}
+.inline-log.show{max-height:160px;opacity:1;margin:-4px 0 10px}
+.il-row{display:flex;align-items:flex-end;gap:8px;padding:0 2px}
+.il-field{flex:1;display:flex;flex-direction:column;gap:4px}
+.il-field label{font-family:'Oswald',sans-serif;font-size:8.5px;letter-spacing:.18em;color:var(--text-faint);text-transform:uppercase;font-weight:700}
+.il-input{width:100%;box-sizing:border-box;height:46px;border:1px solid var(--border);border-radius:9px;background:var(--steel-dark);text-align:center;font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text);-moz-appearance:textfield}
+.il-input::-webkit-outer-spin-button,.il-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.il-log{flex:0 0 auto;height:46px;padding:0 18px;border:none;border-radius:9px;background:linear-gradient(180deg,var(--cobalt-bright),#cc2900);color:#fff;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;cursor:pointer;box-shadow:0 0 16px var(--cobalt-glow)}
+.il-log:active{transform:scale(.96)}
+.il-log.done{background:#1f9e52;box-shadow:none}
+.il-more{display:block;width:100%;margin-top:8px;background:none;border:none;color:var(--text-faint);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;padding:6px}
 .ex-sets .ex-count{min-width:30px;text-align:right}
 .set-dot{
   width:30px;height:30px;border-radius:50%;
@@ -1492,7 +1503,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-31.3';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-31.4';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3429,6 +3440,32 @@ function findCompletedSessionForDay(dayNum){
 }
 function unlockDay(){ _dayUnlocked=true; renderToday(); toast('Editing unlocked'); }
 
+// Inline top-set logging — log right on the card, no separate screen ("optimal focus").
+function toggleInlineLog(i){
+  const panel=document.getElementById('inline-'+i);
+  if(!panel)return;
+  const open=panel.classList.contains('show');
+  document.querySelectorAll('.inline-log.show').forEach(p=>{if(p!==panel)p.classList.remove('show');});
+  if(open){panel.classList.remove('show');}
+  else{panel.classList.add('show'); const kg=document.getElementById('il-kg-'+i); if(kg)setTimeout(()=>{try{kg.focus();kg.select();}catch(e){}},60);}
+}
+function logInline(i){
+  const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
+  const kg=((document.getElementById('il-kg-'+i)||{}).value||'').trim();
+  const reps=((document.getElementById('il-reps-'+i)||{}).value||'').trim();
+  if(!kg||!reps){toast('Enter weight & reps first');return;}
+  const firstLog=!ex.topLogged;
+  ex.topSet={kg:kg,reps:reps};
+  ex.topLogged=true;
+  if(typeof ex.completedSets!=='number')ex.completedSets=0;
+  if(firstLog)ex.completedSets=Math.min((ex.targetSets||0),ex.completedSets+1);
+  ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+  if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);
+  save();
+  if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}
+  renderToday();
+  toast(firstLog?(ex.done?'Logged · all sets done ✓':'Logged · '+ex.completedSets+'/'+(ex.targetSets||0)):'Top set updated');
+}
 // Most recent top set for this exercise from a PRIOR day (not today) — the
 // number to beat for progressive overload.
 function prevTopSet(ex){
@@ -3479,7 +3516,6 @@ function renderToday(){
     else if(i===currentIdx)cls+=' current';
     if(ex.primary)cls+=' primary';
     if(ex.tag==='WARM-UP')cls+=' warmup';
-    const editHtml=`<div class="sets-edit" id="sets-edit-${i}"><div class="sets-edit-inner"><div class="se-label">Edit sets · reps</div><div class="se-row"><input type="number" min="1" max="10" class="se-input" value="${ex.targetSets}" oninput="updateSets(${i},this.value)" onblur="renderToday()"><span class="se-x">×</span><input type="text" class="se-input wide" value="${ex.targetReps}" oninput="updateReps(${i},this.value)" onblur="renderToday()" placeholder="8-10"></div></div></div>`;
     const topInfo=ex.topSet&&ex.topSet.kg?`<span class="ex-top">TOP <b>${ex.topSet.kg}×${ex.topSet.reps}</b></span>`:'';
     let dotsHtml='';
     for(let d=0;d<(ex.targetSets||0);d++){
@@ -3492,13 +3528,23 @@ function renderToday(){
       ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
       : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
     const rightSets=ex.skipped?"":`<div class="ex-sets"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div>`;
-    return `<div class="${cls}" data-ex-idx="${i}" onclick="openExercise(${i})">
+    const _fk=(ex.topSet&&ex.topSet.kg)?ex.topSet.kg:(_last?_last.kg:'');
+    const _fr=(ex.topSet&&ex.topSet.reps)?ex.topSet.reps:(_last?_last.reps:'');
+    const inlineHtml=ex.skipped?'':`<div class="inline-log" id="inline-${i}">
+      <div class="il-row">
+        <div class="il-field"><label>WEIGHT · KG</label><input class="il-input" id="il-kg-${i}" type="number" inputmode="decimal" placeholder="${_last?_last.kg:'kg'}" value="${_fk}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
+        <div class="il-field"><label>REPS</label><input class="il-input" id="il-reps-${i}" type="number" inputmode="numeric" placeholder="${_last?_last.reps:'reps'}" value="${_fr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
+        <button class="il-log${ex.topLogged?' done':''}" onclick="event.stopPropagation();logInline(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>
+      </div>
+      <button class="il-more" onclick="event.stopPropagation();openExercise(${i})">Open full · swap · remove →</button>
+    </div>`;
+    return `<div class="${cls}" data-ex-idx="${i}" onclick="toggleInlineLog(${i})">
       <div class="ex-info">
         <div class="ex-name">${esc(ex.name)}</div>
         <div class="ex-meta">${leftMeta}</div>
       </div>
       ${rightSets}
-    </div>${editHtml}`;
+    </div>${inlineHtml}`;
   }).join('');
   const btn=document.getElementById('complete-btn');
   const addBtn=document.getElementById('add-ex-btn');
