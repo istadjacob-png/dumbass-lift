@@ -190,6 +190,10 @@ input,textarea{user-select:text}
 .il-log:active{transform:scale(.96)}
 .il-log.done{background:#1f9e52;box-shadow:none}
 .il-more{display:block;width:100%;margin-top:8px;background:none;border:none;color:var(--text-faint);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;padding:6px}
+.il-actions{display:flex;gap:8px;margin-top:8px}
+.il-act{flex:1;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:9px}
+.il-act:active{background:var(--steel-dark)}
+.il-act.danger{color:var(--red);border-color:rgba(255,51,0,.35)}
 .ex-sets .ex-count{min-width:30px;text-align:right}
 .set-dot{
   width:30px;height:30px;border-radius:50%;
@@ -1503,7 +1507,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-31.4';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-31.5';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3466,6 +3470,20 @@ function logInline(i){
   renderToday();
   toast(firstLog?(ex.done?'Logged · all sets done ✓':'Logged · '+ex.completedSets+'/'+(ex.targetSets||0)):'Top set updated');
 }
+function swapInline(i){
+  const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
+  state.currentExerciseIdx=i;
+  openSwap();
+}
+function removeInline(i){
+  const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
+  if(!confirm('Remove '+ex.name+'?'))return;
+  state.today.exercises.splice(i,1);
+  syncTodayToSchedule();
+  save();
+  renderToday();
+  toast('Removed '+ex.name);
+}
 // Most recent top set for this exercise from a PRIOR day (not today) — the
 // number to beat for progressive overload.
 function prevTopSet(ex){
@@ -3536,7 +3554,10 @@ function renderToday(){
         <div class="il-field"><label>REPS</label><input class="il-input" id="il-reps-${i}" type="number" inputmode="numeric" placeholder="${_last?_last.reps:'reps'}" value="${_fr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
         <button class="il-log${ex.topLogged?' done':''}" onclick="event.stopPropagation();logInline(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>
       </div>
-      <button class="il-more" onclick="event.stopPropagation();openExercise(${i})">Open full · swap · remove →</button>
+      <div class="il-actions">
+        <button class="il-act" onclick="event.stopPropagation();swapInline(${i})">⇄ Swap</button>
+        <button class="il-act danger" onclick="event.stopPropagation();removeInline(${i})">✕ Remove</button>
+      </div>
     </div>`;
     return `<div class="${cls}" data-ex-idx="${i}" onclick="toggleInlineLog(${i})">
       <div class="ex-info">
