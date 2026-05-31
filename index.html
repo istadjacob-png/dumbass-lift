@@ -908,6 +908,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .today-meta .tm-link{background:#FFF;border:1px solid #000;color:#000;padding:8px 13px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;line-height:1;transition:background .12s,color .12s}
 .today-meta .tm-link:active{background:#000;color:#FFF}
 .today-meta .tm-link.strong{border-left:4px solid #FF3300;padding-left:11px}
+.today-meta .tm-link.strong::after{content:" ▾";opacity:.45;margin-left:4px;font-size:11px}
 .sync-mini{display:flex;align-items:center;gap:8px;margin:0 0 18px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7A7A7A;cursor:pointer;letter-spacing:.03em}
 .sync-mini .sm-dot{color:#0a8a3d;font-weight:700}
 .sync-mini .sm-pull{margin-left:auto;color:#000;font-weight:700;border:1px solid #000;padding:4px 10px;letter-spacing:.08em}
@@ -1133,8 +1134,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="title" id="today-title">CHEST & <span class="accent">BACK</span></div>
 
     <div class="today-meta">
-      <button class="tm-link strong" id="program-current-name" onclick="showView('program')">Aesthetic Physique</button>
-      <button class="tm-link" onclick="openProgramPicker()">Switch</button>
+      <button class="tm-link strong" id="program-current-name" onclick="openProgramPicker()">Aesthetic Physique</button>
       <button class="tm-link" onclick="showView('volume')">Weekly sets</button>
       <button class="tm-link" onclick="openDayPicker()">Set day</button>
     </div>
@@ -1507,7 +1507,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-31.5';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-31.6';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
