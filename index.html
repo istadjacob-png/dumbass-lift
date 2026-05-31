@@ -1492,7 +1492,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-31.2';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-31.3';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4008,7 +4008,10 @@ function renderProgLifts(){
   if(liftArray.length===0){c.innerHTML='<div class="empty-state">No lift data yet. Log a workout and your progress shows up here.</div>';return;}
 
   if(!state.selectedLift||!liftArray.find(l=>(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name)))state.selectedLift=liftArray[0];
-  const metric=state.progMetric||'top';
+  // Two honest metrics only: top-set weight, and Epley est-1RM. (Volume removed — it can't be computed from top-set-only data.)
+  let metric=state.progMetric||'top';
+  if(metric!=='top'&&metric!=='e1rm')metric='top';   // migrate away from the old 'vol' metric
+  if(state.progMetric!==metric)state.progMetric=metric;
 
   // Per-session series for the selected lift, scored by the chosen metric
   const sessions=[];
@@ -4017,25 +4020,24 @@ function renderProgLifts(){
     if(ex&&ex.topSet&&ex.topSet.kg){
       const w=parseFloat(ex.topSet.kg)||0;if(w<=0)return;
       const reps=parseInt(ex.topSet.reps)||0;
-      const sets=ex.completedSets||ex.targetSets||0;   // sets actually performed, not just planned
-      let val;
-      if(metric==='e1rm')val=reps<=1?w:Math.round(w*(1+reps/30)*2)/2;   // Epley estimated 1RM (a true single IS the 1RM)
-      else if(metric==='vol')val=Math.round(w*reps*sets);      // top-set tonnage
-      else val=w;                                              // raw top-set weight
+      const sets=ex.completedSets||ex.targetSets||0;   // shown in the log only; never fed into a metric
+      // Top Set = heaviest weight lifted. Est 1RM = Epley from the top set (weight AND reps); a true single IS the 1RM.
+      const val=metric==='e1rm'?(reps<=1?w:Math.round(w*(1+reps/30)*2)/2):w;
       sessions.push({date:h.date,weight:w,reps:reps,sets:sets,val:val});
     }
   });
   sessions.sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-  const unit=metric==='vol'?'':'kg';
-  const fmt=v=>metric==='vol'?Math.round(v).toLocaleString():v;
+  const unit='kg';   // both metrics are kilograms now
+  const fmt=v=>v;
   const peak=sessions.length?Math.max(...sessions.map(s=>s.val)):0;
   const first=sessions.length?sessions[0].val:0;
   const latest=sessions.length?sessions[sessions.length-1].val:0;
+  // Progress reflects the selected metric: heavier top set, or higher est-1RM, both read as a positive gain.
   const prog=latest-first;
   const progPct=first>0?Math.round((prog/first)*100):0;
-  const peakLabel=metric==='e1rm'?'Best Est 1RM':metric==='vol'?'Top Volume':'All-Time Best';
-  const chartLabel=metric==='e1rm'?'Estimated 1RM':metric==='vol'?'Top-Set Volume':'Top Set';
+  const peakLabel=metric==='e1rm'?'Best Est 1RM':'All-Time Best';
+  const chartLabel=metric==='e1rm'?'Estimated 1RM':'Top Set';
 
   // Session log (most recent first); delta tracks the selected metric
   const rev=[...sessions].reverse();
@@ -4067,7 +4069,6 @@ function renderProgLifts(){
     <div class="metric-toggle">
       <button class="mt ${metric==='top'?'active':''}" onclick="setMetric('top')">Top Set</button>
       <button class="mt ${metric==='e1rm'?'active':''}" onclick="setMetric('e1rm')">Est 1RM</button>
-      <button class="mt ${metric==='vol'?'active':''}" onclick="setMetric('vol')">Volume</button>
     </div>
 
     <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;gap:8px">
