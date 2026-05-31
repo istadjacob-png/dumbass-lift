@@ -189,6 +189,10 @@ input,textarea{user-select:text}
 .set-dot:active{transform:scale(.85)}
 .set-dot.filled{background:var(--cobalt);border-color:var(--cobalt-bright);box-shadow:0 0 6px var(--cobalt-glow)}
 .ex-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.05em;font-weight:600}
+.ex-last{display:block;margin-top:3px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--cobalt-bright);font-weight:700}
+.ex-last b{color:var(--text);font-weight:700}
+.ex-last.new{color:var(--text-faint)}
+.exercise.current .ex-last b,.exercise.current .ex-last{color:#fff!important}
 .ex-top{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;font-weight:600}
 .ex-top b{color:var(--cobalt-bright);font-weight:700}
 
@@ -1488,7 +1492,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-31.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-05-31.2';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3425,6 +3429,18 @@ function findCompletedSessionForDay(dayNum){
 }
 function unlockDay(){ _dayUnlocked=true; renderToday(); toast('Editing unlocked'); }
 
+// Most recent top set for this exercise from a PRIOR day (not today) — the
+// number to beat for progressive overload.
+function prevTopSet(ex){
+  const todayK=todayDateKey();
+  for(let i=state.history.length-1;i>=0;i--){
+    const s=state.history[i];
+    if(!s||!s.date||s.date.slice(0,10)===todayK)continue;
+    const e=(s.exercises||[]).find(x=>(ex.libId&&x.libId===ex.libId)||x.name===ex.name);
+    if(e&&e.topSet&&e.topSet.kg)return {kg:e.topSet.kg,reps:e.topSet.reps};
+  }
+  return null;
+}
 function renderToday(){
   if(!state.today)loadDay(state.currentDayIdx||0);
   const t=state.today;
@@ -3470,9 +3486,11 @@ function renderToday(){
       const filled=d<ex.completedSets;
       dotsHtml+=`<span class="set-dot${filled?' filled':''}" onclick="event.stopPropagation();toggleSet(${i},${d})" title="Set ${d+1}"></span>`;
     }
+    const _last=prevTopSet(ex);
+    const lastHtml=_last?`<span class="ex-last">LAST <b>${_last.kg}kg × ${_last.reps}</b></span>`:`<span class="ex-last new">First time</span>`;
     const leftMeta=ex.skipped
       ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
-      : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${topInfo}`;
+      : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
     const rightSets=ex.skipped?"":`<div class="ex-sets"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div>`;
     return `<div class="${cls}" data-ex-idx="${i}" onclick="openExercise(${i})">
       <div class="ex-info">
