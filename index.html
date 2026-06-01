@@ -275,13 +275,6 @@ input,textarea{user-select:text}
 .topset-input::-webkit-outer-spin-button,.topset-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .topset-input[type=number]{-moz-appearance:textfield}
 .topset-input::placeholder{color:var(--text-faint)}
-.topset-input.locked{
-  background:var(--steel);border-color:var(--cobalt);color:var(--cobalt-bright);
-  cursor:not-allowed;
-}
-.topset-card.locked .topset-label::after{
-  content:' · LOCKED';color:var(--cobalt-bright);font-weight:700;
-}
 
 .profile-card{background:var(--steel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px}
 .profile-input{width:100%;background:var(--steel-dark);border:1.5px solid var(--border);border-radius:10px;outline:none;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.02em;padding:8px 12px;text-align:center}
@@ -1509,7 +1502,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-06-01.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-06-01.2';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3552,6 +3545,7 @@ function renderToday(){
         <div class="il-field"><label>REPS</label><input class="il-input" id="il-reps-${i}" type="number" inputmode="numeric" placeholder="${_last?_last.reps:'reps'}" value="${_fr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
         <button class="il-log${ex.topLogged?' done':''}" onclick="event.stopPropagation();logInline(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>
       </div>
+      <div class="il-hint" style="font-size:10.5px;color:var(--text-dim);line-height:1.4;margin:2px 2px 8px">${ex.topLogged&&!(ex.completedSets>0)?'Logged ✓ — now tap the set dots above to count each set you finish.':'Logs your heaviest set. Tap the set dots above to count each set as you finish it.'}</div>
       <div class="il-actions">
         <button class="il-act" onclick="event.stopPropagation();swapInline(${i})">⇄ Swap</button>
         <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— Skip today</button>
@@ -3752,8 +3746,9 @@ function logTopSet(){
   upsertLiveExercise(ex);
   save();
   updateLogBtnState();
-  toast('Top set logged');
-  setTimeout(()=>showView('today'),800);
+  // Stay on the logger so the weight stays editable — went heavier on a later
+  // set? Just change the number. Tap Back when you're done.
+  toast('Top set logged · change the number anytime to fix it');
 }
 
 function deleteLog(){
@@ -5090,7 +5085,7 @@ function computeAccountability(){
   const done=new Set();
   // Normalize every finalized session to a LOCAL calendar day. Stored dates are
   // ISO/UTC timestamps; slicing them raw drifts a day for evening sessions.
-  (state.history||[]).forEach(h=>{if(h&&!h.partial&&h.date)done.add(h.date.length<=10?h.date:ymd(new Date(h.date)));});
+  (state.history||[]).forEach(h=>{if(h&&!h.partial&&h.date)done.add(ymd(new Date(h.date)));});
   const todayKey=ymd();
   const todayIsRest=!!(state.today&&state.today.type==='rest');
   const trainedToday=done.has(todayKey)||!!(state.today&&Array.isArray(state.today.exercises)&&state.today.exercises.some(e=>e.done));
