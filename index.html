@@ -1062,6 +1062,9 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .acct.streak{border-left-color:var(--cobalt-bright)}
 .acct.done{border-left-color:#000}
 .acct .acct-flame{font-variant-numeric:tabular-nums}
+.acct{cursor:pointer;transition:transform .12s}
+.acct:active{transform:scale(.99)}
+.acct-cta{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:700;color:var(--text-dim);flex-shrink:0;white-space:nowrap}
 
 /* ============ SETS × REPS PROMPT ============ */
 .sr-modal{text-align:left}
@@ -1140,6 +1143,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
     <div class="today-meta">
       <button class="tm-link strong" id="program-current-name" onclick="openProgramPicker()">Aesthetic Physique</button>
+      <button class="tm-link" onclick="showView('program')">Weekly split</button>
       <button class="tm-link" onclick="showView('volume')">Sets per muscle</button>
       <button class="tm-link" onclick="openDayPicker()">Train another day</button>
     </div>
@@ -1252,6 +1256,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       </div>
 
       <button class="log-btn" id="log-btn" onclick="logTopSet()">Log Top Set</button>
+      <div class="topset-hint" id="topset-hint" style="font-size:11px;color:var(--text-dim);text-align:center;margin-top:8px;line-height:1.4">Log your heaviest set. Went heavier on a later set? Just change the number and tap again.</div>
     </div>
     <button class="btn-ghost" id="delete-log-btn" onclick="deleteLog()" style="display:none;color:var(--red);width:100%;margin-top:6px">Delete Log</button>
   </div>
@@ -1504,7 +1509,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-05-31.7';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-06-01.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2385,16 +2390,17 @@ function ensureLiveSession(){
 }
 function liveExerciseKey(ex){return (ex.libId||'')+'::'+(ex.name||'');}
 function recomputeLiveTotals(s){
-  let v=0,sets=0;
+  let v=0,setsTotal=0;
   s.exercises.forEach(e=>{
+    const sets=parseInt(e.completedSets)||0;
+    if(sets<=0)return;
     const kg=parseFloat(e.topSet&&e.topSet.kg)||0;
     const reps=parseInt(e.topSet&&e.topSet.reps)||0;
-    const tgt=parseInt(e.targetSets)||0;
-    v+=kg*reps*tgt;
-    sets+=tgt;
+    v+=kg*reps*sets;
+    setsTotal+=sets;
   });
   s.totalVolume=Math.round(v);
-  s.totalSets=sets;
+  s.totalSets=setsTotal;
 }
 function upsertLiveExercise(ex){
   const found=ensureLiveSession();
@@ -2406,6 +2412,7 @@ function upsertLiveExercise(ex){
     targetSets:ex.targetSets,targetReps:ex.targetReps,
     primary:ex.primary||false,tag:ex.tag||null,
     topSet:{kg:ex.topSet&&ex.topSet.kg||'',reps:ex.topSet&&ex.topSet.reps||''},
+    topLogged:!!ex.topLogged,
     completedSets:ex.completedSets||0,
     done:!!ex.done
   };
@@ -2434,8 +2441,8 @@ function restoreLiveSessionIntoToday(){
     if(m){
       ex.topSet={kg:(m.topSet&&m.topSet.kg)||'',reps:(m.topSet&&m.topSet.reps)||''};
       ex.completedSets=m.completedSets||0;
-      ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
-      ex.topLogged=!!(m.topSet&&m.topSet.kg);
+      if(!ex.skipped)ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+      ex.topLogged=(typeof m.topLogged==='boolean')?m.topLogged:!!(m.topSet&&m.topSet.kg);
     }
   });
 }
@@ -3456,13 +3463,12 @@ function logInline(i){
   ex.topSet={kg:kg,reps:reps};
   ex.topLogged=true;
   if(typeof ex.completedSets!=='number')ex.completedSets=0;
-  if(firstLog)ex.completedSets=Math.min((ex.targetSets||0),ex.completedSets+1);
   ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
   if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);
   save();
   if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}
   renderToday();
-  toast(firstLog?(ex.done?'Logged · all sets done ✓':'Logged · '+ex.completedSets+'/'+(ex.targetSets||0)):'Updated');
+  toast(firstLog?'Top set logged':'Updated');
 }
 function swapInline(i){
   const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
@@ -3513,7 +3519,7 @@ function renderToday(){
       ex.completedSets=ex.done?(ex.targetSets||0):0;
     }
     if(ex.completedSets>(ex.targetSets||0))ex.completedSets=ex.targetSets||0;
-    ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+    if(!ex.skipped)ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
   });
   const doneCount=exs.filter(e=>e.done).length;
   document.getElementById('today-count').textContent=`${doneCount} / ${exs.length}`;
@@ -3597,7 +3603,6 @@ function toggleSet(i,setIdx){
     ex.completedSets=Math.min(target,setIdx+1);
   }
   ex.done=ex.completedSets>=target&&target>0;
-  if(ex.completedSets===0)ex.topLogged=false;
   if(ex.completedSets>0||(ex.topSet&&ex.topSet.kg)){if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);}
   else{if(typeof removeLiveExercise==='function')removeLiveExercise(ex);}
   save();
@@ -3673,15 +3678,10 @@ function openExercise(i){
 
 function updateTopSet(field,val){
   const ex=state.today.exercises[state.currentExerciseIdx];
-  if(ex.topLogged){
-    // Locked once logged. Re-sync input back to stored value.
-    const el=document.getElementById('topset-'+(field==='kg'?'kg':'reps'));
-    if(el&&ex.topSet)el.value=ex.topSet[field]||'';
-    toast('Locked · tap Delete Log to edit');
-    return;
-  }
   if(!ex.topSet)ex.topSet={kg:'',reps:''};
   ex.topSet[field]=val;
+  // Editing an already-logged set just corrects it — keep the live entry in sync.
+  if(ex.topLogged&&typeof upsertLiveExercise==='function')upsertLiveExercise(ex);
   save(); // saves on every keystroke
   updateLogBtnState();
 }
@@ -3709,13 +3709,15 @@ function updateLogBtnState(){
   const delBtn=document.getElementById('delete-log-btn');
   const kgInput=document.getElementById('topset-kg');
   const repsInput=document.getElementById('topset-reps');
+  const hint=document.getElementById('topset-hint');
   if(ex.topLogged){
-    btn.textContent='✓ Logged · Locked';
+    btn.textContent='✓ Logged';
     btn.classList.add('done');
     btn.disabled=true;
     if(delBtn)delBtn.style.display='';
-    if(kgInput){kgInput.readOnly=true;kgInput.classList.add('locked');}
-    if(repsInput){repsInput.readOnly=true;repsInput.classList.add('locked');}
+    if(kgInput){kgInput.readOnly=false;kgInput.classList.remove('locked');}
+    if(repsInput){repsInput.readOnly=false;repsInput.classList.remove('locked');}
+    if(hint)hint.textContent='Logged. Lifted more on a later set? Just change the weight or reps above — it updates automatically.';
   }else if(ex.topSet&&ex.topSet.kg&&ex.topSet.reps){
     btn.textContent='Log Top Set';
     btn.classList.remove('done');
@@ -3723,6 +3725,7 @@ function updateLogBtnState(){
     if(delBtn)delBtn.style.display='none';
     if(kgInput){kgInput.readOnly=false;kgInput.classList.remove('locked');}
     if(repsInput){repsInput.readOnly=false;repsInput.classList.remove('locked');}
+    if(hint)hint.textContent='Log your heaviest set. Went heavier on a later set? Just change the number and tap again.';
   }else{
     btn.textContent='Enter weight & reps';
     btn.classList.remove('done');
@@ -3730,10 +3733,12 @@ function updateLogBtnState(){
     if(delBtn)delBtn.style.display='none';
     if(kgInput){kgInput.readOnly=false;kgInput.classList.remove('locked');}
     if(repsInput){repsInput.readOnly=false;repsInput.classList.remove('locked');}
+    if(hint)hint.textContent='Log your heaviest set. Went heavier on a later set? Just change the number and tap again.';
   }
   const card=document.getElementById('topset-card');
-  if(ex.topLogged)card.classList.add('done','locked');
-  else card.classList.remove('done','locked');
+  if(ex.topLogged)card.classList.add('done');
+  else card.classList.remove('done');
+  card.classList.remove('locked');
 }
 
 function logTopSet(){
@@ -3741,27 +3746,26 @@ function logTopSet(){
   if(ex.topLogged){toast('Already logged · use Delete Log to remove');return;}
   if(!ex.topSet||!ex.topSet.kg||!ex.topSet.reps){toast('Enter weight & reps first');return;}
   ex.topLogged=true;
-  // Top set counts as one completed set
   if(typeof ex.completedSets!=='number')ex.completedSets=0;
-  ex.completedSets=Math.min((ex.targetSets||0),ex.completedSets+1);
   ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
   // Persist immediately to history — survives split/day switching.
   upsertLiveExercise(ex);
   save();
   updateLogBtnState();
-  toast(ex.done?'Top set logged · all sets done':'Top set logged · '+ex.completedSets+'/'+ex.targetSets);
+  toast('Top set logged');
   setTimeout(()=>showView('today'),800);
 }
 
 function deleteLog(){
   const ex=state.today.exercises[state.currentExerciseIdx];
   if(!ex||!ex.topLogged)return;
-  if(!confirm(`Delete logged top set for ${ex.name}? Counter drops by one.`))return;
+  if(!confirm(`Delete logged top set for ${ex.name}? Your set dots stay as you marked them.`))return;
   ex.topLogged=false;
-  ex.completedSets=Math.max(0,(ex.completedSets||0)-1);
+  ex.topSet={kg:'',reps:''};
   ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
-  // Also clear from the live history entry.
-  removeLiveExercise(ex);
+  // Keep the live entry if dots were tapped; otherwise drop it.
+  if(ex.completedSets>0){if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);}
+  else{if(typeof removeLiveExercise==='function')removeLiveExercise(ex);}
   save();
   updateLogBtnState();
   toast('Log deleted');
@@ -5084,7 +5088,9 @@ function computeAccountability(){
   const sched=getActiveSchedule()||[];
   const len=sched.length||7;
   const done=new Set();
-  (state.history||[]).forEach(h=>{if(h&&!h.partial&&h.date)done.add(h.date.slice(0,10));});
+  // Normalize every finalized session to a LOCAL calendar day. Stored dates are
+  // ISO/UTC timestamps; slicing them raw drifts a day for evening sessions.
+  (state.history||[]).forEach(h=>{if(h&&!h.partial&&h.date)done.add(h.date.length<=10?h.date:ymd(new Date(h.date)));});
   const todayKey=ymd();
   const todayIsRest=!!(state.today&&state.today.type==='rest');
   const trainedToday=done.has(todayKey)||!!(state.today&&Array.isArray(state.today.exercises)&&state.today.exercises.some(e=>e.done));
@@ -5119,15 +5125,17 @@ function computeAccountability(){
     const slot=sched[scheduleIdxForDate(d)];
     if(slot&&slot.type!=='rest'){nextTrainName=slot.name||'';break;}
   }
-  // This calendar week so far (Mon→today)
-  let plannedThisWeek=0,doneThisWeek=0;
-  const dow=(new Date().getDay()+6)%7;
-  for(let i=0;i<=dow;i++){
-    const d=new Date();d.setDate(d.getDate()-(dow-i));
-    const slot=sched[scheduleIdxForDate(d)];
-    if(slot&&slot.type!=='rest'){plannedThisWeek++;if(done.has(ymd(d)))doneThisWeek++;}
-  }
-  const weekTotal=sched.filter(s=>s&&s.type!=='rest').length||plannedThisWeek;
+  // Rolling 7-day window (today + previous 6), NOT a Mon-start calendar week.
+  // A 6-day split has a floating rest day, so a fixed Monday reset wipes weekend
+  // sessions every Monday. Count days you ACTUALLY trained in the last 7 days —
+  // regardless of which weekday the split calls them.
+  const weekTotal=sched.filter(s=>s&&s.type!=='rest').length||7;
+  const weekDates=new Set();
+  for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);weekDates.add(ymd(d));}
+  let doneThisWeek=[...done].filter(dt=>weekDates.has(dt)).length;
+  // Today's session is still "partial" until you finish it — credit it once you've logged real work.
+  if(trainedToday&&!done.has(todayKey)&&weekDates.has(todayKey))doneThisWeek++;
+  doneThisWeek=Math.min(doneThisWeek,weekTotal);
   return {todayIsRest,trainedToday,streak,missedPrev,missedName,missedCount,catchUpIdx,catchUpName,nextTrainName,doneThisWeek,weekTotal};
 }
 
@@ -5191,7 +5199,8 @@ function renderAccountability(){
     sub='';
   }
   el.className=cls;el.style.display='';
-  el.innerHTML=`${ico?`<div class="acct-ico">${ico}</div>`:''}<div class="acct-body"><div class="acct-title">${title}</div>${sub?`<div class="acct-sub">${sub}</div>`:''}</div>`;
+  el.onclick=()=>showView('program');
+  el.innerHTML=`${ico?`<div class="acct-ico">${ico}</div>`:''}<div class="acct-body"><div class="acct-title">${title}</div>${sub?`<div class="acct-sub">${sub}</div>`:''}</div><div class="acct-cta">Split →</div>`;
 }
 
 function urlB64ToUint8Array(s){
