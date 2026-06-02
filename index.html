@@ -1085,6 +1085,23 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .lift-picker .lp-l{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.3em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin-bottom:3px}
 .lift-picker .lp-name{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--text);letter-spacing:.01em}
 .lift-picker .lp-chev{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:var(--cobalt-bright);color:#fff;font-size:15px;flex-shrink:0;box-shadow:0 0 12px var(--cobalt-glow)}
+/* All-lifts dashboard — glance every lift at once, tap one to drill in. */
+.lift-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.lift-card{position:relative;text-align:left;background:linear-gradient(135deg,var(--steel) 0%,var(--steel-dark) 100%);border:1px solid var(--border);border-left:4px solid var(--cobalt-bright);border-radius:12px;padding:13px 13px 12px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25);transition:transform .15s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s;overflow:hidden}
+.lift-card:active{transform:scale(.975)}
+.lift-card.pr{border-left-color:var(--red);box-shadow:0 0 0 1px rgba(255,51,0,.25),0 4px 16px rgba(255,51,0,.15)}
+.lift-card .lc-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--text);text-transform:uppercase;line-height:1.2;margin-bottom:9px;min-height:27px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lift-card .lc-last{font-family:'Inter',sans-serif;font-weight:900;font-size:23px;line-height:.95;color:var(--text);letter-spacing:-.02em}
+.lift-card .lc-last .u{font-family:'Oswald',sans-serif;font-size:11px;color:var(--text-dim);letter-spacing:.05em;margin-left:2px}
+.lift-card .lc-foot{display:flex;align-items:center;gap:6px;margin-top:8px;font-family:'Oswald',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);font-weight:600}
+.lift-card .lc-trend{display:inline-flex;align-items:center;gap:2px;font-weight:700}
+.lift-card .lc-trend.up{color:var(--cobalt-bright)}
+.lift-card .lc-trend.down{color:#F18A5C}
+.lift-card .lc-trend.flat{color:var(--text-faint)}
+.lift-card .lc-trend.new{color:var(--text-dim)}
+.lift-card .lc-prtag{position:absolute;top:0;right:0;background:var(--red);color:#fff;font-family:'Oswald',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;padding:3px 7px;border-radius:0 0 0 8px;box-shadow:0 0 12px rgba(255,51,0,.4)}
+.prog-back{display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--text-dim);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;padding:6px 0;margin-bottom:6px;font-weight:600}
+.prog-back:active{color:var(--cobalt-bright)}
 .metric-toggle{display:flex;gap:6px;margin-bottom:14px;background:var(--steel-mid);border-radius:10px;padding:4px}
 .metric-toggle .mt{flex:1;padding:9px 4px;border:none;background:transparent;border-radius:7px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;font-weight:700;cursor:pointer;transition:background .2s,color .2s}
 .metric-toggle .mt.active{background:var(--bg);color:var(--cobalt-bright);box-shadow:0 1px 5px rgba(0,0,0,.12)}
@@ -1239,7 +1256,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
       <div class="topset-grid">
         <div class="topset-field">
-          <div class="field-label">Weight · KG</div>
+          <div class="field-label" id="topset-kg-label">Weight · KG</div>
           <input class="topset-input" type="number" inputmode="decimal" id="topset-kg" placeholder="—" oninput="updateTopSet('kg',this.value)" onblur="updateTopSet('kg',this.value)">
         </div>
         <div class="topset-field">
@@ -1502,7 +1519,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-06-01.2';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-06-02.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -1699,6 +1716,37 @@ const LIBRARY=[
 const MUSCLE_NAMES={'chest':'Chest','lats':'Lats','traps':'Traps','front-delts':'Front Delts','side-delts':'Side Delts','rear-delts':'Rear Delts','biceps':'Biceps','triceps':'Triceps','forearms':'Forearms','abs':'Abs','quads':'Quads','hamstrings':'Hamstrings','glutes':'Glutes','lower-back':'Lower Back','calves':'Calves'};
 
 function getLibrary(){return [...LIBRARY,...((state&&Array.isArray(state.customExercises))?state.customExercises:[])];}
+
+// Bodyweight detection — pull-ups, dips, Nordic curls etc. carry no external load,
+// so weight (kg) is optional (only "added weight" for the weighted variants).
+function libEquip(ex){
+  if(!ex)return null;
+  const key=ex.libId||ex.libId===0?ex.libId:null;
+  const lib=getLibrary();
+  const hit=(key!=null&&lib.find(e=>e.id===key))||lib.find(e=>e.name===ex.name);
+  return hit?hit.equipment:null;
+}
+function isBodyweightEx(ex){return libEquip(ex)==='BODYWEIGHT';}
+// A top set counts as "complete" when reps are in. Weight is required for loaded
+// lifts, optional for bodyweight (blank kg = pure bodyweight).
+function topSetComplete(ex){
+  if(!ex||!ex.topSet)return false;
+  const reps=String(ex.topSet.reps==null?'':ex.topSet.reps).trim();
+  if(!reps)return false;
+  if(isBodyweightEx(ex))return true;
+  return !!String(ex.topSet.kg==null?'':ex.topSet.kg).trim();
+}
+// Human label for a logged set, bodyweight-aware: "BW × 10", "+20kg × 8", "92.5kg × 6".
+function topSetLabel(ts,ex){
+  if(!ts)return '—';
+  const reps=ts.reps||'';
+  const kg=String(ts.kg==null?'':ts.kg).trim();
+  if(isBodyweightEx(ex)){
+    if(kg&&parseFloat(kg)>0)return `+${kg}kg × ${reps}`;
+    return `BW × ${reps}`;
+  }
+  return `${kg||'—'}kg × ${reps}`;
+}
 
 // Weekly working-set landmarks (Israetel / Renaissance Periodization).
 // mev: floor · mav: productive band · mrv: ceiling.
@@ -2315,7 +2363,7 @@ function dailyQuote(){
   return DAILY_QUOTES[day % DAILY_QUOTES.length];
 }
 
-let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],customExercises:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,userName:'',bodyWeight:[],lastOpenDate:''};
+let state={activeProgramId:'aesthetic-6',programs:{},customPrograms:[],customExercises:[],currentDayIdx:0,today:null,history:[],streak:0,currentExerciseIdx:null,introSeen:false,lastCompletedSession:null,selectedLift:null,progLiftView:'grid',userName:'',bodyWeight:[],lastOpenDate:''};
 
 function loadDay(idx){
   _dayUnlocked=false;
@@ -3115,7 +3163,7 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
   // Auto-snap to today's weekday on a new calendar day if no progress is logged
   const today=ymd();
   if(state.lastOpenDate!==today){
-    const hasProgress=state.today&&Array.isArray(state.today.exercises)&&state.today.exercises.some(e=>e.completedSets>0||e.done||(e.topSet&&e.topSet.kg));
+    const hasProgress=state.today&&Array.isArray(state.today.exercises)&&state.today.exercises.some(e=>e.completedSets>0||e.done||(e.topSet&&(e.topSet.reps||e.topSet.kg)));
     if(!hasProgress){
       const slot=todayScheduleIdx();
       if(slot!==state.currentDayIdx)loadDay(slot);
@@ -3126,7 +3174,7 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
 }
 function dismissIntro(){state.introSeen=true;save();document.getElementById('intro').classList.add('hidden');renderToday();}
 
-function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress')renderProgress();if(name==='profile')renderProfile();if(name==='program')renderProgram();if(name==='volume')renderVolume();if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
+function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';renderProgress();}if(name==='profile')renderProfile();if(name==='program')renderProgram();if(name==='volume')renderVolume();if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
 
 function renderProgram(){
   const sched=getActiveSchedule();
@@ -3451,7 +3499,9 @@ function logInline(i){
   const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
   const kg=((document.getElementById('il-kg-'+i)||{}).value||'').trim();
   const reps=((document.getElementById('il-reps-'+i)||{}).value||'').trim();
-  if(!kg||!reps){toast('Enter weight & reps first');return;}
+  const bw=isBodyweightEx(ex);
+  if(!reps){toast('Enter your reps first');return;}
+  if(!bw&&!kg){toast('Enter weight & reps first');return;}
   const firstLog=!ex.topLogged;
   ex.topSet={kg:kg,reps:reps};
   ex.topLogged=true;
@@ -3487,7 +3537,7 @@ function prevTopSet(ex){
     const s=state.history[i];
     if(!s||!s.date||s.date.slice(0,10)===todayK)continue;
     const e=(s.exercises||[]).find(x=>(ex.libId&&x.libId===ex.libId)||x.name===ex.name);
-    if(e&&e.topSet&&e.topSet.kg)return {kg:e.topSet.kg,reps:e.topSet.reps};
+    if(e&&e.topSet&&(e.topSet.reps||e.topSet.kg))return {kg:e.topSet.kg,reps:e.topSet.reps};
   }
   return null;
 }
@@ -3525,27 +3575,29 @@ function renderToday(){
     else if(i===currentIdx)cls+=' current';
     if(ex.primary)cls+=' primary';
     if(ex.tag==='WARM-UP')cls+=' warmup';
-    const topInfo=ex.topSet&&ex.topSet.kg?`<span class="ex-top">TOP <b>${ex.topSet.kg}×${ex.topSet.reps}</b></span>`:'';
+    const topInfo=(ex.topLogged&&ex.topSet&&(ex.topSet.reps||ex.topSet.kg))?`<span class="ex-top">TOP <b>${topSetLabel(ex.topSet,ex)}</b></span>`:'';
     let dotsHtml='';
     for(let d=0;d<(ex.targetSets||0);d++){
       const filled=d<ex.completedSets;
       dotsHtml+=`<span class="set-dot${filled?' filled':''}" onclick="event.stopPropagation();toggleSet(${i},${d})" title="Set ${d+1}"></span>`;
     }
     const _last=prevTopSet(ex);
-    const lastHtml=_last?`<span class="ex-last">LAST <b>${_last.kg}kg × ${_last.reps}</b></span>`:`<span class="ex-last new">First time</span>`;
+    const lastHtml=_last?`<span class="ex-last">LAST <b>${topSetLabel(_last,ex)}</b></span>`:`<span class="ex-last new">First time</span>`;
     const leftMeta=ex.skipped
       ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
       : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
     const rightSets=ex.skipped?"":`<div class="ex-sets"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div>`;
+    const _bw=isBodyweightEx(ex);
     const _fk=(ex.topSet&&ex.topSet.kg)?ex.topSet.kg:(_last?_last.kg:'');
     const _fr=(ex.topLogged&&ex.topSet)?(ex.topSet.reps||''):'';
+    const _kgPlaceholder=_bw?'BW':(_last&&_last.kg?_last.kg:'kg');
     const inlineHtml=ex.skipped?'':`<div class="inline-log" id="inline-${i}">
       <div class="il-row">
-        <div class="il-field"><label>WEIGHT · KG</label><input class="il-input" id="il-kg-${i}" type="number" inputmode="decimal" placeholder="${_last?_last.kg:'kg'}" value="${_fk}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
+        <div class="il-field"><label>${_bw?'ADDED · KG':'WEIGHT · KG'}</label><input class="il-input" id="il-kg-${i}" type="number" inputmode="decimal" placeholder="${_kgPlaceholder}" value="${_fk}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
         <div class="il-field"><label>REPS</label><input class="il-input" id="il-reps-${i}" type="number" inputmode="numeric" placeholder="${_last?_last.reps:'reps'}" value="${_fr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
         <button class="il-log${ex.topLogged?' done':''}" onclick="event.stopPropagation();logInline(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>
       </div>
-      <div class="il-hint" style="font-size:10.5px;color:var(--text-dim);line-height:1.4;margin:2px 2px 8px">${ex.topLogged&&!(ex.completedSets>0)?'Logged ✓ — now tap the set dots above to count each set you finish.':'Logs your heaviest set. Tap the set dots above to count each set as you finish it.'}</div>
+      <div class="il-hint" style="font-size:10.5px;color:var(--text-dim);line-height:1.4;margin:2px 2px 8px">${ex.topLogged&&!(ex.completedSets>0)?'Logged ✓ — now tap the set dots above to count each set you finish.':(_bw?'No weight needed — just your reps. Tap the set dots above to count each set.':'Logs your heaviest set. Tap the set dots above to count each set as you finish it.')}</div>
       <div class="il-actions">
         <button class="il-act" onclick="event.stopPropagation();swapInline(${i})">⇄ Swap</button>
         <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— Skip today</button>
@@ -3639,12 +3691,20 @@ function openExercise(i){
 
   // Initialize topSet if needed (RPE removed)
   if(!ex.topSet)ex.topSet={kg:'',reps:''};
-  
+
+  // Bodyweight lifts: weight is optional "added load" — relabel so dumbasses aren't
+  // stuck staring at a Weight box they can't fill for pull-ups.
+  const _bw=isBodyweightEx(ex);
+  const kgLabel=document.getElementById('topset-kg-label');
+  if(kgLabel)kgLabel.textContent=_bw?'Added · KG (optional)':'Weight · KG';
+  const kgIn=document.getElementById('topset-kg');
+  if(kgIn)kgIn.placeholder=_bw?'BW':'—';
+
   // Auto-fill from last session if empty
   let lastSession=null;
   for(let h=state.history.length-1;h>=0;h--){
     const exInHist=state.history[h].exercises.find(e=>e.libId===ex.libId||e.name===ex.name);
-    if(exInHist&&exInHist.topSet){
+    if(exInHist&&exInHist.topSet&&(exInHist.topSet.reps||exInHist.topSet.kg)){
       lastSession={date:state.history[h].date,topSet:exInHist.topSet};
       break;
     }
@@ -3652,7 +3712,7 @@ function openExercise(i){
   const ref=document.getElementById('ex-last-ref');
   if(lastSession){
     ref.style.display='';
-    document.getElementById('ex-last-val').innerHTML=`<b>${lastSession.topSet.kg}kg × ${lastSession.topSet.reps}</b>`;
+    document.getElementById('ex-last-val').innerHTML=`<b>${topSetLabel(lastSession.topSet,ex)}</b>`;
     window._lastTopSet=lastSession.topSet;
     if(!ex.topSet.kg&&lastSession.topSet.kg)ex.topSet.kg=lastSession.topSet.kg;
     if(!ex.topSet.reps&&lastSession.topSet.reps)ex.topSet.reps=lastSession.topSet.reps;
@@ -3704,30 +3764,27 @@ function updateLogBtnState(){
   const kgInput=document.getElementById('topset-kg');
   const repsInput=document.getElementById('topset-reps');
   const hint=document.getElementById('topset-hint');
+  const bw=isBodyweightEx(ex);
+  if(kgInput){kgInput.readOnly=false;kgInput.classList.remove('locked');}
+  if(repsInput){repsInput.readOnly=false;repsInput.classList.remove('locked');}
   if(ex.topLogged){
     btn.textContent='✓ Logged';
     btn.classList.add('done');
     btn.disabled=true;
     if(delBtn)delBtn.style.display='';
-    if(kgInput){kgInput.readOnly=false;kgInput.classList.remove('locked');}
-    if(repsInput){repsInput.readOnly=false;repsInput.classList.remove('locked');}
-    if(hint)hint.textContent='Logged. Lifted more on a later set? Just change the weight or reps above — it updates automatically.';
-  }else if(ex.topSet&&ex.topSet.kg&&ex.topSet.reps){
+    if(hint)hint.textContent=bw?'Logged. Got more reps on a later set? Just change the number above — it updates automatically.':'Logged. Lifted more on a later set? Just change the weight or reps above — it updates automatically.';
+  }else if(topSetComplete(ex)){
     btn.textContent='Log Top Set';
     btn.classList.remove('done');
     btn.disabled=false;
     if(delBtn)delBtn.style.display='none';
-    if(kgInput){kgInput.readOnly=false;kgInput.classList.remove('locked');}
-    if(repsInput){repsInput.readOnly=false;repsInput.classList.remove('locked');}
-    if(hint)hint.textContent='Log your heaviest set. Went heavier on a later set? Just change the number and tap again.';
+    if(hint)hint.textContent=bw?'Log your hardest set. More reps on a later set? Just change the number and tap again.':'Log your heaviest set. Went heavier on a later set? Just change the number and tap again.';
   }else{
-    btn.textContent='Enter weight & reps';
+    btn.textContent=bw?'Enter your reps':'Enter weight & reps';
     btn.classList.remove('done');
     btn.disabled=true;
     if(delBtn)delBtn.style.display='none';
-    if(kgInput){kgInput.readOnly=false;kgInput.classList.remove('locked');}
-    if(repsInput){repsInput.readOnly=false;repsInput.classList.remove('locked');}
-    if(hint)hint.textContent='Log your heaviest set. Went heavier on a later set? Just change the number and tap again.';
+    if(hint)hint.textContent=bw?'Log your hardest set. Weight is optional — only add it if you wear a belt or vest.':'Log your heaviest set. Went heavier on a later set? Just change the number and tap again.';
   }
   const card=document.getElementById('topset-card');
   if(ex.topLogged)card.classList.add('done');
@@ -3738,7 +3795,7 @@ function updateLogBtnState(){
 function logTopSet(){
   const ex=state.today.exercises[state.currentExerciseIdx];
   if(ex.topLogged){toast('Already logged · use Delete Log to remove');return;}
-  if(!ex.topSet||!ex.topSet.kg||!ex.topSet.reps){toast('Enter weight & reps first');return;}
+  if(!topSetComplete(ex)){toast(isBodyweightEx(ex)?'Enter your reps first':'Enter weight & reps first');return;}
   ex.topLogged=true;
   if(typeof ex.completedSets!=='number')ex.completedSets=0;
   ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
@@ -3829,7 +3886,7 @@ function completeWorkout(){
   const doneCount=exs.filter(e=>e.done).length;
   // Honest completion: you can finish any time. We only log what you actually did.
   if(!allDone){
-    const anyProgress=exs.some(e=>(e.completedSets||0)>0||(e.topSet&&e.topSet.kg));
+    const anyProgress=exs.some(e=>(e.completedSets||0)>0||(e.topSet&&(e.topSet.reps||e.topSet.kg)));
     if(!anyProgress){ if(!confirm('Finish with nothing logged? Nothing will be saved as done.'))return; }
     else if(!confirm(`Finish now? ${doneCount}/${exs.length} exercises done — only what you actually logged gets saved.`))return;
   }
@@ -3852,19 +3909,19 @@ function completeWorkout(){
   // about to finalize, which would otherwise mask every PR).
   const prs=[];
   exs.forEach(ex=>{
-    if(ex.topSet&&ex.topSet.kg){
-      const topW=parseFloat(ex.topSet.kg)||0;
-      let allTime=0;
-      state.history.forEach(h=>{
-        if(h.partial)return;
-        const prior=h.exercises.find(e=>e.libId===ex.libId||e.name===ex.name);
-        if(prior&&prior.topSet){
-          const w=parseFloat(prior.topSet.kg)||0;
-          if(w>allTime)allTime=w;
-        }
-      });
-      if(topW>allTime)prs.push({name:ex.name,kg:topW,reps:ex.topSet.reps});
-    }
+    if(!ex.topSet)return;
+    const bw=isBodyweightEx(ex);
+    // Bodyweight lifts PR on reps (no added load); loaded lifts PR on weight.
+    const score=s=>bw?(parseInt(s&&s.reps)||0):(parseFloat(s&&s.kg)||0);
+    const top=score(ex.topSet);
+    if(top<=0)return;
+    let allTime=0;
+    state.history.forEach(h=>{
+      if(h.partial)return;
+      const prior=h.exercises.find(e=>e.libId===ex.libId||e.name===ex.name);
+      if(prior&&prior.topSet){const v=score(prior.topSet);if(v>allTime)allTime=v;}
+    });
+    if(top>allTime)prs.push({name:ex.name,kg:parseFloat(ex.topSet.kg)||0,reps:ex.topSet.reps,bw:bw,label:topSetLabel(ex.topSet,ex)});
   });
   
   // If a partial session exists for today/this program/day, finalize it in place.
@@ -3896,7 +3953,7 @@ function completeWorkout(){
   const nextIdx=(state.currentDayIdx+1)%getActiveSchedule().length;
   loadDay(nextIdx);
   showView('today');
-  let msg=prs.length>0?`PR! ${prs[0].name} · ${prs[0].kg}KG`
+  let msg=prs.length>0?`PR! ${prs[0].name} · ${prs[0].label||(prs[0].kg+'KG')}`
         :(!allDone?`Logged honest · ${doneCount}/${exs.length} done`:`Session ${state.streak} locked`);
   toast(msg);
 }
@@ -3916,10 +3973,10 @@ function renderProgHistory(){
   const last=sorted.find(h=>!h.partial)||sorted[0];
   const lastPrSet=new Set((last.prs||[]).map(p=>p.name));
   const lastLifts=last.exercises
-    .filter(ex=>ex.topSet&&ex.topSet.kg)
+    .filter(ex=>ex.topSet&&(ex.topSet.reps||ex.topSet.kg))
     .map(ex=>{
       const isPr=lastPrSet.has(ex.name);
-      return `<div class="hl-lift${isPr?' is-pr':''}">${esc(ex.name)} · <b>${ex.topSet.kg}×${ex.topSet.reps}</b></div>`;
+      return `<div class="hl-lift${isPr?' is-pr':''}">${esc(ex.name)} · <b>${topSetLabel(ex.topSet,ex)}</b></div>`;
     }).join('');
   const lastD=new Date(last.date);
   const lastDateStr=lastD.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
@@ -3950,7 +4007,7 @@ function renderProgHistory(){
         const prSet=new Set((h.prs||[]).map(p=>p.name));
         const partialDot=h.partial?'<span class="partial-dot" title="In progress"></span>':'';
         const meta=h.partial
-          ?`${partialDot}LIVE · <b>${h.exercises.filter(e=>e.topSet&&e.topSet.kg).length}</b> LOGGED`
+          ?`${partialDot}LIVE · <b>${h.exercises.filter(e=>e.topSet&&(e.topSet.reps||e.topSet.kg)).length}</b> LOGGED`
           :(hasPr?`<b>${h.prs.length}</b> PR`:`${h.totalSets} SETS`);
         const row=`<div class="hist-row${isOpen?' open':''}" onclick="toggleHistoryRow('${h.date}')">
           <div class="hr-date">${dateStr}</div>
@@ -3960,11 +4017,11 @@ function renderProgHistory(){
         if(!isOpen)return row;
         const safeDate=h.date.replace(/'/g,'');
         const lifts=h.exercises
-          .filter(ex=>ex.topSet&&ex.topSet.kg)
+          .filter(ex=>ex.topSet&&(ex.topSet.reps||ex.topSet.kg))
           .map(ex=>{
             const isPr=prSet.has(ex.name);
             const key=(ex.libId||'')+'::'+(ex.name||'');
-            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${esc(ex.name)}${isPr?' · PR':''}</span><span class="t">${ex.targetSets}×${ex.targetReps}</span><span class="v">${ex.topSet.kg}KG × ${ex.topSet.reps}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this set">×</button></div>`;
+            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${esc(ex.name)}${isPr?' · PR':''}</span><span class="t">${ex.targetSets}×${ex.targetReps}</span><span class="v">${topSetLabel(ex.topSet,ex).toUpperCase()}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this set">×</button></div>`;
           }).join('');
         const liveTag=h.partial?'<span class="hd-tag">● Logging in progress</span>':'<span class="hd-tag">● Completed</span>';
         const foot=`<div class="hd-foot">${liveTag}<button class="hd-del-all" onclick="event.stopPropagation();deleteHistorySession('${safeDate}')">Delete session</button></div>`;
@@ -4067,46 +4124,113 @@ function _progLiftArray(){
   });
   return Array.from(lifts.values()).sort((a,b)=>b.last-a.last);
 }
+// Per-session series for ONE lift, bodyweight-aware and de-duped by day.
+// Bodyweight lifts progress by REPS (kg optional = added load); loaded lifts by
+// weight or Epley est-1RM. metric: 'top' | 'e1rm' (ignored for bodyweight).
+function _liftSessions(lift,metric){
+  const bw=isBodyweightEx(lift);
+  const key=lift.libId||lift.name;
+  const byDay={};
+  state.history.forEach(h=>{
+    const ex=h.exercises.find(e=>(e.libId||e.name)===key);
+    if(!ex||!ex.topSet)return;
+    const w=parseFloat(ex.topSet.kg)||0;
+    const reps=parseInt(ex.topSet.reps)||0;
+    if(bw){if(reps<=0)return;}else{if(w<=0)return;}
+    const sets=ex.completedSets||ex.targetSets||0;
+    // val drives the chart/stats: reps for bodyweight, weight or est-1RM for loaded.
+    const val=bw?reps:(metric==='e1rm'?(reps<=1?w:Math.round(w*(1+reps/30)*2)/2):w);
+    const day=(h.date||'').slice(0,10);
+    // Same lift twice in a day (a correction, a re-log) → keep the latest, so the
+    // delta column never shows a phantom backwards step. History is chronological.
+    byDay[day]={date:h.date,weight:w,reps:reps,sets:sets,val:val,label:topSetLabel({kg:w,reps:reps},lift)};
+  });
+  const sessions=Object.values(byDay).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  return {bw:bw,sessions:sessions};
+}
+
+// Trend over the last two sessions (the "am I beating last time?" signal).
+function _liftTrend(sessions){
+  if(sessions.length<2)return{dir:'new',label:'First log'};
+  const last=sessions[sessions.length-1].val,prev=sessions[sessions.length-2].val;
+  if(last>prev)return{dir:'up',label:'Up'};
+  if(last<prev)return{dir:'down',label:'Down'};
+  return{dir:'flat',label:'Same'};
+}
+
 function renderProgLifts(){
   const c=document.getElementById('prog-tab-lifts');
   const liftArray=_progLiftArray();
   if(liftArray.length===0){c.innerHTML='<div class="empty-state">No lift data yet. Log a workout and your progress shows up here.</div>';return;}
+  // Default to the all-lifts dashboard — glance every lift at once. Tap one to drill in.
+  if(state.progLiftView==='detail'&&state.selectedLift&&liftArray.find(l=>(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name))){
+    renderLiftDetail(c);
+  }else{
+    if(state.progLiftView==='detail')state.progLiftView='grid';
+    renderLiftGrid(c,liftArray);
+  }
+}
 
-  if(!state.selectedLift||!liftArray.find(l=>(l.libId||l.name)===(state.selectedLift.libId||state.selectedLift.name)))state.selectedLift=liftArray[0];
-  // Two honest metrics only: top-set weight, and Epley est-1RM. (Volume removed — it can't be computed from top-set-only data.)
+// THE all-lifts dashboard. One tap from Progress shows every lift you train,
+// each with its last result, best, and whether you're climbing or stalling.
+function renderLiftGrid(c,liftArray){
+  const cards=liftArray.map(l=>{
+    const{bw,sessions}=_liftSessions(l,state.progMetric==='e1rm'?'e1rm':'top');
+    if(!sessions.length)return'';
+    const last=sessions[sessions.length-1];
+    const best=Math.max(...sessions.map(s=>s.val));
+    const trend=_liftTrend(sessions);
+    const isPR=sessions.length>1&&last.val>=best&&trend.dir==='up';
+    const key=(l.libId||l.name).replace(/'/g,"\\'");
+    const arrow=trend.dir==='up'?'▲':trend.dir==='down'?'▼':trend.dir==='flat'?'=':'•';
+    const bestStr=bw?`best ${best}`:`best ${best}kg`;
+    return `<button class="lift-card${isPR?' pr':''}" onclick="openLiftDetail('${key}')">
+      ${isPR?'<span class="lc-prtag">PR</span>':''}
+      <div class="lc-name">${esc(l.name)}</div>
+      <div class="lc-last">${last.label}</div>
+      <div class="lc-foot">
+        <span class="lc-trend ${trend.dir}">${arrow} ${trend.label}</span>
+        <span>· ${bestStr}</span>
+      </div>
+    </button>`;
+  }).join('');
+  c.innerHTML=`
+    <div class="section-head" style="margin-top:2px">
+      <span class="t">Your Lifts</span>
+      <span class="c">${liftArray.length} TRACKED</span>
+    </div>
+    <div class="chart-hint" style="text-align:left;margin:0 2px 12px;letter-spacing:.12em">Tap a lift for its full trend &amp; history</div>
+    <div class="lift-grid">${cards}</div>
+  `;
+}
+
+function openLiftDetail(id){const l=_progLiftArray().find(x=>(x.libId||x.name)===id);if(l){state.selectedLift=l;state.progLiftView='detail';try{save();}catch(e){}}renderProgLifts();}
+function backToLiftGrid(){state.progLiftView='grid';try{save();}catch(e){}renderProgLifts();}
+
+// Deep view for ONE lift: chart, headline stats, session log.
+function renderLiftDetail(c){
+  const lift=state.selectedLift;
+  const bw=isBodyweightEx(lift);
+  // Loaded lifts toggle Top Set vs Epley est-1RM. Bodyweight tracks reps — no toggle.
   let metric=state.progMetric||'top';
-  if(metric!=='top'&&metric!=='e1rm')metric='top';   // migrate away from the old 'vol' metric
+  if(metric!=='top'&&metric!=='e1rm')metric='top';
   if(state.progMetric!==metric)state.progMetric=metric;
 
-  // Per-session series for the selected lift, scored by the chosen metric
-  const sessions=[];
-  state.history.forEach(h=>{
-    const ex=h.exercises.find(e=>(e.libId||e.name)===(state.selectedLift.libId||state.selectedLift.name));
-    if(ex&&ex.topSet&&ex.topSet.kg){
-      const w=parseFloat(ex.topSet.kg)||0;if(w<=0)return;
-      const reps=parseInt(ex.topSet.reps)||0;
-      const sets=ex.completedSets||ex.targetSets||0;   // shown in the log only; never fed into a metric
-      // Top Set = heaviest weight lifted. Est 1RM = Epley from the top set (weight AND reps); a true single IS the 1RM.
-      const val=metric==='e1rm'?(reps<=1?w:Math.round(w*(1+reps/30)*2)/2):w;
-      sessions.push({date:h.date,weight:w,reps:reps,sets:sets,val:val});
-    }
-  });
-  sessions.sort((a,b)=>new Date(a.date)-new Date(b.date));
-
-  const unit='kg';   // both metrics are kilograms now
+  const{sessions}=_liftSessions(lift,metric);
+  const unit=bw?'':'kg';
   const fmt=v=>v;
   const peak=sessions.length?Math.max(...sessions.map(s=>s.val)):0;
   const first=sessions.length?sessions[0].val:0;
   const latest=sessions.length?sessions[sessions.length-1].val:0;
-  // Progress reflects the selected metric: heavier top set, or higher est-1RM, both read as a positive gain.
   const prog=latest-first;
   const progPct=first>0?Math.round((prog/first)*100):0;
-  const peakLabel=metric==='e1rm'?'Best Est 1RM':'All-Time Best';
-  const chartLabel=metric==='e1rm'?'Estimated 1RM':'Top Set';
+  const peakLabel=bw?'Most Reps':(metric==='e1rm'?'Best Est 1RM':'All-Time Best');
+  const chartLabel=bw?'Reps':(metric==='e1rm'?'Estimated 1RM':'Top Set');
+  const progUnit=bw?' reps':unit;
 
-  // Session log (most recent first); delta tracks the selected metric
+  // Session log, newest first. BEST = the most-recent peak (ties go to the latest).
   const rev=[...sessions].reverse();
-  const peakIdx=rev.findIndex(s=>s.val===peak);
+  let peakIdx=-1;for(let i=rev.length-1;i>=0;i--){if(rev[i].val===peak){peakIdx=i;break;}}
   const tableRows=rev.map((s,i)=>{
     const dateStr=new Date(s.date).toLocaleDateString('en',{month:'short',day:'numeric'});
     let deltaCell;
@@ -4119,31 +4243,32 @@ function renderProgLifts(){
     }else deltaCell=`<span class="delta-c same">—</span>`;
     return `<div class="session-row">
       <span class="date-c">${dateStr.toUpperCase()}</span>
-      <span class="lift-c">${s.weight}kg × ${s.reps}</span>
+      <span class="lift-c">${s.label}</span>
       <span class="vol-c">${s.sets} sets</span>
       ${deltaCell}
     </div>`;
   }).join('');
 
   c.innerHTML=`
-    <button class="lift-picker" onclick="openLiftPicker()">
-      <div style="min-width:0"><div class="lp-l">Viewing</div><div class="lp-name">${esc(state.selectedLift.name)}</div></div>
+    <button class="prog-back" onclick="backToLiftGrid()">‹ All lifts</button>
+    <div class="lift-picker" onclick="openLiftPicker()" style="cursor:pointer">
+      <div style="min-width:0"><div class="lp-l">Viewing</div><div class="lp-name">${esc(lift.name)}</div></div>
       <div class="lp-chev">▾</div>
-    </button>
+    </div>
 
-    <div class="metric-toggle">
+    ${bw?'':`<div class="metric-toggle">
       <button class="mt ${metric==='top'?'active':''}" onclick="setMetric('top')">Top Set</button>
       <button class="mt ${metric==='e1rm'?'active':''}" onclick="setMetric('e1rm')">Est 1RM</button>
-    </div>
+    </div>`}
 
     <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;gap:8px">
       <div class="big-stat"><div class="l">${peakLabel}</div><div class="v" style="font-size:24px"><span class="accent">${fmt(peak)}</span>${unit?`<span class="unit">${unit}</span>`:''}</div></div>
       <div class="big-stat"><div class="l">Sessions</div><div class="v" style="font-size:24px">${sessions.length}</div></div>
-      <div class="big-stat"><div class="l">Progress</div><div class="v" style="font-size:22px"><span class="accent">${prog>=0?'+':''}${fmt(prog)}</span>${unit?`<span class="unit">${unit}</span>`:''}</div><div class="sub">${progPct>=0?'+':''}${progPct}% all-time</div></div>
+      <div class="big-stat"><div class="l">Progress</div><div class="v" style="font-size:22px"><span class="accent">${prog>=0?'+':''}${fmt(prog)}</span>${progUnit?`<span class="unit">${progUnit}</span>`:''}</div><div class="sub">${progPct>=0?'+':''}${progPct}% all-time</div></div>
     </div>
 
     <div class="chart-box">
-      <div class="chart-title">${esc(state.selectedLift.name)} · ${chartLabel}</div>
+      <div class="chart-title">${esc(lift.name)} · ${chartLabel}</div>
       <svg class="chart-svg" id="weight-chart" viewBox="0 0 360 210" preserveAspectRatio="xMidYMid meet"></svg>
       <div class="chart-hint">${sessions.length>1?'Tap any point for the details':'Log another session to see your trend'}</div>
     </div>
@@ -4155,7 +4280,7 @@ function renderProgLifts(){
 
     <div class="session-row head">
       <span>DATE</span>
-      <span>WEIGHT × REPS</span>
+      <span>${bw?'SET':'WEIGHT × REPS'}</span>
       <span style="text-align:right">SETS</span>
       <span style="text-align:right">Δ</span>
     </div>
@@ -4172,8 +4297,8 @@ function renderLiftPick(){
   const cur=state.selectedLift&&(state.selectedLift.libId||state.selectedLift.name);
   const rows=arr.filter(l=>l.name.toLowerCase().includes(q)).map(l=>{
     let last=null,lastT=-1;
-    state.history.forEach(h=>{const ex=h.exercises.find(e=>(e.libId||e.name)===(l.libId||l.name));if(ex&&ex.topSet&&ex.topSet.kg){const t=Date.parse(h.date)||0;if(t>=lastT){lastT=t;last=ex.topSet;}}});
-    const sub=last?`Last ${last.kg}kg × ${last.reps} · ${l.count} session${l.count>1?'s':''}`:`${l.count} session${l.count>1?'s':''}`;
+    state.history.forEach(h=>{const ex=h.exercises.find(e=>(e.libId||e.name)===(l.libId||l.name));if(ex&&ex.topSet&&(ex.topSet.reps||ex.topSet.kg)){const t=Date.parse(h.date)||0;if(t>=lastT){lastT=t;last=ex.topSet;}}});
+    const sub=last?`Last ${topSetLabel(last,l)} · ${l.count} session${l.count>1?'s':''}`:`${l.count} session${l.count>1?'s':''}`;
     const active=(l.libId||l.name)===cur;
     const key=(l.libId||l.name).replace(/'/g,"\\'");
     return `<div class="modal-row${active?' active':''}" onclick="pickLift('${key}')"><div style="min-width:0"><div class="name">${esc(l.name)}</div><div class="meta">${sub}</div></div>${active?'<div style="color:var(--cobalt-bright);font-size:18px;font-weight:700">✓</div>':'<div style="color:var(--text-faint);font-size:20px">›</div>'}</div>`;
@@ -4183,7 +4308,7 @@ function renderLiftPick(){
 function pickLift(id){selectLift(id);document.getElementById('liftpick-modal').classList.remove('open');}
 function setMetric(m){state.progMetric=m;try{save();}catch(e){}renderProgLifts();}
 
-function selectLift(id){const l=_progLiftArray().find(x=>(x.libId||x.name)===id);if(l)state.selectedLift=l;renderProgLifts();}
+function selectLift(id){const l=_progLiftArray().find(x=>(x.libId||x.name)===id);if(l){state.selectedLift=l;state.progLiftView='detail';try{save();}catch(e){}}renderProgLifts();}
 
 // Catmull-Rom → cubic-bezier smoothing, with control points clamped inside the plot.
 function _smoothPath(pts,top,bot){
@@ -4220,7 +4345,7 @@ function drawChart(id,points,opts){
   if(points.length===0){svg.innerHTML='<text x="180" y="105" fill="#B0B0B0" font-family="Oswald" font-size="11" text-anchor="middle" letter-spacing="3">NO DATA YET</text>';return;}
   if(points.length===1){
     const p=points[0];
-    svg.innerHTML=`<circle cx="180" cy="92" r="8" fill="#FF3300" stroke="#fff" stroke-width="2"/><text x="180" y="138" fill="#000" font-family="Bebas Neue" font-size="30" text-anchor="middle">${fmtV(p.val)}${unit}</text><text x="180" y="160" fill="#7A7A7A" font-family="Oswald" font-size="10" text-anchor="middle" letter-spacing="2">${p.weight}KG × ${p.reps} · ${dStr(p.date)}</text>`;
+    svg.innerHTML=`<circle cx="180" cy="92" r="8" fill="#FF3300" stroke="#fff" stroke-width="2"/><text x="180" y="138" fill="#000" font-family="Bebas Neue" font-size="30" text-anchor="middle">${fmtV(p.val)}${unit}</text><text x="180" y="160" fill="#7A7A7A" font-family="Oswald" font-size="10" text-anchor="middle" letter-spacing="2">${(p.label||(p.weight+'KG × '+p.reps)).toUpperCase()} · ${dStr(p.date)}</text>`;
     return;
   }
   const vals=points.map(p=>p.val);
@@ -4274,7 +4399,7 @@ function drawChart(id,points,opts){
     tips+=`<g id="${gid}" opacity="0" style="pointer-events:none;transition:opacity .12s">
       <rect x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" width="${tw}" height="${th}" rx="8" fill="#000"/>
       <text x="${(tx+tw/2).toFixed(1)}" y="${(ty+18).toFixed(1)}" fill="#FF3300" font-family="Bebas Neue" font-size="17" text-anchor="middle">${fmtV(c.val)}${unit}</text>
-      <text x="${(tx+tw/2).toFixed(1)}" y="${(ty+32).toFixed(1)}" fill="#fff" font-family="Oswald" font-size="8.5" text-anchor="middle" letter-spacing=".5">${c.weight}KG × ${c.reps} · ${dStr(c.date)}</text>
+      <text x="${(tx+tw/2).toFixed(1)}" y="${(ty+32).toFixed(1)}" fill="#fff" font-family="Oswald" font-size="8.5" text-anchor="middle" letter-spacing=".5">${(c.label||(c.weight+'KG × '+c.reps)).toUpperCase()} · ${dStr(c.date)}</text>
     </g>`;
     hits+=`<rect x="${(c.x-slot/2).toFixed(1)}" y="${PT}" width="${slot.toFixed(1)}" height="${cH}" fill="transparent" style="cursor:pointer" onclick="chartTip('${id}',${i})"/>`;
   });
