@@ -1152,8 +1152,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="title" id="today-title">CHEST & <span class="accent">BACK</span></div>
 
     <div class="today-meta">
-      <button class="tm-link strong" id="program-current-name" onclick="openProgramPicker()">Aesthetic Physique</button>
-      <button class="tm-link" onclick="showView('program')">Weekly split</button>
+      <button class="tm-link strong" id="program-current-name" onclick="openProgramPicker()">Split</button>
+      <button class="tm-link" onclick="showView('program')">This week</button>
       <button class="tm-link" onclick="showView('volume')">Sets per muscle</button>
       <button class="tm-link" onclick="openDayPicker()">Train another day</button>
     </div>
@@ -1177,7 +1177,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     </div>
     <div class="program-header" id="program-head">
       <div class="eyebrow">6-Day Split · 1 Rest</div>
-      <h1>AESTHETIC PHYSIQUE</h1>
+      <h1>SPLIT</h1>
       <div class="sub">Tap a day to train it</div>
     </div>
     <div id="day-list"></div>
@@ -1461,7 +1461,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
 <div class="modal-bg" id="program-modal" onclick="closeProgramModalBg(event)">
   <div class="modal">
-    <h2>CHOOSE YOUR <span class="accent">SPLIT</span></h2>
+    <button class="prog-back" id="prog-keep-current" onclick="closeProgramModal()" style="margin-bottom:6px">‹ Keep current split</button>
+    <h2>CHANGE <span class="accent">SPLIT</span></h2>
     <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">The most-trusted routines in lifting. Pick one. Run it 12 weeks. Then judge.</div>
     <div id="program-results"></div>
   </div>
@@ -1519,7 +1520,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-06-02.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-06-02.3';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -1771,7 +1772,7 @@ const VOLUME_LANDMARKS={
 const PROGRAMS=[
   {
     id:'aesthetic-6',
-    name:'Dumbass Split',
+    name:'Split',
     author:'DUMBASS House',
     description:'The original. 6 training days, built around upper-chest thickness, lat width, and side delts — the V-taper triangle.',
     schedule:[
@@ -4487,19 +4488,15 @@ function openProgramPicker(){
       <div class="pc-desc">${p.description}</div>
     </div>`;
   }).join('');
-  const importCard=`<div class="program-card import-link" onclick="openImportLink()">
-    <div class="pc-head"><div class="pc-name">▶ FROM A YOUTUBE / IG / TIKTOK VIDEO</div></div>
-    <div class="pc-author">Paste a link · list the lifts · we'll match them</div>
-    <div class="pc-desc">You saw it. You make it. 60 seconds and it's yours.</div>
-  </div>`;
-  const addCard=`<div class="program-card add-custom" onclick="openSplitBuilder()">
-    <div class="pc-head"><div class="pc-name">+ ADD CUSTOM SPLIT</div></div>
-    <div class="pc-author">Build your own · name your days · pick rest days</div>
-  </div>`;
-  document.getElementById('program-results').innerHTML=cards+importCard+addCard;
+  // Change-split flow is just that: pick another split, or go back to the one
+  // you're already on. Building/importing splits lives elsewhere, off this path.
+  document.getElementById('program-results').innerHTML=cards;
+  const keepBtn=document.getElementById('prog-keep-current');
+  if(keepBtn){const curName=(getProgramDef(active)||{}).name||'current split';keepBtn.textContent=`‹ Keep current (${curName})`;}
   document.getElementById('program-modal').classList.add('open');
 }
-function closeProgramModalBg(e){if(e.target.id==='program-modal')document.getElementById('program-modal').classList.remove('open');}
+function closeProgramModal(){document.getElementById('program-modal').classList.remove('open');}
+function closeProgramModalBg(e){if(e.target.id==='program-modal')closeProgramModal();}
 
 let splitBuilder={name:'',days:[]};
 function openSplitBuilder(){
