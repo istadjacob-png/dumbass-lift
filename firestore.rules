@@ -9,25 +9,37 @@ service cloud.firestore {
     //     requires already knowing the exact email — it is targeted-only.
     //   - the password hash, salt and email are IMMUTABLE after creation, so
     //     no one can take over an account or wipe its auth fields.
-    //   - state must be a sane-sized string, capping data-destruction and
-    //     cost-abuse via giant writes.
+    //   - each app stores its own state field (lift / fuel / stretch, plus the
+    //     legacy `state` field LIFT shipped with). Each must be a sane-sized
+    //     string, capping data-destruction and cost-abuse via giant writes.
     match /accounts/{id} {
+      function sizeOk(v) { return v is string && v.size() < 800000; }
+      // Every per-app state field present must be a sane string. Absent = fine.
+      function statesOk(d) {
+        return (!('state'   in d) || sizeOk(d.state))
+            && (!('lift'    in d) || sizeOk(d.lift))
+            && (!('fuel'    in d) || sizeOk(d.fuel))
+            && (!('stretch' in d) || sizeOk(d.stretch));
+      }
+      // At least one app must be syncing something (blocks empty/junk docs).
+      function hasAnyState(d) {
+        return d.keys().hasAny(['state', 'lift', 'fuel', 'stretch']);
+      }
+
       allow get: if true;
       allow list: if false;
       allow delete: if false;
 
-      allow create: if request.resource.data.keys().hasAll(['email', 'salt', 'pwHash', 'state'])
-                    && request.resource.data.email is string
+      allow create: if request.resource.data.email is string
                     && request.resource.data.salt is string
                     && request.resource.data.pwHash is string
-                    && request.resource.data.state is string
-                    && request.resource.data.state.size() < 800000;
+                    && hasAnyState(request.resource.data)
+                    && statesOk(request.resource.data);
 
       allow update: if request.resource.data.pwHash == resource.data.pwHash
                     && request.resource.data.salt == resource.data.salt
                     && request.resource.data.email == resource.data.email
-                    && request.resource.data.state is string
-                    && request.resource.data.state.size() < 800000;
+                    && statesOk(request.resource.data);
     }
 
     // Everything else is closed.

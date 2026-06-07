@@ -335,6 +335,11 @@ input,textarea{user-select:text}
 .login-toggle{width:100%;background:none;border:none;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:13px;margin-top:16px;cursor:pointer;padding:6px}
 .login-toggle b{color:var(--cobalt-bright)}
 .login-foot{text-align:center;font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--text-faint);margin-top:14px;padding-top:14px;border-top:1px solid var(--border-soft);font-weight:600}
+.login-field .lf-show{flex:0 0 auto;background:none;border:none;color:var(--text-dim);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:0 14px;align-self:stretch}
+.login-field .lf-show:active{color:var(--cobalt-bright)}
+.login-hint{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-faint);margin:-4px 2px 8px;line-height:1.4}
+.login-cta .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;vertical-align:-2px;margin-right:9px;animation:loginSpin .6s linear infinite}
+@keyframes loginSpin{to{transform:rotate(360deg)}}
 .sync-status{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.25em;color:var(--text-dim);text-transform:uppercase;font-weight:600;margin:6px 0 10px}
 .sync-status.on{color:#5cd07a}
 .sync-code-row{display:flex;align-items:center;gap:8px;background:var(--steel-dark);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin:8px 0}
@@ -1419,12 +1424,14 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="login-sub" id="login-sub">Welcome back. Your lifts load from the cloud.</div>
     <label class="login-field">
       <span class="lf-ico">@</span>
-      <input id="login-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="you@email.com">
+      <input id="login-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="you@email.com" oninput="clearLoginError()">
     </label>
     <label class="login-field">
       <span class="lf-ico">•••</span>
-      <input id="login-pw" type="password" autocomplete="current-password" placeholder="password" onkeydown="if(event.key==='Enter')submitLogin()">
+      <input id="login-pw" type="password" autocomplete="current-password" placeholder="password" oninput="clearLoginError()" onkeydown="if(event.key==='Enter')submitLogin()">
+      <button type="button" class="lf-show" id="login-show" onclick="toggleLoginPw()" aria-label="Show password">Show</button>
     </label>
+    <div id="login-hint" class="login-hint" style="display:none">At least 6 characters.</div>
     <div id="login-error" class="login-err"></div>
     <button class="login-cta" id="login-submit" onclick="submitLogin()">LOG IN</button>
     <button class="login-toggle" id="login-toggle" onclick="toggleLoginMode()">New here? <b>Create an account</b></button>
@@ -1520,7 +1527,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-06-02.3';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-06-07.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2763,44 +2770,70 @@ function openLogin(){
   const m=document.getElementById('login-modal'); if(m)m.classList.add('open');
   setTimeout(()=>{const i=document.getElementById('login-email');if(i)i.focus();},80);
 }
-function closeLogin(){const m=document.getElementById('login-modal'); if(m)m.classList.remove('open');}
+function closeLogin(){
+  const m=document.getElementById('login-modal'); if(m)m.classList.remove('open');
+  // Clear inputs so a password never lingers on a shared device.
+  ['login-email','login-pw'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  _setLoginPwShown(false);
+}
+function clearLoginError(){const e=document.getElementById('login-error'); if(e)e.textContent='';}
+function _setLoginPwShown(show){
+  const inp=document.getElementById('login-pw'); const b=document.getElementById('login-show');
+  if(inp)inp.type=show?'text':'password';
+  if(b)b.textContent=show?'Hide':'Show';
+}
+function toggleLoginPw(){ const inp=document.getElementById('login-pw'); _setLoginPwShown(inp&&inp.type==='password'); }
 function setLoginMode(mode){_loginMode=mode; syncLoginRender();}
 function syncLoginRender(){
   const isSignup=_loginMode==='signup';
   const t=document.getElementById('login-title'); if(t)t.innerHTML=isSignup?'CREATE <span class="accent">ACCOUNT</span>':'LOG <span class="accent">IN</span>';
   const sub=document.getElementById('login-sub'); if(sub)sub.textContent=isSignup?'New account — your current lifts on this device become the account.':'Welcome back. Your lifts load from the cloud.';
-  const btn=document.getElementById('login-submit'); if(btn)btn.textContent=isSignup?'CREATE ACCOUNT':'LOG IN';
+  const btn=document.getElementById('login-submit'); if(btn){btn.disabled=false;btn.innerHTML=isSignup?'CREATE ACCOUNT':'LOG IN';}
   const toggle=document.getElementById('login-toggle');
   if(toggle)toggle.innerHTML=isSignup?'Have an account? <b>Log in</b>':'New here? <b>Create an account</b>';
+  const hint=document.getElementById('login-hint'); if(hint)hint.style.display=isSignup?'':'none';
+  const pw=document.getElementById('login-pw'); if(pw)pw.setAttribute('autocomplete', isSignup?'new-password':'current-password');
+  _setLoginPwShown(false);
   const err=document.getElementById('login-error'); if(err)err.textContent='';
 }
 function toggleLoginMode(){ setLoginMode(_loginMode==='signup'?'login':'signup'); }
+function _setLoginBusy(on){
+  const btn=document.getElementById('login-submit'); if(!btn)return;
+  if(on){btn.disabled=true;btn.innerHTML='<span class="spin"></span>Working…';}
+  else{btn.disabled=false;btn.innerHTML=(_loginMode==='signup'?'CREATE ACCOUNT':'LOG IN');}
+}
 async function submitLogin(){
   const email=(document.getElementById('login-email').value||'').trim();
   const pw=(document.getElementById('login-pw').value||'');
   const err=document.getElementById('login-error');
-  const btn=document.getElementById('login-submit');
   const signup=_loginMode==='signup';
   if(!email||!pw){ if(err)err.textContent='Enter email and password.'; return; }
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ if(err)err.textContent='That email looks invalid.'; return; }
   if(signup && pw.length<6){ if(err)err.textContent='Use at least 6 characters.'; return; }
   if(!window.__acct){ if(err)err.textContent='Still loading — try again in a second.'; return; }
-  if(btn){btn.disabled=true;btn.textContent='…';}
+  _setLoginBusy(true);
   if(err)err.textContent='';
   try{
     const key=await _emailKey(email);
-    const existing=await window.__acct.read(key);
+    let existing;
+    try{ existing=await window.__acct.read(key); }
+    catch(netErr){ throw new Error('__net'); }
     if(signup){
-      if(existing) throw new Error('That email already has an account — log in instead.');
+      if(existing){
+        // Account already exists — flip to login, keep the email, focus password.
+        _setLoginBusy(false);
+        setLoginMode('login');
+        const em=document.getElementById('login-email'); if(em)em.value=email;
+        if(err)err.textContent='That email already has an account.';
+        const p=document.getElementById('login-pw'); if(p){p.value='';p.focus();}
+        return;
+      }
       const salt=_newSalt();
       const pwHash=await _pbkdf2(pw, salt);
       state._lastModified=state._lastModified||Date.now();
-      await window.__acct.create(key, {
-        email: email.toLowerCase(),
-        salt, pwHash,
-        state: JSON.stringify(state),
-        _lastModified: state._lastModified
-      });
+      try{
+        await window.__acct.create(key, { email: email.toLowerCase(), salt, pwHash, state: JSON.stringify(state), _lastModified: state._lastModified });
+      }catch(netErr){ throw new Error('__net'); }
       _session={key, email:email.toLowerCase()}; _saveSession(_session);
       _lastCloudPushAt=Date.now();
       _subscribeAccount(key);
@@ -2810,18 +2843,21 @@ async function submitLogin(){
       const pwHash=await _pbkdf2(pw, existing.salt);
       if(pwHash!==existing.pwHash) throw new Error('Wrong email or password.');
       _session={key, email:email.toLowerCase()}; _saveSession(_session);
-      await _syncFromAccount(key);
+      try{ await _syncFromAccount(key); }catch(netErr){ /* logged in locally; sync retries later */ }
       _subscribeAccount(key);
       closeLogin(); toast('Logged in');
     }
     renderSyncBanner(); renderSyncCard();
   }catch(e){
-    if(err)err.textContent=(e&&e.message)||'Something went wrong.';
+    const msg=(e&&e.message)==='__net'?'Couldn’t reach the cloud. Check your connection and try again.':((e&&e.message)||'Something went wrong.');
+    if(err)err.textContent=msg;
   }finally{
     // Re-enable WITHOUT syncLoginRender() — that would wipe the error message.
-    if(btn){btn.disabled=false;btn.textContent=(signup?'CREATE ACCOUNT':'LOG IN');}
+    _setLoginBusy(false);
   }
 }
+// Esc closes the login modal.
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ const m=document.getElementById('login-modal'); if(m&&m.classList.contains('open'))closeLogin(); }});
 async function doLogout(){
   if(!confirm('Log out? Your lifts stay safe in the cloud and on this device.'))return;
   if(window.__acct)window.__acct.unsubscribe();
@@ -3234,9 +3270,12 @@ function computeWeeklySets(){
 
 // Actually-completed sets across the last N days. Mirrors the planned-vs-actual
 // math: primary muscle 1×, secondary 0.5×, count only completedSets that weren't skipped.
-function computeActualSetsSince(days){
+// Monday 00:00 (local) of the current calendar week — the honest "this week" reset.
+function weekStartMs(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
+function _thisWeekRange(){const s=new Date(weekStartMs());const e=new Date();const f=d=>d.toLocaleDateString('en',{month:'short',day:'numeric'});return f(s)+' – '+f(e);}
+function computeActualSetsSince(sinceMs){
   const counts={};
-  const since=Date.now()-days*86400000;
+  const since=sinceMs;
   (state.history||[]).forEach(h=>{
     if(!h||!h.date)return;
     const t=Date.parse(h.date);
@@ -3255,9 +3294,8 @@ function computeActualSetsSince(days){
   });
   return counts;
 }
-function countSessionsSince(days){
-  const since=Date.now()-days*86400000;
-  return (state.history||[]).filter(h=>h&&h.date&&!isNaN(Date.parse(h.date))&&Date.parse(h.date)>=since&&!h.partial).length;
+function countSessionsSince(sinceMs){
+  return (state.history||[]).filter(h=>h&&h.date&&!isNaN(Date.parse(h.date))&&Date.parse(h.date)>=sinceMs&&!h.partial).length;
 }
 
 function fmtSets(n){return Number.isInteger(n)?String(n):n.toFixed(1).replace(/\.0$/,'');}
@@ -3418,20 +3456,20 @@ function renderPastWeekActuals(order, plannedCounts){
   const toggle=document.getElementById('past-week-toggle');
   if(!el)return;
   const open=!!state.showPastWeek;
-  const sessions=countSessionsSince(7);
+  const sessions=countSessionsSince(weekStartMs());
   if(toggle){
-    toggle.innerHTML=`<span class="pw-caret">${open?'▾':'▸'}</span><span class="pw-label">Last week — what you actually did</span><span class="pw-range">${_last7Range()}</span>`;
+    toggle.innerHTML=`<span class="pw-caret">${open?'▾':'▸'}</span><span class="pw-label">This week — what you've done</span><span class="pw-range">${_thisWeekRange()}</span>`;
     toggle.classList.toggle('open',open);
   }
   if(!open){ el.style.display='none'; return; }
   el.style.display='';
   if(sessions===0){
     el.className='vol-actuals empty';
-    el.innerHTML=`<div class="va-head"><div class="va-title">LAST WEEK · ${_last7Range()}</div><div class="va-sub">already done</div></div><div class="va-empty">No sessions logged in the last 7 days</div>`;
+    el.innerHTML=`<div class="va-head"><div class="va-title">THIS WEEK · ${_thisWeekRange()}</div><div class="va-sub">so far</div></div><div class="va-empty">Nothing logged yet this week — go train.</div>`;
     return;
   }
   el.className='vol-actuals';
-  const actual=computeActualSetsSince(7);
+  const actual=computeActualSetsSince(weekStartMs());
   const muscles=order&&order.length?order:Object.keys(plannedCounts);
   let totalPlan=0,totalAct=0,shown=0;
   const rows=muscles.map(m=>{
@@ -3452,13 +3490,19 @@ function renderPastWeekActuals(order, plannedCounts){
     </div>`;
   }).join('');
   const overall=totalPlan>0?Math.round((totalAct/totalPlan)*100):0;
-  const grade=overall>=95?'green':overall>=70?'amber':'red';
-  const verdict=overall>=95?'ON IT':overall>=70?'BEHIND':'SLACKING';
+  // Pace-aware: don't shame you mid-week. Compare what you've done against how
+  // far into the week you are (Mon→now), not against the full week's plan.
+  const dowIdx=(new Date().getDay()+6)%7;            // Mon=0 … Sun=6
+  const elapsedFrac=(dowIdx+1)/7;                      // fraction of the week elapsed
+  const expected=totalPlan*elapsedFrac;
+  const paceRatio=expected>0?(totalAct/expected):(totalAct>0?1:0);
+  const grade=paceRatio>=0.9?'green':paceRatio>=0.6?'amber':'red';
+  const verdict=paceRatio>=0.9?'ON PACE':paceRatio>=0.6?'KEEP GOING':'BEHIND PACE';
   el.innerHTML=`
     <div class="va-head">
-      <div><div class="va-title">⟲ LAST WEEK · ALREADY DONE</div><div class="va-range">${_last7Range()} · ${sessions} session${sessions===1?'':'s'}</div></div>
+      <div><div class="va-title">THIS WEEK · SO FAR</div><div class="va-range">${_thisWeekRange()} · ${sessions} session${sessions===1?'':'s'}</div></div>
     </div>
-    <div class="va-note">What you actually logged — not this week's plan above.</div>
+    <div class="va-note">What you've logged this week — measured against the plan above.</div>
     ${rows||'<div class="va-empty">No tracked muscles for this filter</div>'}
     <div class="va-roll">
       <div class="va-total">DONE ${fmtSets(totalAct)}/${fmtSets(totalPlan)} planned</div>
@@ -3470,10 +3514,11 @@ function renderPastWeekActuals(order, plannedCounts){
 function switchToDay(idx){loadDay(idx);showView('today');}
 
 // A day counts as "done this week" if a finalized session exists for the active
-// program + this day's dayNum within the last 7 days. Such days render locked.
+// program + this day's dayNum within the CURRENT calendar week. Such days render
+// locked. (Calendar week, not rolling 7d, so last week's session never locks it.)
 let _dayUnlocked=false; // transient: tap "Customize" to edit a completed day
 function findCompletedSessionForDay(dayNum){
-  const since=Date.now()-7*86400000;
+  const since=weekStartMs();
   let best=null;
   (state.history||[]).forEach(h=>{
     if(!h||h.partial)return;
@@ -5242,13 +5287,13 @@ function computeAccountability(){
     const slot=sched[scheduleIdxForDate(d)];
     if(slot&&slot.type!=='rest'){nextTrainName=slot.name||'';break;}
   }
-  // Rolling 7-day window (today + previous 6), NOT a Mon-start calendar week.
-  // A 6-day split has a floating rest day, so a fixed Monday reset wipes weekend
-  // sessions every Monday. Count days you ACTUALLY trained in the last 7 days —
-  // regardless of which weekday the split calls them.
+  // Current CALENDAR week (Monday → today, local). "This week" must mean this
+  // week — a rolling 7-day window bleeds last week's sessions into the count
+  // (e.g. shows 5/6 when you've only trained once since Monday).
   const weekTotal=sched.filter(s=>s&&s.type!=='rest').length||7;
   const weekDates=new Set();
-  for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);weekDates.add(ymd(d));}
+  { const d=new Date();d.setHours(0,0,0,0);const mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));
+    for(let x=new Date(mon);x<=d;x.setDate(x.getDate()+1))weekDates.add(ymd(x)); }
   let doneThisWeek=[...done].filter(dt=>weekDates.has(dt)).length;
   // Today's session is still "partial" until you finish it — credit it once you've logged real work.
   if(trainedToday&&!done.has(todayKey)&&weekDates.has(todayKey))doneThisWeek++;
