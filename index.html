@@ -1164,7 +1164,6 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
     <div class="today-meta">
       <button class="tm-link strong" id="program-current-name" onclick="openProgramPicker()">Split</button>
-      <button class="tm-link" onclick="showView('program')">This week</button>
       <button class="tm-link" onclick="showView('volume')">Sets per muscle</button>
       <button class="tm-link" onclick="openDayPicker()">Train another day</button>
     </div>
@@ -1531,7 +1530,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-27.6';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-27.7';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3693,7 +3692,6 @@ function renderToday(){
         <div class="il-field"><label>REPS</label><input class="il-input" id="il-reps-${i}" type="number" inputmode="numeric" placeholder="${_last?_last.reps:'reps'}" value="${_fr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
         <button class="il-log${ex.topLogged?' done':''}" onclick="event.stopPropagation();logInline(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>
       </div>
-      <div class="il-hint" style="font-size:10.5px;color:var(--text-dim);line-height:1.4;margin:2px 2px 8px">${ex.topLogged&&!(ex.completedSets>0)?'Logged ✓ — now tap the set dots above to count each set you finish.':(_bw?'No weight needed — just your reps. Tap the set dots above to count each set.':'Logs your heaviest set. Tap the set dots above to count each set as you finish it.')}</div>
       <div class="il-actions">
         <button class="il-act" onclick="event.stopPropagation();swapInline(${i})">⇄ Swap</button>
         <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— Skip today</button>
@@ -3766,14 +3764,6 @@ function updateExerciseCard(i){
   if(count)count.textContent=`${ex.completedSets}/${ex.targetSets}`;
   card.classList.toggle('done',!!ex.done);
 
-  const hint=document.querySelector(`#inline-${i} .il-hint`);
-  if(hint){
-    const bw=isBodyweightEx(ex);
-    hint.textContent=ex.topLogged&&!(ex.completedSets>0)
-      ?'Logged ✓ — now tap the set dots above to count each set you finish.'
-      :(bw?'No weight needed — just your reps. Tap the set dots above to count each set.':'Logs your heaviest set. Tap the set dots above to count each set as you finish it.');
-  }
-
   // Move the "current" (next-up) highlight if this tap finished or reopened an exercise.
   const currentIdx=exs.findIndex(e=>!e.done);
   document.querySelectorAll('.exercise.current').forEach(el=>{
@@ -3814,13 +3804,6 @@ function updateExerciseLogUI(i){
   if(logBtn){logBtn.textContent=ex.topLogged?'✓ LOGGED':'LOG';logBtn.classList.toggle('done',!!ex.topLogged);}
   const ilLog=document.querySelector(`#inline-${i} .il-log`);
   if(ilLog){ilLog.textContent=ex.topLogged?'✓ LOGGED':'LOG';ilLog.classList.toggle('done',!!ex.topLogged);}
-  const hint=document.querySelector(`#inline-${i} .il-hint`);
-  if(hint){
-    const bw=isBodyweightEx(ex);
-    hint.textContent=ex.topLogged&&!(ex.completedSets>0)
-      ?'Logged ✓ — now tap the set dots above to count each set you finish.'
-      :(bw?'No weight needed — just your reps. Tap the set dots above to count each set.':'Logs your heaviest set. Tap the set dots above to count each set as you finish it.');
-  }
   card.classList.toggle('done',!!ex.done);
   _updateTodayFooter(exs);
 }
@@ -4054,12 +4037,8 @@ function completeWorkout(){
   if(exs.length===0){toast('No exercises');return;}
   const allDone=exs.every(e=>e.done);
   const doneCount=exs.filter(e=>e.done).length;
-  // Honest completion: you can finish any time. We only log what you actually did.
-  if(!allDone){
-    const anyProgress=exs.some(e=>(e.completedSets||0)>0||(e.topSet&&(e.topSet.reps||e.topSet.kg)));
-    if(!anyProgress){ if(!confirm('Finish with nothing logged? Nothing will be saved as done.'))return; }
-    else if(!confirm(`Finish now? ${doneCount}/${exs.length} exercises done — only what you actually logged gets saved.`))return;
-  }
+  // Honest completion: you can finish any time, no confirmation gate — we
+  // just log whatever you actually did. Toast at the bottom says what saved.
 
   // Volume/sets from sets ACTUALLY completed, never the target — no fake progress.
   let totalVolume=0,totalSets=0;
