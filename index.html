@@ -1530,7 +1530,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-27.8';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-27.9';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3675,8 +3675,9 @@ function renderToday(){
     }
     const _last=prevTopSet(ex);
     const lastHtml=_last?`<span class="ex-last">LAST <b>${topSetLabel(_last,ex)}</b></span>`:`<span class="ex-last new">First time</span>`;
+    const skippedProgress=(ex.completedSets>0)?`<span class="ex-last">${ex.completedSets}/${ex.targetSets} logged<b>${(ex.topSet&&(ex.topSet.kg||ex.topSet.reps))?' · '+topSetLabel(ex.topSet,ex):''}</b></span>`:'';
     const leftMeta=ex.skipped
-      ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
+      ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>${skippedProgress}`
       : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
     // Explicit LOG button — don't make people guess that tapping the exercise
     // name opens the weight/reps panel.
@@ -3995,16 +3996,18 @@ function deleteCurrentEx(){if(!confirm('Remove exercise?'))return;state.today.ex
 function skipExerciseAt(i){
   const ex=state.today&&state.today.exercises&&state.today.exercises[i];
   if(!ex)return;
+  // Skip means "not doing the rest of this" — not "throw away what I already did".
+  // Whatever sets/weight were already logged stay, and still count toward volume.
   ex.skipped=true;
   ex.done=true;
-  ex.completedSets=0;
-  ex.topSet={kg:'',reps:''};
-  if(typeof removeLiveExercise==='function')removeLiveExercise(ex);
+  const hasProgress=(ex.completedSets||0)>0||(ex.topSet&&ex.topSet.kg);
+  if(hasProgress){if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);}
+  else{if(typeof removeLiveExercise==='function')removeLiveExercise(ex);}
   syncTodayToSchedule();
   save();
   document.querySelectorAll('.inline-log.show').forEach(p=>p.classList.remove('show'));
   renderToday();
-  toast(`Skipped ${ex.name}`);
+  toast(hasProgress?`Skipped rest of ${ex.name} · ${ex.completedSets} set${ex.completedSets===1?'':'s'} kept`:`Skipped ${ex.name}`);
 }
 function skipCurrentEx(){
   const i=state.currentExerciseIdx;
