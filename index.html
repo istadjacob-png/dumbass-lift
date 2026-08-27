@@ -1531,7 +1531,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-27.4';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-27.5';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4349,20 +4349,16 @@ function renderProgLifts(){
   }
 }
 
-// THE all-lifts dashboard. One tap from Progress shows every lift you train,
-// each with its last result, best, and whether you're climbing or stalling.
-// Search filters by exercise name OR muscle (primary/secondary) so a long
-// history of tracked lifts doesn't just dump every card on screen at once.
+// Search-first: don't dump every tracked lift on screen at once — type a
+// muscle (e.g. "chest") or an exercise name and only the matches show up.
 let _liftGridAll=[];
 function renderLiftGrid(c,liftArray){
   _liftGridAll=liftArray;
   c.innerHTML=`
     <div class="section-head" style="margin-top:2px">
-      <span class="t">Your Lifts</span>
-      <span class="c">${liftArray.length} TRACKED</span>
+      <span class="t">Lifts</span>
     </div>
-    <input class="modal-input" id="lift-search" type="text" placeholder="Search a lift or muscle — e.g. chest, squat" autocomplete="off" oninput="filterLiftGrid()">
-    <div class="chart-hint" style="text-align:left;margin:0 2px 12px;letter-spacing:.12em">Tap a lift for its full trend &amp; history</div>
+    <input class="modal-input" id="lift-search" type="text" placeholder="Search a muscle or exercise — e.g. chest, squat" autocomplete="off" oninput="filterLiftGrid()">
     <div class="lift-grid" id="lift-grid-list"></div>
   `;
   filterLiftGrid();
@@ -4379,7 +4375,11 @@ function filterLiftGrid(){
   const list=document.getElementById('lift-grid-list');
   if(!list)return;
   const q=((document.getElementById('lift-search')||{}).value||'').trim().toLowerCase();
-  const pool=q?_liftGridAll.filter(l=>_liftSearchText(l).includes(q)):_liftGridAll;
+  if(!q){
+    list.innerHTML=`<div class="empty-state">Type a muscle — chest, back, legs — or an exercise name to see your progress.</div>`;
+    return;
+  }
+  const pool=_liftGridAll.filter(l=>_liftSearchText(l).includes(q));
   const cards=pool.map(l=>{
     const{bw,sessions}=_liftSessions(l,state.progMetric==='e1rm'?'e1rm':'top');
     if(!sessions.length)return'';
