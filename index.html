@@ -1531,7 +1531,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-27.5';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-27.6';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3252,17 +3252,9 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
   if(!state.today)loadDay(state.currentDayIdx||0);
   state._v=10;
   if(state.history.length===0&&!state.introSeen){seedDemoData();}
-  // Auto-snap to today's weekday on a new calendar day if no progress is logged
-  const today=ymd();
-  if(state.lastOpenDate!==today){
-    const hasProgress=state.today&&Array.isArray(state.today.exercises)&&state.today.exercises.some(e=>e.completedSets>0||e.done||(e.topSet&&(e.topSet.reps||e.topSet.kg)));
-    if(!hasProgress){
-      const slot=todayScheduleIdx();
-      if(slot!==state.currentDayIdx)loadDay(slot);
-    }
-    state.lastOpenDate=today;
-    save();
-  }
+  // No calendar-based auto-jump: the day shown is whatever completeWorkout()
+  // advanced it to, or whatever you last picked via the day picker — it never
+  // silently moves on its own just because a calendar day rolled over.
 }
 function dismissIntro(){state.introSeen=true;save();document.getElementById('intro').classList.add('hidden');renderToday();}
 
