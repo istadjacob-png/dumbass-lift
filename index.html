@@ -176,27 +176,28 @@ input,textarea{user-select:text}
 
 /* SET DOTS — set counter under exercise meta */
 .ex-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--cobalt-bright);letter-spacing:.05em}
+.ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--text-mid);letter-spacing:.05em}
 .set-dots{display:inline-flex;gap:6px;align-items:center;padding:2px 0;flex-wrap:wrap}
 .ex-sets{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;margin-left:auto;padding-left:10px}
 .ex-sets-row{display:flex;align-items:center;gap:10px}
-.ex-sets-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.13em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;white-space:nowrap}
-.ex-log-btn{flex-shrink:0;border:none;border-radius:7px;background:linear-gradient(180deg,var(--cobalt-bright),#cc2900);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;padding:7px 14px;cursor:pointer;box-shadow:0 0 10px var(--cobalt-glow)}
-.ex-log-btn:active{transform:scale(.92)}
-.ex-log-btn.done{background:#1f9e52;box-shadow:none}
+.ex-log-btn{flex-shrink:0;border:1.5px solid #000;border-radius:2px;background:#000;color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:7px 13px;cursor:pointer}
+.ex-log-btn:active{opacity:.7}
+.ex-log-btn.done{background:#fff;color:var(--text-dim);border-color:var(--border-soft)}
+.exercise.current .ex-log-btn{background:#fff;color:#000;border-color:#fff}
+.exercise.current .ex-log-btn.done{background:transparent;color:#fff;border-color:#fff}
 .inline-log{max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease,opacity .18s ease,margin .22s ease;margin:0 0 0 0}
 .inline-log.show{max-height:160px;opacity:1;margin:-4px 0 10px}
 .il-row{display:flex;align-items:flex-end;gap:8px;padding:0 2px}
 .il-field{flex:1;display:flex;flex-direction:column;gap:4px}
 .il-field label{font-family:'Oswald',sans-serif;font-size:8.5px;letter-spacing:.18em;color:var(--text-faint);text-transform:uppercase;font-weight:700}
-.il-input{width:100%;box-sizing:border-box;height:46px;border:1px solid var(--border);border-radius:9px;background:var(--steel-dark);text-align:center;font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text);-moz-appearance:textfield}
+.il-input{width:100%;box-sizing:border-box;height:46px;border:1px solid var(--border);border-radius:2px;background:#fff;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text);-moz-appearance:textfield}
 .il-input::-webkit-outer-spin-button,.il-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.il-log{flex:0 0 auto;height:46px;padding:0 18px;border:none;border-radius:9px;background:linear-gradient(180deg,var(--cobalt-bright),#cc2900);color:#fff;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;cursor:pointer;box-shadow:0 0 16px var(--cobalt-glow)}
-.il-log:active{transform:scale(.96)}
-.il-log.done{background:#1f9e52;box-shadow:none}
+.il-log{flex:0 0 auto;height:46px;padding:0 18px;border:1.5px solid #000;border-radius:2px;background:#000;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;cursor:pointer}
+.il-log:active{opacity:.7}
+.il-log.done{background:#fff;color:var(--text-dim);border-color:var(--border-soft)}
 .il-more{display:block;width:100%;margin-top:8px;background:none;border:none;color:var(--text-faint);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;padding:6px}
 .il-actions{display:flex;gap:8px;margin-top:8px}
-.il-act{flex:1;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:9px}
+.il-act{flex:1;background:none;border:1px solid var(--border);border-radius:2px;color:var(--text-mid);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:9px}
 .il-act:active{background:var(--steel-dark)}
 .il-act.danger{color:var(--red);border-color:rgba(255,51,0,.35)}
 .ex-sets .ex-count{min-width:30px;text-align:right}
@@ -209,7 +210,7 @@ input,textarea{user-select:text}
 .set-dot:active{transform:scale(.85)}
 .set-dot.filled{background:var(--cobalt);border-color:var(--cobalt-bright);box-shadow:0 0 6px var(--cobalt-glow)}
 .ex-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.05em;font-weight:600}
-.ex-last{display:block;margin-top:3px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--cobalt-bright);font-weight:700}
+.ex-last{display:block;margin-top:3px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);font-weight:700}
 .ex-last b{color:var(--text);font-weight:700}
 .ex-last.new{color:var(--text-faint)}
 .exercise.current .ex-last b,.exercise.current .ex-last{color:#fff!important}
@@ -1530,7 +1531,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-27.2';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-27.3';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3686,11 +3687,10 @@ function renderToday(){
     const leftMeta=ex.skipped
       ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
       : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
-    const setsLabel=(i===currentIdx&&ex.completedSets===0)?`<span class="ex-sets-label">Tap a circle per set</span>`:'';
     // Explicit LOG button — don't make people guess that tapping the exercise
     // name opens the weight/reps panel.
     const logBtn=ex.skipped?'':`<button class="ex-log-btn${ex.topLogged?' done':''}" onclick="event.stopPropagation();toggleInlineLog(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>`;
-    const rightSets=ex.skipped?"":`<div class="ex-sets">${logBtn}${setsLabel}<div class="ex-sets-row"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div></div>`;
+    const rightSets=ex.skipped?"":`<div class="ex-sets">${logBtn}<div class="ex-sets-row"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div></div>`;
     const _bw=isBodyweightEx(ex);
     const _fk=(ex.topSet&&ex.topSet.kg)?ex.topSet.kg:(_last?_last.kg:'');
     const _fr=(ex.topLogged&&ex.topSet)?(ex.topSet.reps||''):'';
@@ -3773,8 +3773,6 @@ function updateExerciseCard(i){
   const count=card.querySelector('.ex-count');
   if(count)count.textContent=`${ex.completedSets}/${ex.targetSets}`;
   card.classList.toggle('done',!!ex.done);
-  const setsLabel=card.querySelector('.ex-sets-label');
-  if(setsLabel)setsLabel.style.display=ex.completedSets>0?'none':'';
 
   const hint=document.querySelector(`#inline-${i} .il-hint`);
   if(hint){
