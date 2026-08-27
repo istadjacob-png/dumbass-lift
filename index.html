@@ -178,9 +178,12 @@ input,textarea{user-select:text}
 .ex-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--cobalt-bright);letter-spacing:.05em}
 .set-dots{display:inline-flex;gap:6px;align-items:center;padding:2px 0;flex-wrap:wrap}
-.ex-sets{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;margin-left:auto;padding-left:10px}
+.ex-sets{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;margin-left:auto;padding-left:10px}
 .ex-sets-row{display:flex;align-items:center;gap:10px}
 .ex-sets-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.13em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;white-space:nowrap}
+.ex-log-btn{flex-shrink:0;border:none;border-radius:7px;background:linear-gradient(180deg,var(--cobalt-bright),#cc2900);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;padding:7px 14px;cursor:pointer;box-shadow:0 0 10px var(--cobalt-glow)}
+.ex-log-btn:active{transform:scale(.92)}
+.ex-log-btn.done{background:#1f9e52;box-shadow:none}
 .inline-log{max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease,opacity .18s ease,margin .22s ease;margin:0 0 0 0}
 .inline-log.show{max-height:160px;opacity:1;margin:-4px 0 10px}
 .il-row{display:flex;align-items:flex-end;gap:8px;padding:0 2px}
@@ -1527,7 +1530,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-27.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-27.2';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2261,6 +2264,57 @@ const PROGRAMS=[
         {libId:'cable-crunch',name:'Cable Crunch',targetSets:3,targetReps:'12-15'}]},
       {dayNum:6,name:'REST',muscles:'Recovery',subtitle:'Active recovery · walk',type:'rest',exercises:[]},
       {dayNum:7,name:'REST',muscles:'Recovery',subtitle:'Eat. Sleep. Grow.',type:'rest',exercises:[]}
+    ]
+  },
+  {
+    id:'project-405',
+    name:'Project 405',
+    author:'DUMBASS House',
+    description:'One goal: 4 plates on bench. Bench touched three times a week — heavy, technique, lockout — with triceps and shoulder work stacked underneath it since that’s what actually stalls the number. Back, legs and arms still get trained hard so the rest of you keeps growing while the bench climbs.',
+    schedule:[
+      {dayNum:1,name:'BENCH — HEAVY',muscles:'Chest · Triceps · Shoulders',subtitle:'Chase the top set',type:'train',exercises:[
+        {libId:'flat-bench',name:'Flat Bench Press',targetSets:5,targetReps:'3-5',primary:true,tag:'PRIMARY'},
+        {libId:'cgbp',name:'Close-Grip Bench Press',targetSets:4,targetReps:'6-8'},
+        {libId:'db-press',name:'Seated DB Shoulder Press',targetSets:3,targetReps:'8-10'},
+        {libId:'lat-raise',name:'DB Lateral Raise',targetSets:3,targetReps:'12-15'},
+        {libId:'rope-pd',name:'Rope Pushdown',targetSets:3,targetReps:'12-15'},
+        {libId:'face-pull',name:'Face Pull',targetSets:3,targetReps:'15-20'}]},
+      {dayNum:2,name:'BACK & BICEPS',muscles:'Lats · Mid-back · Biceps',subtitle:'Every pull protects the bench',type:'train',exercises:[
+        {libId:'pullup',name:'Pull-Ups',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
+        {libId:'row-bb',name:'Barbell Row',targetSets:4,targetReps:'6-8'},
+        {libId:'cable-row',name:'Seated Cable Row',targetSets:3,targetReps:'10-12'},
+        {libId:'sa-pulldown',name:'Straight-Arm Pulldown',targetSets:3,targetReps:'12-15'},
+        {libId:'rear-cable',name:'Rear Cable Fly',targetSets:3,targetReps:'12-15'},
+        {libId:'bb-curl',name:'Barbell Curl',targetSets:3,targetReps:'8-10'}]},
+      {dayNum:3,name:'LEGS',muscles:'Quads · Hamstrings · Calves',subtitle:'Secondary growth — push these hard',type:'train',exercises:[
+        {libId:'squat',name:'Back Squat',targetSets:4,targetReps:'6-8',primary:true,tag:'PRIMARY'},
+        {libId:'rdl',name:'Romanian Deadlift',targetSets:3,targetReps:'8-10'},
+        {libId:'leg-press',name:'Leg Press',targetSets:3,targetReps:'10-12'},
+        {libId:'leg-ext',name:'Leg Extension',targetSets:3,targetReps:'12-15'},
+        {libId:'standing-calf',name:'Standing Calf Raise',targetSets:4,targetReps:'10-12'},
+        {libId:'hanging-raise',name:'Hanging Leg Raise',targetSets:3,targetReps:'10-15'}]},
+      {dayNum:4,name:'BENCH — TECHNIQUE',muscles:'Chest · Triceps · Shoulders',subtitle:'Volume + upper chest',type:'train',exercises:[
+        {libId:'inc-bench',name:'Incline Bench Press',targetSets:4,targetReps:'6-8',primary:true,tag:'PRIMARY'},
+        {libId:'larsen-press',name:'Larsen Press',targetSets:3,targetReps:'6-8'},
+        {libId:'pec-deck',name:'Pec Deck',targetSets:3,targetReps:'12-15'},
+        {libId:'skull',name:'Skull Crushers',targetSets:3,targetReps:'8-10'},
+        {libId:'tate-press',name:'Tate Press',targetSets:3,targetReps:'10-12'},
+        {libId:'cable-lat',name:'Cable Lateral Raise',targetSets:3,targetReps:'12-15'}]},
+      {dayNum:5,name:'BENCH — LOCKOUT',muscles:'Triceps · Chest · Rear Delts',subtitle:'The last 3 inches is where reps die',type:'train',exercises:[
+        {libId:'jm-press',name:'JM Press',targetSets:4,targetReps:'5-8',primary:true,tag:'PRIMARY'},
+        {libId:'dips',name:'Chest Dips',targetSets:3,targetReps:'8-12'},
+        {libId:'svend-press',name:'Svend Press',targetSets:3,targetReps:'12-15'},
+        {libId:'hammer',name:'Hammer Curl',targetSets:3,targetReps:'10-12'},
+        {libId:'y-raise',name:'Y-Raise',targetSets:3,targetReps:'15-20'},
+        {libId:'pallof-press',name:'Pallof Press',targetSets:3,targetReps:'12'}]},
+      {dayNum:6,name:'ARMS & CORE',muscles:'Biceps · Triceps · Abs',subtitle:'Secondary mass — the rest of you still grows',type:'train',exercises:[
+        {libId:'preacher',name:'Preacher Curl',targetSets:4,targetReps:'8-10',primary:true,tag:'PRIMARY'},
+        {libId:'incline-curl',name:'Incline DB Curl',targetSets:3,targetReps:'10-12'},
+        {libId:'zottman-curl',name:'Zottman Curl',targetSets:3,targetReps:'10-12'},
+        {libId:'overhead-ext',name:'Overhead Tricep Extension',targetSets:3,targetReps:'10-12'},
+        {libId:'cable-crunch',name:'Cable Crunch',targetSets:3,targetReps:'12-15'},
+        {libId:'ab-wheel',name:'Ab Wheel Rollout',targetSets:3,targetReps:'10-15'}]},
+      {dayNum:7,name:'REST',muscles:'Recovery',subtitle:'Recover. The bench grows on rest days too.',type:'rest',exercises:[]}
     ]
   }
 ];
@@ -3556,7 +3610,7 @@ function logInline(i){
   if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);
   save();
   if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}
-  renderToday();
+  updateExerciseLogUI(i);
   toast(firstLog?'Top set logged':'Updated');
 }
 function swapInline(i){
@@ -3633,7 +3687,10 @@ function renderToday(){
       ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
       : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
     const setsLabel=(i===currentIdx&&ex.completedSets===0)?`<span class="ex-sets-label">Tap a circle per set</span>`:'';
-    const rightSets=ex.skipped?"":`<div class="ex-sets">${setsLabel}<div class="ex-sets-row"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div></div>`;
+    // Explicit LOG button — don't make people guess that tapping the exercise
+    // name opens the weight/reps panel.
+    const logBtn=ex.skipped?'':`<button class="ex-log-btn${ex.topLogged?' done':''}" onclick="event.stopPropagation();toggleInlineLog(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>`;
+    const rightSets=ex.skipped?"":`<div class="ex-sets">${logBtn}${setsLabel}<div class="ex-sets-row"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div></div>`;
     const _bw=isBodyweightEx(ex);
     const _fk=(ex.topSet&&ex.topSet.kg)?ex.topSet.kg:(_last?_last.kg:'');
     const _fr=(ex.topLogged&&ex.topSet)?(ex.topSet.reps||''):'';
@@ -3737,6 +3794,12 @@ function updateExerciseCard(i){
     if(curCard)curCard.classList.add('current');
   }
 
+  _updateTodayFooter(exs);
+}
+
+// Shared tail of both targeted-patch functions below: the "X / Y done" chip
+// and the complete-workout button.
+function _updateTodayFooter(exs){
   const doneCount=exs.filter(e=>e.done).length;
   const countChip=document.getElementById('today-count');
   if(countChip)countChip.textContent=`${doneCount} / ${exs.length}`;
@@ -3746,6 +3809,30 @@ function updateExerciseCard(i){
     if(exs.length>0&&exs.every(e=>e.done)){btn.textContent='Complete Workout →';btn.classList.remove('partial');}
     else{btn.textContent=`Finish Workout · ${doneCount}/${exs.length} done`;btn.classList.add('partial');}
   }
+}
+
+// Patches the LOG button + inline panel after logInline(), instead of a full
+// renderToday() — same reasoning as updateExerciseCard() above: don't replay
+// the list's entrance animation for a single exercise's weight/reps log.
+function updateExerciseLogUI(i){
+  const exs=state.today&&state.today.exercises;
+  const ex=exs&&exs[i];
+  const card=document.querySelector(`.exercise[data-ex-idx="${i}"]`);
+  if(!exs||!ex||!card){renderToday();return;}
+
+  const logBtn=card.querySelector('.ex-log-btn');
+  if(logBtn){logBtn.textContent=ex.topLogged?'✓ LOGGED':'LOG';logBtn.classList.toggle('done',!!ex.topLogged);}
+  const ilLog=document.querySelector(`#inline-${i} .il-log`);
+  if(ilLog){ilLog.textContent=ex.topLogged?'✓ LOGGED':'LOG';ilLog.classList.toggle('done',!!ex.topLogged);}
+  const hint=document.querySelector(`#inline-${i} .il-hint`);
+  if(hint){
+    const bw=isBodyweightEx(ex);
+    hint.textContent=ex.topLogged&&!(ex.completedSets>0)
+      ?'Logged ✓ — now tap the set dots above to count each set you finish.'
+      :(bw?'No weight needed — just your reps. Tap the set dots above to count each set.':'Logs your heaviest set. Tap the set dots above to count each set as you finish it.');
+  }
+  card.classList.toggle('done',!!ex.done);
+  _updateTodayFooter(exs);
 }
 
 function toggleSetsEdit(i){
