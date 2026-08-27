@@ -1530,7 +1530,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-27.7';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-27.8';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3694,7 +3694,7 @@ function renderToday(){
       </div>
       <div class="il-actions">
         <button class="il-act" onclick="event.stopPropagation();swapInline(${i})">⇄ Swap</button>
-        <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— Skip today</button>
+        <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— Skip</button>
         <button class="il-act danger" onclick="event.stopPropagation();removeInline(${i})">✕ Remove</button>
       </div>
     </div>`;
