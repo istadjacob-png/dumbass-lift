@@ -177,8 +177,10 @@ input,textarea{user-select:text}
 /* SET DOTS — set counter under exercise meta */
 .ex-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--cobalt-bright);letter-spacing:.05em}
-.set-dots{display:inline-flex;gap:4px;align-items:center;padding:2px 0;flex-wrap:wrap}
-.ex-sets{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;padding-left:10px}
+.set-dots{display:inline-flex;gap:6px;align-items:center;padding:2px 0;flex-wrap:wrap}
+.ex-sets{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;margin-left:auto;padding-left:10px}
+.ex-sets-row{display:flex;align-items:center;gap:10px}
+.ex-sets-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.13em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;white-space:nowrap}
 .inline-log{max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease,opacity .18s ease,margin .22s ease;margin:0 0 0 0}
 .inline-log.show{max-height:160px;opacity:1;margin:-4px 0 10px}
 .il-row{display:flex;align-items:flex-end;gap:8px;padding:0 2px}
@@ -196,7 +198,7 @@ input,textarea{user-select:text}
 .il-act.danger{color:var(--red);border-color:rgba(255,51,0,.35)}
 .ex-sets .ex-count{min-width:30px;text-align:right}
 .set-dot{
-  width:30px;height:30px;border-radius:50%;
+  width:32px;height:32px;border-radius:50%;
   background:transparent;border:2px solid var(--steel-light);
   cursor:pointer;flex-shrink:0;
   transition:background .12s,border-color .12s,transform .1s;
@@ -1163,8 +1165,6 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <button class="tm-link" onclick="openDayPicker()">Train another day</button>
     </div>
 
-    <div id="sync-banner" class="sync-mini" style="display:none"></div>
-
     <div id="accountability-strip" style="display:none"></div>
 
     <div id="exercise-list"></div>
@@ -1527,7 +1527,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-06-07.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-27.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3632,7 +3632,8 @@ function renderToday(){
     const leftMeta=ex.skipped
       ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>`
       : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
-    const rightSets=ex.skipped?"":`<div class="ex-sets"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div>`;
+    const setsLabel=(i===currentIdx&&ex.completedSets===0)?`<span class="ex-sets-label">Tap a circle per set</span>`:'';
+    const rightSets=ex.skipped?"":`<div class="ex-sets">${setsLabel}<div class="ex-sets-row"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div></div>`;
     const _bw=isBodyweightEx(ex);
     const _fk=(ex.topSet&&ex.topSet.kg)?ex.topSet.kg:(_last?_last.kg:'');
     const _fr=(ex.topLogged&&ex.topSet)?(ex.topSet.reps||''):'';
@@ -3698,7 +3699,53 @@ function toggleSet(i,setIdx){
   if(ex.completedSets>0||(ex.topSet&&ex.topSet.kg)){if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);}
   else{if(typeof removeLiveExercise==='function')removeLiveExercise(ex);}
   save();
-  renderToday();
+  updateExerciseCard(i);
+}
+
+// Patches just the DOM affected by one set-dot tap, instead of rebuilding the
+// whole #exercise-list. A full renderToday() there replaced every card's DOM
+// node, which replayed the list's fadeUp entrance animation on EVERY tap —
+// the whole screen looked like it "restarted" each time you logged a set.
+function updateExerciseCard(i){
+  const exs=state.today&&state.today.exercises;
+  const ex=exs&&exs[i];
+  const card=document.querySelector(`.exercise[data-ex-idx="${i}"]`);
+  if(!exs||!ex||!card){renderToday();return;}
+
+  card.querySelectorAll('.set-dot').forEach((d,idx)=>d.classList.toggle('filled',idx<ex.completedSets));
+  const count=card.querySelector('.ex-count');
+  if(count)count.textContent=`${ex.completedSets}/${ex.targetSets}`;
+  card.classList.toggle('done',!!ex.done);
+  const setsLabel=card.querySelector('.ex-sets-label');
+  if(setsLabel)setsLabel.style.display=ex.completedSets>0?'none':'';
+
+  const hint=document.querySelector(`#inline-${i} .il-hint`);
+  if(hint){
+    const bw=isBodyweightEx(ex);
+    hint.textContent=ex.topLogged&&!(ex.completedSets>0)
+      ?'Logged ✓ — now tap the set dots above to count each set you finish.'
+      :(bw?'No weight needed — just your reps. Tap the set dots above to count each set.':'Logs your heaviest set. Tap the set dots above to count each set as you finish it.');
+  }
+
+  // Move the "current" (next-up) highlight if this tap finished or reopened an exercise.
+  const currentIdx=exs.findIndex(e=>!e.done);
+  document.querySelectorAll('.exercise.current').forEach(el=>{
+    if(parseInt(el.dataset.exIdx,10)!==currentIdx)el.classList.remove('current');
+  });
+  if(currentIdx>=0){
+    const curCard=document.querySelector(`.exercise[data-ex-idx="${currentIdx}"]`);
+    if(curCard)curCard.classList.add('current');
+  }
+
+  const doneCount=exs.filter(e=>e.done).length;
+  const countChip=document.getElementById('today-count');
+  if(countChip)countChip.textContent=`${doneCount} / ${exs.length}`;
+  const btn=document.getElementById('complete-btn');
+  if(btn){
+    btn.disabled=exs.length===0;
+    if(exs.length>0&&exs.every(e=>e.done)){btn.textContent='Complete Workout →';btn.classList.remove('partial');}
+    else{btn.textContent=`Finish Workout · ${doneCount}/${exs.length} done`;btn.classList.add('partial');}
+  }
 }
 
 function toggleSetsEdit(i){
@@ -4219,8 +4266,36 @@ function renderProgLifts(){
 
 // THE all-lifts dashboard. One tap from Progress shows every lift you train,
 // each with its last result, best, and whether you're climbing or stalling.
+// Search filters by exercise name OR muscle (primary/secondary) so a long
+// history of tracked lifts doesn't just dump every card on screen at once.
+let _liftGridAll=[];
 function renderLiftGrid(c,liftArray){
-  const cards=liftArray.map(l=>{
+  _liftGridAll=liftArray;
+  c.innerHTML=`
+    <div class="section-head" style="margin-top:2px">
+      <span class="t">Your Lifts</span>
+      <span class="c">${liftArray.length} TRACKED</span>
+    </div>
+    <input class="modal-input" id="lift-search" type="text" placeholder="Search a lift or muscle — e.g. chest, squat" autocomplete="off" oninput="filterLiftGrid()">
+    <div class="chart-hint" style="text-align:left;margin:0 2px 12px;letter-spacing:.12em">Tap a lift for its full trend &amp; history</div>
+    <div class="lift-grid" id="lift-grid-list"></div>
+  `;
+  filterLiftGrid();
+}
+
+function _liftSearchText(l){
+  const lib=getLibrary().find(e=>e.id===l.libId);
+  const parts=[l.name];
+  if(lib){parts.push(MUSCLE_NAMES[lib.muscle]||lib.muscle);(lib.secondary||[]).forEach(m=>parts.push(MUSCLE_NAMES[m]||m));}
+  return parts.join(' ').toLowerCase();
+}
+
+function filterLiftGrid(){
+  const list=document.getElementById('lift-grid-list');
+  if(!list)return;
+  const q=((document.getElementById('lift-search')||{}).value||'').trim().toLowerCase();
+  const pool=q?_liftGridAll.filter(l=>_liftSearchText(l).includes(q)):_liftGridAll;
+  const cards=pool.map(l=>{
     const{bw,sessions}=_liftSessions(l,state.progMetric==='e1rm'?'e1rm':'top');
     if(!sessions.length)return'';
     const last=sessions[sessions.length-1];
@@ -4240,14 +4315,7 @@ function renderLiftGrid(c,liftArray){
       </div>
     </button>`;
   }).join('');
-  c.innerHTML=`
-    <div class="section-head" style="margin-top:2px">
-      <span class="t">Your Lifts</span>
-      <span class="c">${liftArray.length} TRACKED</span>
-    </div>
-    <div class="chart-hint" style="text-align:left;margin:0 2px 12px;letter-spacing:.12em">Tap a lift for its full trend &amp; history</div>
-    <div class="lift-grid">${cards}</div>
-  `;
+  list.innerHTML=cards||`<div class="empty-state">No lifts match "${esc(q)}".</div>`;
 }
 
 function openLiftDetail(id){const l=_progLiftArray().find(x=>(x.libId||x.name)===id);if(l){state.selectedLift=l;state.progLiftView='detail';try{save();}catch(e){}}renderProgLifts();}
