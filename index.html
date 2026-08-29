@@ -1240,12 +1240,12 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <div class="te-row">
         <div class="te-field">
           <div class="te-flabel">Sets</div>
-          <input type="number" min="1" max="10" class="te-input" id="te-sets" oninput="updateDetailSets(this.value)">
+          <input type="number" min="1" max="10" class="te-input" id="te-sets" autocomplete="off" oninput="updateDetailSets(this.value)">
         </div>
         <div class="te-x">×</div>
         <div class="te-field">
           <div class="te-flabel">Reps</div>
-          <input type="text" class="te-input wide" id="te-reps" placeholder="8-10" oninput="updateDetailReps(this.value)">
+          <input type="text" class="te-input wide" id="te-reps" placeholder="8-10" autocomplete="off" oninput="updateDetailReps(this.value)">
         </div>
       </div>
     </div>
@@ -1265,11 +1265,11 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <div class="topset-grid">
         <div class="topset-field">
           <div class="field-label" id="topset-kg-label">Weight · KG</div>
-          <input class="topset-input" type="number" inputmode="decimal" id="topset-kg" placeholder="—" oninput="updateTopSet('kg',this.value)" onblur="updateTopSet('kg',this.value)">
+          <input class="topset-input" type="number" inputmode="decimal" id="topset-kg" placeholder="—" autocomplete="off" oninput="updateTopSet('kg',this.value)" onblur="updateTopSet('kg',this.value)">
         </div>
         <div class="topset-field">
           <div class="field-label">Reps</div>
-          <input class="topset-input" type="number" inputmode="numeric" id="topset-reps" placeholder="—" oninput="updateTopSet('reps',this.value)" onblur="updateTopSet('reps',this.value)">
+          <input class="topset-input" type="number" inputmode="numeric" id="topset-reps" placeholder="—" autocomplete="off" oninput="updateTopSet('reps',this.value)" onblur="updateTopSet('reps',this.value)">
         </div>
       </div>
 
@@ -1383,7 +1383,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
         <div class="sr-flabel">Sets</div>
         <div class="sr-stepper">
           <button type="button" onclick="srBump(-1)">−</button>
-          <input id="sr-sets" type="number" min="1" max="12" value="3" inputmode="numeric">
+          <input id="sr-sets" type="number" min="1" max="12" value="3" inputmode="numeric" autocomplete="off">
           <button type="button" onclick="srBump(1)">+</button>
         </div>
       </div>
@@ -1530,7 +1530,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-29.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-29.2';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3459,9 +3459,9 @@ function renderVolume(){
   }).join('');
 
   document.getElementById('volume-summary').innerHTML=`
-    <div class="stat under${volumeStatusFilter==='under'?' active':''}" onclick="setVolumeStatusFilter('under')"><div class="l">Under-trained</div><div class="v">${under}</div></div>
+    <div class="stat under${volumeStatusFilter==='under'?' active':''}" onclick="setVolumeStatusFilter('under')"><div class="l">Push more</div><div class="v">${under}</div></div>
     <div class="stat ideal${volumeStatusFilter==='ideal'?' active':''}" onclick="setVolumeStatusFilter('ideal')"><div class="l">In the band</div><div class="v">${ideal}</div></div>
-    <div class="stat over${volumeStatusFilter==='over'?' active':''}" onclick="setVolumeStatusFilter('over')"><div class="l">Over the line</div><div class="v">${over}</div></div>
+    <div class="stat over${volumeStatusFilter==='over'?' active':''}" onclick="setVolumeStatusFilter('over')"><div class="l">Ease off</div><div class="v">${over}</div></div>
   `;
 
   // Past-week actual vs planned — did you slack off?
@@ -3605,22 +3605,6 @@ function logInline(i){
   updateExerciseLogUI(i);
   toast(firstLog?'Top set logged':'Updated');
 }
-function swapInline(i){
-  const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
-  state.currentExerciseIdx=i;
-  openSwap();
-}
-function removeInline(i){
-  const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
-  if(!confirm('Remove '+ex.name+'?'))return;
-  if(typeof removeLiveExercise==='function')removeLiveExercise(ex);
-  state.today.exercises.splice(i,1);
-  syncTodayToSchedule();
-  save();
-  document.querySelectorAll('.inline-log.show').forEach(p=>p.classList.remove('show'));
-  renderToday();
-  toast('Removed '+ex.name);
-}
 // Most recent top set for this exercise from a PRIOR day (not today) — the
 // number to beat for progressive overload.
 function prevTopSet(ex){
@@ -3689,14 +3673,12 @@ function renderToday(){
     const _kgPlaceholder=_bw?'BW':(_last&&_last.kg?_last.kg:'kg');
     const inlineHtml=ex.skipped?'':`<div class="inline-log" id="inline-${i}">
       <div class="il-row">
-        <div class="il-field"><label>${_bw?'ADDED · KG':'WEIGHT · KG'}</label><input class="il-input" id="il-kg-${i}" type="number" inputmode="decimal" placeholder="${_kgPlaceholder}" value="${_fk}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
-        <div class="il-field"><label>REPS</label><input class="il-input" id="il-reps-${i}" type="number" inputmode="numeric" placeholder="${_last?_last.reps:'reps'}" value="${_fr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
+        <div class="il-field"><label>${_bw?'ADDED · KG':'WEIGHT · KG'}</label><input class="il-input" id="il-kg-${i}" type="number" inputmode="decimal" placeholder="${_kgPlaceholder}" value="${_fk}" autocomplete="off" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
+        <div class="il-field"><label>REPS</label><input class="il-input" id="il-reps-${i}" type="number" inputmode="numeric" placeholder="${_last?_last.reps:'reps'}" value="${_fr}" autocomplete="off" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
         <button class="il-log${ex.topLogged?' done':''}" onclick="event.stopPropagation();logInline(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>
       </div>
       <div class="il-actions">
-        <button class="il-act" onclick="event.stopPropagation();swapInline(${i})">⇄ Swap</button>
         <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— Skip</button>
-        <button class="il-act danger" onclick="event.stopPropagation();removeInline(${i})">✕ Remove</button>
       </div>
     </div>`;
     return `<div class="${cls}" data-ex-idx="${i}" onclick="${ex.skipped?`unskipExerciseAt(${i})`:`toggleInlineLog(${i})`}">
