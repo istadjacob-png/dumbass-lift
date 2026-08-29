@@ -853,13 +853,15 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .btn-primary,.btn-secondary,.log-btn,.lift-chip,.progress-tab,
 .ex-remove,.topset-card,.topset-input,.profile-input,.search-input,
 .modal-input,.note-field,.share-btn-big,.share-card,.streak-bar,
-.ex-hero,.last-ref,.avatar,.icon-box,.play-btn{
+.ex-hero,.last-ref,.avatar,.icon-box,.play-btn,
+.dp-row,.dp-now,.hist-last,.hist-row,.hl-lift{
   border-radius:0!important;
   box-shadow:none!important;
   background-image:none!important;
 }
 .exercise,.day-card,.hist-day,.vol-card,.program-btn,.volume-btn,.profile-card,
-.protocol-box,.last-ref,.modal-row,.vol-breakdown,.rest-tip{
+.protocol-box,.last-ref,.modal-row,.vol-breakdown,.rest-tip,
+.dp-row,.hist-last,.hist-row{
   background:#FFFFFF!important;
   border:1px solid #000!important;
 }
@@ -878,6 +880,14 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .day-card.today{background:#000!important;color:#FFF!important;border:1px solid #000!important}
 .day-card.today .d-name,.day-card.today .d-muscles{color:#FFF!important}
 .day-card.today .play-btn{background:#FFF!important;border-color:#FFF!important}
+.dp-row.active{background:#000!important;border-color:#000!important}
+.dp-row.active .dp-name,.dp-row.active .dp-musc{color:#FFF!important}
+.dp-now{border:1px solid #000!important;color:#000!important}
+.dp-row.active .dp-now{border-color:#FFF!important;color:#FFF!important}
+.hist-last{border-left:3px solid #FF3300!important}
+.hist-row.open{border-left:3px solid #FF3300!important}
+.hl-lift{background:#FFF!important;border:1px solid #000!important}
+.hl-lift.is-pr{border-color:#FF3300!important}
 .day-card.today .play-btn svg{stroke:#000;fill:#000}
 .day-card .num{font-family:'Inter',sans-serif;font-weight:900;font-size:22px;letter-spacing:0;color:#000;min-width:50px;text-align:center}
 .day-card.today .num{color:#FFF}
@@ -1163,8 +1173,6 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="title" id="today-title">CHEST & <span class="accent">BACK</span></div>
 
     <div class="today-meta">
-      <button class="tm-link strong" id="program-current-name" onclick="openProgramPicker()">Split</button>
-      <button class="tm-link" onclick="showView('volume')">Sets per muscle</button>
       <button class="tm-link" onclick="openDayPicker()">Train another day</button>
     </div>
 
@@ -1188,33 +1196,25 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <h1>SPLIT</h1>
       <div class="sub">Tap a day to train it</div>
     </div>
-    <div id="day-list"></div>
-    <div class="protocol-box">
-      <p><b>Priority order is law.</b> The muscle named first is trained first, when you are freshest.</p>
-      <p style="margin-top:10px"><button class="btn-ghost" onclick="resetActiveProgramToDefault()" style="color:var(--red);padding:0">Reset this split to defaults</button></p>
-    </div>
-  </div>
 
-  <!-- VOLUME -->
-  <div class="view" id="view-volume">
-    <div class="back-row">
-      <button class="back-btn" onclick="showView('today')">BACK</button>
-    </div>
-    <div class="eyebrow">Weekly Working Sets</div>
-    <div class="title"><span class="accent">VOLUME</span></div>
-    <div class="subtitle">Where your week lands · MEV · MAV · MRV</div>
-
+    <div class="hist-section-label">Weekly Working Sets · MEV · MAV · MRV</div>
     <div id="volume-summary" class="vol-summary"></div>
     <button id="past-week-toggle" class="past-week-toggle" onclick="togglePastWeek()"></button>
     <div id="volume-actuals" class="vol-actuals" style="display:none"></div>
     <div id="volume-filters" class="lift-select"></div>
     <div id="volume-list"></div>
-
     <div class="vol-legend">
       <p><b>MEV</b> Minimum Effective Volume — the floor. Below this you don't grow.</p>
       <p><b>MAV</b> Maximum Adaptive Volume — the productive range. Live here.</p>
       <p><b>MRV</b> Maximum Recoverable Volume — the ceiling. Past it you overreach.</p>
       <p style="margin-top:8px;color:var(--text-faint);font-size:10px"><b>How it counts</b> Primary muscle = 1 set. Secondary muscle = 0.5 set (RP / Israetel standard for compound synergists).</p>
+    </div>
+
+    <div class="hist-section-label">Your Days</div>
+    <div id="day-list"></div>
+    <div class="protocol-box">
+      <p><b>Priority order is law.</b> The muscle named first is trained first, when you are freshest.</p>
+      <p style="margin-top:10px"><button class="btn-ghost" onclick="resetActiveProgramToDefault()" style="color:var(--red);padding:0">Reset this split to defaults</button></p>
     </div>
   </div>
 
@@ -1292,12 +1292,12 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="title"><span class="accent">PROGRESS</span></div>
 
     <div class="progress-tabs">
-      <button class="progress-tab active" onclick="setProgTab('lifts')" id="pt-lifts">LIFTS</button>
-      <button class="progress-tab" onclick="setProgTab('history')" id="pt-history">HISTORY</button>
+      <button class="progress-tab" onclick="setProgTab('lifts')" id="pt-lifts">LIFTS</button>
+      <button class="progress-tab active" onclick="setProgTab('history')" id="pt-history">HISTORY</button>
     </div>
 
-    <div id="prog-tab-lifts"></div>
-    <div id="prog-tab-history" style="display:none"></div>
+    <div id="prog-tab-lifts" style="display:none"></div>
+    <div id="prog-tab-history"></div>
   </div>
 
   <div class="nav">
@@ -1530,7 +1530,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-27.9';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-29.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3257,7 +3257,7 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
 }
 function dismissIntro(){state.introSeen=true;save();document.getElementById('intro').classList.add('hidden');renderToday();}
 
-function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';renderProgress();}if(name==='profile')renderProfile();if(name==='program')renderProgram();if(name==='volume')renderVolume();if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
+function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';renderProgress();}if(name==='profile')renderProfile();if(name==='program'){renderProgram();renderVolume();}if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
 
 function renderProgram(){
   const sched=getActiveSchedule();
@@ -4138,7 +4138,8 @@ function renderProgHistory(){
     <div class="hl-lifts">${lastLifts}</div>
   </div>`;
 
-  // Compact list — every session including the last one (so search/scrub works for everything)
+  // Compact list — excludes the last session (already shown above) unless searching,
+  // where the full history including the last session is searchable.
   const filtered=q
     ?sorted.filter(h=>{
         if(h.name.toLowerCase().includes(q))return true;
@@ -4147,7 +4148,7 @@ function renderProgHistory(){
         if(dateStr.includes(q))return true;
         return h.exercises.some(ex=>ex.name.toLowerCase().includes(q));
       })
-    :sorted;
+    :sorted.filter(h=>h.date!==last.date);
 
   const rowsHtml=filtered.length===0
     ?'<div class="empty-state">No sessions match "'+state.historySearch+'"</div>'
@@ -5379,7 +5380,10 @@ function computeAccountability(){
   const done=new Set();
   // Normalize every finalized session to a LOCAL calendar day. Stored dates are
   // ISO/UTC timestamps; slicing them raw drifts a day for evening sessions.
-  (state.history||[]).forEach(h=>{if(h&&!h.partial&&h.date)done.add(ymd(new Date(h.date)));});
+  // Only count sessions from the CURRENTLY active split — switching splits mid-week
+  // shouldn't carry over another split's completed days into this one's tally.
+  // Legacy entries with no programId recorded still count (pre-dates this field).
+  (state.history||[]).forEach(h=>{if(h&&!h.partial&&h.date&&(!h.programId||h.programId===state.activeProgramId))done.add(ymd(new Date(h.date)));});
   const todayKey=ymd();
   const todayIsRest=!!(state.today&&state.today.type==='rest');
   const trainedToday=done.has(todayKey)||!!(state.today&&Array.isArray(state.today.exercises)&&state.today.exercises.some(e=>e.done));
