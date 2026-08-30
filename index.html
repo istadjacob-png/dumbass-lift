@@ -1189,12 +1189,14 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   <div class="view" id="view-program">
     <div class="back-row">
       <button class="back-btn" onclick="showView('today')">BACK</button>
-      <button class="btn-ghost" onclick="openProgramPicker()" style="color:var(--cobalt-bright);font-weight:700">SWITCH SPLIT</button>
     </div>
     <div class="program-header" id="program-head">
       <div class="eyebrow">6-Day Split · 1 Rest</div>
       <h1>SPLIT</h1>
       <div class="sub">Tap a day to train it</div>
+    </div>
+    <div class="today-meta" style="justify-content:center;margin-top:2px">
+      <button class="tm-link" onclick="openProgramPicker()">Switch split</button>
     </div>
 
     <div class="hist-section-label">Weekly Working Sets · MEV · MAV · MRV</div>
@@ -1530,7 +1532,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-08-29.3';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-08-30.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
