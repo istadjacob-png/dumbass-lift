@@ -1535,7 +1535,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-10.3';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-11.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4066,15 +4066,17 @@ function completeWorkout(){
     totalSets+=sets;
   });
   
-  // PR detection — compare top set weight against all-time per lift.
+  // PR detection — compare estimated strength against all-time per lift.
   // Skip the in-progress partial session (it holds the same top sets we're
   // about to finalize, which would otherwise mask every PR).
+  // Bodyweight lifts PR on reps (no added load); loaded lifts PR on Epley
+  // est-1RM, not raw top-set weight — otherwise a 45kg×1 single reads as a
+  // PR over a much harder 42kg×8 set (the actual stronger performance).
   const prs=[];
   exs.forEach(ex=>{
     if(!ex.topSet)return;
     const bw=isBodyweightEx(ex);
-    // Bodyweight lifts PR on reps (no added load); loaded lifts PR on weight.
-    const score=s=>bw?(parseInt(s&&s.reps)||0):(parseFloat(s&&s.kg)||0);
+    const score=s=>bw?(parseInt(s&&s.reps)||0):_e1rm(s&&s.kg,s&&s.reps);
     const top=score(ex.topSet);
     if(top<=0)return;
     let allTime=0;
@@ -4287,6 +4289,13 @@ function _progLiftArray(){
   });
   return Array.from(lifts.values()).sort((a,b)=>b.last-a.last);
 }
+// Epley estimated 1RM, capped at 12 reps — past that the formula diverges
+// wildly from reality (e.g. 60kg×20 "estimates" a fake ~100kg single).
+function _e1rm(kg,reps){
+  const w=parseFloat(kg)||0;
+  const r=Math.min(parseInt(reps)||1,12);
+  return r<=1?w:Math.round(w*(1+r/30)*2)/2;
+}
 // Per-session series for ONE lift, bodyweight-aware and de-duped by day.
 // Bodyweight lifts progress by REPS (kg optional = added load); loaded lifts by
 // weight or Epley est-1RM. metric: 'top' | 'e1rm' (ignored for bodyweight).
@@ -4302,7 +4311,7 @@ function _liftSessions(lift,metric){
     if(bw){if(reps<=0)return;}else{if(w<=0)return;}
     const sets=ex.completedSets||ex.targetSets||0;
     // val drives the chart/stats: reps for bodyweight, weight or est-1RM for loaded.
-    const val=bw?reps:(metric==='e1rm'?(reps<=1?w:Math.round(w*(1+reps/30)*2)/2):w);
+    const val=bw?reps:(metric==='e1rm'?_e1rm(w,reps):w);
     const day=(h.date||'').slice(0,10);
     // Same lift twice in a day (a correction, a re-log) → keep the latest, so the
     // delta column never shows a phantom backwards step. History is chronological.
@@ -4371,7 +4380,11 @@ function filterLiftGrid(){
     const last=sessions[sessions.length-1];
     const best=Math.max(...sessions.map(s=>s.val));
     const trend=_liftTrend(sessions);
-    const isPR=sessions.length>1&&last.val>=best&&trend.dir==='up';
+    // PR ribbon always judges by est-1RM (not the display metric above) — a
+    // heavier single shouldn't out-PR a harder multi-rep set just because the
+    // Lifts tab happens to be set to show raw Top Set numbers.
+    const escore=s=>bw?s.reps:_e1rm(s.weight,s.reps);
+    const isPR=sessions.length>1&&escore(last)>=Math.max(...sessions.map(escore))&&trend.dir==='up';
     const key=(l.libId||l.name).replace(/'/g,"\\'");
     const arrow=trend.dir==='up'?'▲':trend.dir==='down'?'▼':trend.dir==='flat'?'=':'•';
     const bestStr=bw?`best ${best}`:`best ${best}kg`;
