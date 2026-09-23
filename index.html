@@ -180,7 +180,7 @@ input,textarea{user-select:text}
 .ex-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ex-target{font-family:'Oswald',sans-serif;font-weight:700;color:var(--text-mid);letter-spacing:.05em}
 .set-dots{display:inline-flex;gap:6px;align-items:center;padding:2px 0;flex-wrap:wrap}
-.ex-sets{display:flex;flex-direction:column;align-items:stretch;gap:6px;flex-shrink:0;width:168px;margin-left:auto;padding-left:10px}
+.ex-sets{display:flex;flex-direction:column;align-items:stretch;gap:6px;flex-shrink:0;width:92px;margin-left:auto;padding-left:10px}
 .ex-sets-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .ex-log-btn{width:100%;box-sizing:border-box;border:1.5px solid #000;border-radius:2px;background:#000;color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:7px 13px;cursor:pointer}
 .ex-log-btn:active{opacity:.7}
@@ -188,7 +188,7 @@ input,textarea{user-select:text}
 .exercise.current .ex-log-btn{background:#fff;color:#000;border-color:#fff}
 .exercise.current .ex-log-btn.done{background:transparent;color:#fff;border-color:#fff}
 .inline-log{max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease,opacity .18s ease,margin .22s ease;margin:0 0 0 0}
-.inline-log.show{max-height:160px;opacity:1;margin:-4px 0 10px}
+.inline-log.show{max-height:1400px;opacity:1;margin:-4px 0 10px}
 .il-hint{font-family:'JetBrains Mono',monospace;font-size:9.5px;line-height:1.4;color:var(--text-faint);margin:0 0 8px;letter-spacing:.03em}
 .il-row{display:flex;align-items:flex-end;gap:8px;padding:0 2px}
 .il-field{flex:1;display:flex;flex-direction:column;gap:4px}
@@ -605,6 +605,17 @@ input,textarea{user-select:text}
 .hist-detail .hd-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700}
 .hist-detail .hd-del-all{background:transparent;border:none;color:var(--text-faint);font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;font-weight:600;padding:4px 8px}
 .hist-detail .hd-del-all:active{color:var(--red)}
+.hist-detail .hd-summary{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--text-dim);text-transform:uppercase;padding:2px 0 8px;border-bottom:1px dashed var(--border-soft);margin-bottom:4px}
+.hist-detail .hd-ex{padding:8px 0;border-bottom:1px solid var(--border-soft)}
+.hist-detail .hd-ex:last-of-type{border-bottom:none}
+.hist-detail .hd-ex-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.hist-detail .hd-ex-head .n{flex:1;font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+.hist-detail .hd-ex.is-pr .hd-ex-head .n{color:#FF3300}
+.hist-detail .hd-ex-head .t{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--text-faint)}
+.hist-detail .hd-ex-head .x{width:22px;height:22px;border-radius:50%;border:1px solid var(--border-soft);background:transparent;color:var(--text-faint);font-size:14px;line-height:1;cursor:pointer;padding:0}
+.hist-detail .hd-set{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0 3px 10px}
+.hist-detail .hd-set .sn{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--text-dim)}
+.hist-detail .hd-set .sv{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--text)}
 .hist-row .hr-meta .partial-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cobalt-bright);box-shadow:0 0 8px var(--red-glow);margin-right:6px;vertical-align:middle;animation:pulseDot 2s ease-in-out infinite}
 @keyframes pulseDot{0%,100%{opacity:.4}50%{opacity:1}}
 .hist-section-label{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.35em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin:12px 0 8px}
@@ -800,6 +811,7 @@ input,textarea{user-select:text}
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:100;display:none;align-items:flex-end;justify-content:center}
 .modal-bg.open{display:flex}
+#lib-modal,#setsreps-modal{z-index:110}
 .modal{background:var(--steel);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px;max-height:85vh;overflow-y:auto;border-top:3px solid var(--cobalt);animation:slideup .25s}
 @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:-.005em;margin-bottom:16px}
@@ -975,6 +987,14 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .sb-add-btn{flex:1;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.2em;color:#000;background:#FFF;border:1px dashed #000;padding:10px;cursor:pointer;text-transform:uppercase;font-weight:700}
 .sb-add-btn.rest{color:#FF3300;border-color:#FF3300}
 .sb-add-btn:active{background:#F0F0F0}
+.sb-day-wrap{margin-bottom:8px}
+.sb-day-wrap .sb-day{margin-bottom:0}
+.sb-exs{border:1px solid #DDD;border-top:none;border-radius:0 0 8px 8px;padding:6px 10px 8px 34px;background:#FAFAFA}
+.sb-ex{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #EEE}
+.sb-ex-n{flex:1;font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#000}
+.sb-ex-t{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A}
+.sb-ex-rm{width:22px;height:22px;border:1px solid #DDD;background:#FFF;color:#888;border-radius:50%;cursor:pointer;line-height:1;padding:0}
+.sb-ex-add{margin-top:6px;background:none;border:none;color:#FF3300;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:4px 0}
 
 /* IMPORT-FROM-LINK */
 .program-card.import-link{border-style:dashed;border-left-color:#FF3300;background:linear-gradient(135deg,#FFF6F2 0%,#FFF 100%)}
@@ -1040,6 +1060,26 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .ex-edit{background:#FFF!important;border:1px solid #000!important;color:#000!important}
 .ex-edit:active{background:#000!important;color:#FFF!important}
 .ex-top b{color:#FF3300!important}
+
+/* ===== SET LOG — one identical row per set ===== */
+.sl-grid{padding:2px 2px 0}
+.sl-head,.sl-row{display:grid;grid-template-columns:34px 1fr 1fr 48px;gap:8px;align-items:center}
+.sl-head{margin-bottom:6px}
+.sl-head span{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.2em;color:var(--text-faint);text-transform:uppercase;font-weight:700;text-align:center}
+.sl-row{margin-bottom:6px}
+.sl-n{font-family:'Bebas Neue',sans-serif;font-size:22px;text-align:center;color:var(--text)}
+.sl-in{width:100%;box-sizing:border-box;height:44px;border:1px solid var(--border-soft);border-radius:2px;background:#FFF;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:24px;color:#000;-moz-appearance:textfield;-webkit-appearance:none}
+.sl-in::placeholder{color:#B5B5B5}
+.sl-in:focus{outline:none;border-color:#000}
+.sl-in::-webkit-outer-spin-button,.sl-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.sl-ok{height:44px;border:1.5px solid #000;border-radius:2px;background:#FFF;color:#C8C8C8;font-size:18px;font-weight:900;cursor:pointer;padding:0}
+.sl-ok:active{opacity:.7}
+.sl-row.done .sl-ok{background:#000;color:#FFF}
+.sl-row.done .sl-in{background:#F2F2F2;border-color:#F2F2F2}
+.sl-row.done .sl-n{color:#FF3300}
+.sl-add{display:block;width:100%;margin-top:2px;background:none;border:1px dashed var(--border-soft);border-radius:2px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:9px}
+.ex-ss{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;font-weight:700;color:#FFF;background:#FF3300;padding:2px 6px;border-radius:2px}
+.exercise.ss{border-left:4px solid #FF3300!important}
 
 /* ===== EDITABLE TARGET ON EXERCISE DETAIL ===== */
 .target-edit{
@@ -1168,13 +1208,12 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   <div class="view active" id="view-today">
     <div class="today-top">
       <div class="eyebrow" id="today-eyebrow">Monday</div>
-      <span class="today-count-chip" id="today-count">0 / 0</span>
     </div>
     <div class="title" id="today-title">CHEST & <span class="accent">BACK</span></div>
 
     <div class="today-meta">
-      <button class="tm-link" onclick="showView('program')">Split</button>
-      <button class="tm-link" onclick="openDayPicker()">Train another day</button>
+      <button class="tm-link" id="today-split-name" onclick="showView('program')">DUMBASS</button>
+      <button class="tm-link" onclick="openProgramPicker()">⇄ Change split</button>
     </div>
 
     <div id="accountability-strip" style="display:none"></div>
@@ -1210,6 +1249,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div id="volume-summary" class="vol-summary"></div>
     <button id="past-week-toggle" class="past-week-toggle" onclick="togglePastWeek()"></button>
     <div id="volume-actuals" class="vol-actuals" style="display:none"></div>
+    <div class="hist-section-label" style="margin-top:18px">Planned sets per week · this split</div>
     <div id="volume-filters" class="lift-select"></div>
     <div id="volume-list"></div>
     <div class="vol-legend">
@@ -1333,11 +1373,9 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
     <div class="profile-card">
       <div class="field-label">Don't Skip · Daily Nudge</div>
-      <p class="ds-hint" style="margin:6px 0 12px">A 3 PM check-in so you never skip a session by accident. On rest days it just says "recover well". Turn on both for the best safety net.</p>
+      <p class="ds-hint" style="margin:6px 0 12px">A 3 PM check-in from the app so you never skip a session by accident. On rest days it just says "recover well".</p>
       <button class="btn-secondary" id="notif-btn" onclick="enableNotifications()" style="width:100%;margin-bottom:8px">🔔 TURN ON PHONE NOTIFICATIONS</button>
       <p class="ds-hint" id="notif-hint" style="margin:0 0 14px;font-size:11px">Pings you in-app and on your phone when it's open. On iPhone, add the app to your Home Screen first.</p>
-      <button class="btn-secondary" onclick="downloadReminders()" style="width:100%">📅 ADD CALENDAR REMINDER</button>
-      <p class="ds-hint" style="margin-top:10px;font-size:11px">The most reliable nudge — fires even when the app is fully closed. Tap → opens Calendar → "Add". Re-add if you switch split.</p>
     </div>
 
     <div class="profile-card sync-card" id="sync-card">
@@ -1422,6 +1460,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     </div>
     <div class="sb-footer">
       <button class="btn-ghost" onclick="eeSwap()" style="color:var(--cobalt-bright)">⇄ Swap</button>
+      <button class="btn-ghost" id="ee-ss-btn" onclick="eeSuperset()" style="color:var(--text)">+ Superset</button>
       <button class="btn-ghost" onclick="eeDelete()" style="color:var(--red)">Delete</button>
     </div>
     <button class="log-btn" onclick="closeExerciseEdit()">Done</button>
@@ -1507,12 +1546,12 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="modal-bg" id="split-builder-modal" onclick="if(event.target.id==='split-builder-modal')closeSplitBuilder()">
   <div class="modal">
     <h2>BUILD YOUR <span class="accent">SPLIT</span></h2>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Set how many days. Leave the names alone — they fill themselves in once you log exercises from Today. Rename any day if you want.</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">You decide everything: the name, the days, and the exercises on each day.</div>
     <div class="sb-field">
       <label class="sb-label">Split Name</label>
       <input class="modal-input" id="sb-name" type="text" placeholder="e.g. My Push Pull Legs" oninput="updateBuilderName(this.value)">
     </div>
-    <div class="sb-label" style="margin-top:8px">Days</div>
+    <div class="sb-label" style="margin-top:8px">Days · tap + Exercise to fill a day</div>
     <div id="sb-days"></div>
     <div class="sb-actions-row">
       <button class="sb-add-btn" onclick="addBuilderDay(false)">+ Training Day</button>
@@ -1556,7 +1595,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-23.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-23.2';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -1748,6 +1787,57 @@ const LIBRARY=[
 
   // Lower back
   {id:'jefferson-curl',name:'Jefferson Curl',muscle:'lower-back',secondary:['hamstrings'],type:'ISOLATION',equipment:'BARBELL',form:{primary:'Slow segmental flexion. Spinal mobility + strength.',cues:['Stand on a box, light bar','Round down vertebra by vertebra','Light load — start with 10-20kg','Slow up and down — 5s each way']}},
+  // More everyday gym lifts
+  {id:'inc-smith',name:'Incline Smith Press',muscle:'chest',secondary:["front-delts", "triceps"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Bench at 30°. Bar path fixed — just press.',cues:["Bar to upper chest", "Shoulder blades pinned", "Elbows ~45°", "Control down, drive up"]}},
+  {id:'inc-machine-press',name:'Incline Machine Press',muscle:'chest',secondary:["front-delts", "triceps"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Seat so handles line up with upper chest.',cues:["Chest up, shoulders back", "Press up and slightly in", "Full stretch at the bottom", "Don't lock out hard"]}},
+  {id:'decline-db-press',name:'Decline DB Press',muscle:'chest',secondary:["triceps"],type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Slight decline, feet hooked. Lower chest focus.',cues:["DBs to lower chest", "Elbows ~45°", "Press up and together", "Slow on the way down"]}},
+  {id:'low-high-fly',name:'Low-to-High Cable Fly',muscle:'chest',secondary:["front-delts"],type:'ISOLATION',equipment:'CABLE',form:{primary:'Pulleys low, sweep up to chin height. Upper chest.',cues:["Slight bend in elbows", "Scoop up and in", "Squeeze at the top", "Slow return"]}},
+  {id:'machine-fly',name:'Machine Chest Fly',muscle:'chest',secondary:[],type:'ISOLATION',equipment:'MACHINE',form:{primary:'Seat so handles are at chest height.',cues:["Soft elbows", "Hug the handles together", "Squeeze 1 second", "Control the stretch"]}},
+  {id:'dips-assisted',name:'Assisted Dip Machine',muscle:'triceps',secondary:["chest"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'More assist = easier. Stay upright for triceps.',cues:["Shoulders down", "Lower to ~90° elbow", "Press to lockout", "Reduce assist over time"]}},
+  {id:'lat-pulldown',name:'Lat Pulldown',muscle:'lats',secondary:["biceps", "rear-delts"],type:'COMPOUND',equipment:'CABLE',form:{primary:'Shoulder-width grip. The standard pulldown.',cues:["Chest up, slight lean back", "Pull bar to upper chest", "Elbows down and back", "Slow on the way up"]}},
+  {id:'neutral-pulldown',name:'Neutral-Grip Pulldown',muscle:'lats',secondary:["biceps"],type:'COMPOUND',equipment:'CABLE',form:{primary:'Palms facing each other. Easy on the shoulders.',cues:["Chest to the handle", "Elbows to your sides", "Full stretch at the top", "No swinging"]}},
+  {id:'assisted-pullup',name:'Assisted Pull-Up Machine',muscle:'lats',secondary:["biceps"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Knees on the pad. Less assist over time.',cues:["Full hang at the bottom", "Chin over the bar", "Elbows down to ribs", "Slow down"]}},
+  {id:'sa-cable-row',name:'Single-Arm Cable Row',muscle:'lats',secondary:["biceps", "rear-delts"],type:'COMPOUND',equipment:'CABLE',form:{primary:'One arm at a time. Big stretch.',cues:["Reach forward for the stretch", "Pull elbow to hip", "Don't twist the torso", "Squeeze at the back"]}},
+  {id:'machine-row',name:'Machine Row',muscle:'lats',secondary:["rear-delts", "biceps"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Chest on the pad. Pull with the back, not the arms.',cues:["Chest stays on pad", "Elbows back", "Squeeze shoulder blades", "Slow return"]}},
+  {id:'seal-row',name:'Seal Row',muscle:'lats',secondary:["rear-delts"],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Lie face down on a high bench. No cheating possible.',cues:["Chest glued to bench", "Pull bar to bench", "Elbows back", "Full hang at the bottom"]}},
+  {id:'db-pullover',name:'DB Pullover',muscle:'lats',secondary:["chest"],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Lie across or along a bench, one DB over chest.',cues:["Slight bend in elbows", "Lower behind head for the stretch", "Pull back over chest", "Ribs down"]}},
+  {id:'cable-front-raise',name:'Cable Front Raise',muscle:'front-delts',secondary:[],type:'ISOLATION',equipment:'CABLE',form:{primary:'Cable low behind you. Constant tension.',cues:["Arm almost straight", "Raise to eye level", "No swinging", "Slow down"]}},
+  {id:'seated-lateral',name:'Seated DB Lateral Raise',muscle:'side-delts',secondary:[],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Sitting kills the momentum. Pure side delt.',cues:["Lead with elbows", "Raise to shoulder height", "Pinkies slightly up", "Slow down"]}},
+  {id:'lu-raise',name:'Lu Raise',muscle:'side-delts',secondary:["front-delts", "traps"],type:'ISOLATION',equipment:'PLATE',form:{primary:'Light plates or DBs, straight arms, all the way overhead.',cues:["Thumbs up", "Straight arms out to the side", "Go all the way overhead", "Very light weight"]}},
+  {id:'cable-y-raise',name:'Cable Y-Raise',muscle:'side-delts',secondary:["rear-delts"],type:'ISOLATION',equipment:'CABLE',form:{primary:'Cables crossed low, raise into a Y.',cues:["Arms at 45° from body", "Raise to a Y overhead-ish", "Control down", "Light and strict"]}},
+  {id:'btn-press',name:'Behind-the-Neck Press',muscle:'front-delts',secondary:["side-delts", "triceps"],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Only if your shoulders are mobile. Light and strict.',cues:["Seated, torso upright", "Lower to ear level", "Press straight up", "Stop if it pinches"]}},
+  {id:'ez-curl',name:'EZ-Bar Curl',muscle:'biceps',secondary:["forearms"],type:'ISOLATION',equipment:'BARBELL',form:{primary:'Angled grip — easier on the wrists.',cues:["Elbows pinned", "Curl up, squeeze", "No swinging", "Slow down"]}},
+  {id:'machine-preacher',name:'Machine Preacher Curl',muscle:'biceps',secondary:[],type:'ISOLATION',equipment:'MACHINE',form:{primary:'Armpits tight to the pad.',cues:["Full stretch at the bottom", "Curl to the top", "Squeeze", "Slow down"]}},
+  {id:'rope-hammer-curl',name:'Rope Hammer Curl',muscle:'biceps',secondary:["forearms"],type:'ISOLATION',equipment:'CABLE',form:{primary:'Rope on a low pulley, palms facing in.',cues:["Elbows at your sides", "Curl to shoulders", "Squeeze", "Slow down"]}},
+  {id:'seated-db-curl',name:'Seated DB Curl',muscle:'biceps',secondary:[],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'Sitting stops the swing.',cues:["Back against the bench", "Curl both or alternate", "Twist pinky up at top", "Slow down"]}},
+  {id:'oh-cable-ext',name:'Overhead Cable Extension',muscle:'triceps',secondary:[],type:'ISOLATION',equipment:'CABLE',form:{primary:'Face away from the cable, rope overhead. Long-head stretch.',cues:["Elbows point forward", "Deep stretch behind head", "Extend to lockout", "Keep elbows still"]}},
+  {id:'db-oh-ext',name:'DB Overhead Extension',muscle:'triceps',secondary:[],type:'ISOLATION',equipment:'DUMBBELL',form:{primary:'One DB, both hands, overhead.',cues:["Elbows in", "Lower behind head", "Extend fully", "Ribs down"]}},
+  {id:'cable-kickback',name:'Cable Tricep Kickback',muscle:'triceps',secondary:[],type:'ISOLATION',equipment:'CABLE',form:{primary:'Hinge over, cable from low. Lock the elbow high.',cues:["Upper arm parallel to floor", "Extend straight back", "Squeeze at lockout", "Slow return"]}},
+  {id:'tricep-dip',name:'Tricep Dips',muscle:'triceps',secondary:["chest", "front-delts"],type:'COMPOUND',equipment:'BODYWEIGHT',form:{primary:'Parallel bars, torso upright.',cues:["Stay upright", "Lower to ~90° elbow", "Lock out at the top", "Add weight when easy"]}},
+  {id:'machine-tri-ext',name:'Machine Tricep Extension',muscle:'triceps',secondary:[],type:'ISOLATION',equipment:'MACHINE',form:{primary:'Elbows on the pad, extend.',cues:["Elbows stay on pad", "Full stretch", "Full lockout", "Slow down"]}},
+  {id:'split-squat',name:'Split Squat',muscle:'quads',secondary:["glutes"],type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Both feet on the floor, staggered stance.',cues:["Torso tall", "Back knee to floor", "Drive through front foot", "Same reps each leg"]}},
+  {id:'smith-lunge',name:'Smith Machine Lunge',muscle:'quads',secondary:["glutes"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Bar on the back, step into a split stance.',cues:["Front foot slightly forward", "Drop straight down", "Drive up through front heel", "Switch legs"]}},
+  {id:'curtsy-lunge',name:'Curtsy Lunge',muscle:'glutes',secondary:["quads"],type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Step back and across behind you.',cues:["Hips square", "Back knee toward floor", "Drive through front heel", "Alternate sides"]}},
+  {id:'sumo-squat',name:'DB Sumo Squat',muscle:'quads',secondary:["glutes"],type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Wide stance, toes out, one DB hanging.',cues:["Knees out over toes", "Sit straight down", "Chest up", "Squeeze glutes at the top"]}},
+  {id:'safety-bar-squat',name:'Safety Bar Squat',muscle:'quads',secondary:["glutes", "lower-back"],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Padded bar with handles in front. Easier on shoulders.',cues:["Brace hard", "Sit down between heels", "Chest up — bar pushes you forward", "Drive up"]}},
+  {id:'zercher-squat',name:'Zercher Squat',muscle:'quads',secondary:["glutes", "abs"],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bar in the crook of your elbows.',cues:["Brace hard", "Elbows up", "Sit straight down", "Drive up tall"]}},
+  {id:'sl-leg-press',name:'Single-Leg Leg Press',muscle:'quads',secondary:["glutes"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'One foot in the middle of the platform.',cues:["Lower slowly", "Knee tracks toes", "Don't lock out", "Same reps each leg"]}},
+  {id:'adductor-machine',name:'Hip Adductor Machine',muscle:'glutes',secondary:[],type:'ISOLATION',equipment:'MACHINE',form:{primary:'Inner thighs. Squeeze the pads together.',cues:["Sit tall", "Squeeze together", "Pause", "Slow open"]}},
+  {id:'glute-kick-machine',name:'Glute Kickback Machine',muscle:'glutes',secondary:["hamstrings"],type:'ISOLATION',equipment:'MACHINE',form:{primary:'Push the platform back with one leg.',cues:["Hips square", "Drive back with the heel", "Squeeze at the top", "Slow return"]}},
+  {id:'hip-thrust-machine',name:'Hip Thrust Machine',muscle:'glutes',secondary:["hamstrings"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Belt across the hips, drive up.',cues:["Chin tucked", "Drive through heels", "Squeeze at the top", "Control down"]}},
+  {id:'db-rdl',name:'DB Romanian Deadlift',muscle:'hamstrings',secondary:["glutes", "lower-back"],type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Hinge with DBs sliding down the thighs.',cues:["Soft knees", "Hips back", "Feel the hamstring stretch", "Back flat"]}},
+  {id:'deficit-deadlift',name:'Deficit Deadlift',muscle:'hamstrings',secondary:["glutes", "lower-back", "lats"],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Stand on a small plate. Longer pull.',cues:["Brace hard", "Hips a bit lower", "Push the floor away", "Lock out tall"]}},
+  {id:'hanging-knee-raise',name:'Hanging Knee Raise',muscle:'abs',secondary:[],type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Easier version of the leg raise.',cues:["Hang still", "Knees to chest", "Curl the pelvis up", "Slow down"]}},
+  {id:'captains-chair',name:"Captain's Chair Knee Raise",muscle:'abs',secondary:[],type:'ISOLATION',equipment:'MACHINE',form:{primary:'Back on the pad, forearms on the rests.',cues:["Back flat on pad", "Knees up high", "No swinging", "Slow down"]}},
+  {id:'decline-situp',name:'Decline Sit-Up',muscle:'abs',secondary:[],type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Feet hooked on a decline bench.',cues:["Curl up, don't yank", "Hold a plate when easy", "Slow down", "Exhale up"]}},
+  {id:'machine-crunch',name:'Machine Crunch',muscle:'abs',secondary:[],type:'ISOLATION',equipment:'MACHINE',form:{primary:'Crunch the ribs toward the hips.',cues:["Round the spine", "Squeeze abs", "Slow return", "Don't pull with arms"]}},
+  {id:'side-plank',name:'Side Plank',muscle:'abs',secondary:[],type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Log seconds as reps.',cues:["Elbow under shoulder", "Hips high", "Straight line head to feet", "Same time each side"]}},
+  {id:'dead-bug',name:'Dead Bug',muscle:'abs',secondary:[],type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Lower back glued to the floor.',cues:["Arms up, knees up", "Lower opposite arm + leg", "Back stays flat", "Slow and controlled"]}},
+  {id:'toes-to-bar',name:'Toes-to-Bar',muscle:'abs',secondary:["lats"],type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Hang and bring your toes to the bar.',cues:["Straight legs", "Control the swing", "Touch the bar", "Slow down"]}},
+  {id:'farmers-carry',name:"Farmer's Carry",muscle:'forearms',secondary:["traps", "abs"],type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Heavy DBs, walk. Log metres or seconds as reps.',cues:["Stand tall", "Shoulders down", "Short quick steps", "Don't let them swing"]}},
+  {id:'dead-hang',name:'Dead Hang',muscle:'forearms',secondary:["lats"],type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Hang from a bar. Log seconds as reps.',cues:["Full grip", "Shoulders slightly engaged", "Breathe", "Add weight when easy"]}},
+  {id:'power-clean',name:'Power Clean',muscle:'traps',secondary:["glutes", "quads", "hamstrings"],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Explosive pull from floor to front rack.',cues:["Bar close to body", "Explode through hips", "Pull under fast", "Catch in quarter squat"]}},
+  {id:'sled-push',name:'Sled Push',muscle:'quads',secondary:["glutes", "calves"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Log metres as reps.',cues:["Low body angle", "Arms locked", "Drive with the legs", "Short powerful steps"]}}
 ];
 
 const MUSCLE_NAMES={'chest':'Chest','lats':'Lats','traps':'Traps','front-delts':'Front Delts','side-delts':'Side Delts','rear-delts':'Rear Delts','biceps':'Biceps','triceps':'Triceps','forearms':'Forearms','abs':'Abs','quads':'Quads','hamstrings':'Hamstrings','glutes':'Glutes','lower-back':'Lower Back','calves':'Calves'};
@@ -1808,8 +1898,8 @@ const VOLUME_LANDMARKS={
 const PROGRAMS=[
   {
     id:'aesthetic-6',
-    name:'Split',
-    author:'DUMBASS House',
+    name:'DUMBASS',
+    author:'DUMBASS',
     description:'The original. 6 training days, built around upper-chest thickness, lat width, and side delts — the V-taper triangle.',
     schedule:[
       {dayNum:1,name:'CHEST & BACK',muscles:'Upper chest · Lat width',subtitle:'Block 2 · Week 4',type:'train',exercises:[
@@ -2295,7 +2385,7 @@ const PROGRAMS=[
   {
     id:'project-405',
     name:'Project 405',
-    author:'DUMBASS House',
+    author:'DUMBASS',
     description:'One goal: 4 plates on bench. Bench touched three times a week — heavy, technique, lockout — with triceps and shoulder work stacked underneath it since that’s what actually stalls the number. Back, legs and arms still get trained hard so the rest of you keeps growing while the bench climbs.',
     schedule:[
       {dayNum:1,name:'BENCH — HEAVY',muscles:'Chest · Triceps · Shoulders',subtitle:'Chase the top set',type:'train',exercises:[
@@ -2462,7 +2552,7 @@ function loadDay(idx){
   if(typeof idx!=='number'||!isFinite(idx)||idx<0||idx>=sched.length)idx=0;
   state.currentDayIdx=idx;
   const t=sched[idx];if(!t)return;
-  state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:(Array.isArray(t.exercises)?t.exercises:[]).map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};
+  state.today={dayNum:t.dayNum,name:t.name,muscles:t.muscles,subtitle:t.subtitle,type:t.type,exercises:(Array.isArray(t.exercises)?t.exercises:[]).map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,ss:ex.ss||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''}))};
   restoreLiveSessionIntoToday();save();
 }
 
@@ -2515,15 +2605,18 @@ function ensureLiveSession(){
   state.history.push(session);
   return {idx:state.history.length-1,session};
 }
+// kg lifted: every logged set when we have them, else top set × set count (older data).
+function exVolume(e){
+  if(Array.isArray(e.sets))return e.sets.filter(r=>r.done).reduce((a,r)=>a+(parseFloat(r.kg)||0)*(parseInt(r.reps)||0),0);
+  return (parseFloat(e.topSet&&e.topSet.kg)||0)*(parseInt(e.topSet&&e.topSet.reps)||0)*(parseInt(e.completedSets)||0);
+}
 function liveExerciseKey(ex){return (ex.libId||'')+'::'+(ex.name||'');}
 function recomputeLiveTotals(s){
   let v=0,setsTotal=0;
   s.exercises.forEach(e=>{
     const sets=parseInt(e.completedSets)||0;
     if(sets<=0)return;
-    const kg=parseFloat(e.topSet&&e.topSet.kg)||0;
-    const reps=parseInt(e.topSet&&e.topSet.reps)||0;
-    v+=kg*reps*sets;
+    v+=exVolume(e);
     setsTotal+=sets;
   });
   s.totalVolume=Math.round(v);
@@ -2541,6 +2634,9 @@ function upsertLiveExercise(ex){
     topSet:{kg:ex.topSet&&ex.topSet.kg||'',reps:ex.topSet&&ex.topSet.reps||''},
     topLogged:!!ex.topLogged,
     completedSets:ex.completedSets||0,
+    sets:Array.isArray(ex.sets)?ex.sets.map(r=>({kg:r.kg||'',reps:r.reps||'',done:!!r.done})):undefined,
+    ss:ex.ss||null,
+    skipped:!!ex.skipped,
     done:!!ex.done
   };
   if(idx===-1)s.exercises.push(snap);else s.exercises[idx]=snap;
@@ -2568,6 +2664,7 @@ function restoreLiveSessionIntoToday(){
     if(m){
       ex.topSet={kg:(m.topSet&&m.topSet.kg)||'',reps:(m.topSet&&m.topSet.reps)||''};
       ex.completedSets=m.completedSets||0;
+      if(Array.isArray(m.sets)){ex.sets=m.sets.map(r=>({kg:r.kg||'',reps:r.reps||'',done:!!r.done}));if(ex.sets.length>(ex.targetSets||0))ex.targetSets=ex.sets.length;}
       if(!ex.skipped)ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
       ex.topLogged=(typeof m.topLogged==='boolean')?m.topLogged:!!(m.topSet&&m.topSet.kg);
     }
@@ -2669,30 +2766,13 @@ function autoDayLabel(exercises){
   const muscles=Object.entries(muscleSets).sort((a,b)=>b[1]-a[1]).slice(0,2).map(e=>MUSCLE_NAMES[e[0]]||e[0]).join(' · ');
   return {name,muscles};
 }
-// Once every training day in a freestyle-built split has at least one exercise, the
-// week's worth of logging IS a full plan — say so, once.
-function checkPlanComplete(){
-  const custom=(state.customPrograms||[]).find(p=>p.id===state.activeProgramId);
-  if(!custom||custom.planCompleteShown)return;
-  const sched=getActiveSchedule();
-  const trainDays=sched.filter(d=>d.type==='train');
-  if(!trainDays.length||!trainDays.every(d=>Array.isArray(d.exercises)&&d.exercises.length))return;
-  custom.planCompleteShown=true;
-  custom.description=`Your custom split · ${trainDays.length} training day${trainDays.length===1?'':'s'}. Built from a week of logging.`;
-  toast('Your plan is built — every day is ready');
-}
 // Persist edits to today's exercises BACK to the active program schedule, so changes survive day switches and program reloads.
 function syncTodayToSchedule(){
   if(!state.today||state.today.type==='rest')return;
   const sched=getActiveSchedule();
   const day=sched[state.currentDayIdx];
   if(!day)return;
-  day.exercises=state.today.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null}));
-  if(/^DAY\s*\d+$/i.test((day.name||'').trim())&&day.exercises.length){
-    const auto=autoDayLabel(day.exercises);
-    if(auto){day.name=auto.name;day.muscles=auto.muscles;state.today.name=auto.name;state.today.muscles=auto.muscles;}
-  }
-  checkPlanComplete();
+  day.exercises=state.today.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,ss:ex.ss||null}));
 }
 function save(){
   if(!_suppressCloudPush)state._lastModified=Date.now();
@@ -2810,7 +2890,7 @@ async function cloudInitOnLoad(){
 
 // Manual immediate pull (banner "PULL NOW") for when a device looks behind.
 async function manualCloudPull(){
-  if(!currentUid()){openLogin();return;}
+  if(!currentUid()){openLogin('login');return;}
   if(!window.__acct){toast('Cloud not loaded yet');return;}
   toast('Pulling from cloud…');
   try{
@@ -2841,7 +2921,7 @@ function renderSyncBanner(){
   if(!currentUid()){
     el.className='sync-mini';
     el.style.display='';
-    el.onclick=openLogin;
+    el.onclick=()=>openLogin('login');
     el.innerHTML=`
       <span class="sm-dot" style="color:var(--text-faint)">○</span>
       <span>Not synced · log in to back up</span>
@@ -2869,7 +2949,8 @@ function renderSyncCard(){
     body.innerHTML=`
       <div class="sync-status">NOT SIGNED IN</div>
       <p class="sync-hint" style="margin:0 0 12px">Log in to sync your lifts across phone, web and tablet. Free.</p>
-      <button class="btn-primary" style="width:100%" onclick="openLogin()">LOG IN / CREATE ACCOUNT</button>
+      <button class="btn-primary" style="width:100%;margin-bottom:8px" onclick="openLogin('signup')">CREATE ACCOUNT</button>
+      <button class="btn-secondary" style="width:100%" onclick="openLogin('login')">I HAVE AN ACCOUNT · LOG IN</button>
     `;
     return;
   }
@@ -2889,8 +2970,8 @@ function renderSyncCard(){
 
 // ---- Login modal control ----
 let _loginMode='login'; // 'login' | 'signup'
-function openLogin(){
-  _loginMode='login';
+function openLogin(mode){
+  _loginMode=mode==='signup'?'signup':'login';
   syncLoginRender();
   const m=document.getElementById('login-modal'); if(m)m.classList.add('open');
   setTimeout(()=>{const i=document.getElementById('login-email');if(i)i.focus();},80);
@@ -2927,6 +3008,8 @@ function _setLoginBusy(on){
   if(on){btn.disabled=true;btn.innerHTML='<span class="spin"></span>Working…';}
   else{btn.disabled=false;btn.innerHTML=(_loginMode==='signup'?'CREATE ACCOUNT':'LOG IN');}
 }
+// A cloud call that never answers must not leave the button spinning forever.
+function _withTimeout(pr,ms){return Promise.race([pr,new Promise((_,rej)=>setTimeout(()=>rej(new Error('__net')),ms))]);}
 async function submitLogin(){
   const email=(document.getElementById('login-email').value||'').trim();
   const pw=(document.getElementById('login-pw').value||'');
@@ -2941,7 +3024,7 @@ async function submitLogin(){
   try{
     const key=await _emailKey(email);
     let existing;
-    try{ existing=await window.__acct.read(key); }
+    try{ existing=await _withTimeout(window.__acct.read(key),20000); }
     catch(netErr){ throw new Error('__net'); }
     if(signup){
       if(existing){
@@ -2957,24 +3040,35 @@ async function submitLogin(){
       const pwHash=await _pbkdf2(pw, salt);
       state._lastModified=state._lastModified||Date.now();
       try{
-        await window.__acct.create(key, { email: email.toLowerCase(), salt, pwHash, state: JSON.stringify(state), _lastModified: state._lastModified });
-      }catch(netErr){ throw new Error('__net'); }
+        await _withTimeout(window.__acct.create(key, { email: email.toLowerCase(), salt, pwHash, state: JSON.stringify(state), _lastModified: state._lastModified }),20000);
+      }catch(netErr){ throw new Error(/longer than|too large|size/i.test(String(netErr&&netErr.message))?'__big':'__net'); }
       _session={key, email:email.toLowerCase()}; _saveSession(_session);
       _lastCloudPushAt=Date.now();
       _subscribeAccount(key);
-      closeLogin(); toast('Account created');
+      closeLogin(); toast('Account created · you\'re signed in and synced');
     }else{
-      if(!existing || !existing.salt) throw new Error('Wrong email or password.');
+      if(!existing || !existing.salt){
+        // No account under this email — most likely they meant to create one.
+        _setLoginBusy(false);
+        setLoginMode('signup');
+        const em=document.getElementById('login-email'); if(em)em.value=email;
+        const p=document.getElementById('login-pw'); if(p)p.value=pw;
+        if(err)err.textContent='No account with that email yet. Tap Create account to make one.';
+        return;
+      }
       const pwHash=await _pbkdf2(pw, existing.salt);
       if(pwHash!==existing.pwHash) throw new Error('Wrong email or password.');
       _session={key, email:email.toLowerCase()}; _saveSession(_session);
-      try{ await _syncFromAccount(key); }catch(netErr){ /* logged in locally; sync retries later */ }
+      try{ await _withTimeout(_syncFromAccount(key),20000); }catch(netErr){ /* logged in locally; sync retries later */ }
       _subscribeAccount(key);
       closeLogin(); toast('Logged in');
     }
     renderSyncBanner(); renderSyncCard();
   }catch(e){
-    const msg=(e&&e.message)==='__net'?'Couldn’t reach the cloud. Check your connection and try again.':((e&&e.message)||'Something went wrong.');
+    const m=e&&e.message;
+    const msg=m==='__net'?'Couldn’t reach the cloud. Check your connection and try again.'
+      :m==='__big'?'Your lift history is too big to upload in one go. Tell us and we’ll fix it.'
+      :(m||'Something went wrong.');
     if(err)err.textContent=msg;
   }finally{
     // Re-enable WITHOUT syncLoginRender() — that would wipe the error message.
@@ -3064,81 +3158,6 @@ function exportData(){
     setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
     toast('Backup downloaded');
   }catch(e){toast('Export failed');}
-}
-
-// ============================================================
-// DAILY REMINDERS via .ics calendar subscription
-// Generates 365 daily events at 12:00 with today's training in the title.
-// User taps button → Calendar app opens → "Add" → done forever.
-// No server, no third-party, works on iOS/Android/Desktop calendars.
-// ============================================================
-function _icsEscape(s){return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
-function _icsDateLocal(d){
-  // Floating local time (no Z) — fires at 15:00 (3 PM) wherever the user is
-  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T150000';
-}
-function _icsDateLocalEnd(d){
-  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T150100';
-}
-function buildRemindersIcs(){
-  const sched=getActiveSchedule();
-  const prog=getActiveProgram();
-  const lines=[
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//DUMBASS LIFT//Daily Reminder//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'X-WR-CALNAME:DUMBASS LIFT · Daily Reminder',
-    'X-WR-TIMEZONE:Europe/Oslo',
-    'X-WR-CALDESC:Daily nudge with today\'s training. From DUMBASS LIFT.',
-  ];
-  const today=new Date(); today.setHours(12,0,0,0);
-  const stampUtc=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
-  const dayMs=86400000;
-  for(let i=0;i<365;i++){
-    const d=new Date(today.getTime()+i*dayMs);
-    const wkIdx=(d.getDay()+6)%7; // Mon=0
-    const slot=sched[wkIdx];
-    const isRest=!slot||slot.type==='rest';
-    const trainingName=isRest?'HVILE':(slot.name||'TRAINING');
-    const wd=weekdayShort(wkIdx);
-    const title=isRest?`DUMBASS LIFT · ${wd}: HVILE · Spis. Sov. Voks.`:`DUMBASS LIFT · ${wd}: ${trainingName} — ikke hopp over!`;
-    const quote=DAILY_QUOTES[i % DAILY_QUOTES.length];
-    const desc=isRest?`Hviledag. Kroppen vokser når du ikke trener. Velg én ting du gjør for å bli bedre i morgen.\n\n"${quote.q}"${quote.a?` — ${quote.a}`:''}`:`I dag: ${trainingName}\nMuskler: ${slot.muscles||''}\n\n"${quote.q}"${quote.a?` — ${quote.a}`:''}\n\nÅpne appen: https://istadjacob-png.github.io/dumbass-lift/`;
-    const ymdStr=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    lines.push(
-      'BEGIN:VEVENT',
-      `UID:dumbass-${ymdStr}@dumbass-lift`,
-      `DTSTAMP:${stampUtc}`,
-      `DTSTART:${_icsDateLocal(d)}`,
-      `DTEND:${_icsDateLocalEnd(d)}`,
-      `SUMMARY:${_icsEscape(title)}`,
-      `DESCRIPTION:${_icsEscape(desc)}`,
-      'TRANSP:TRANSPARENT',
-      'BEGIN:VALARM',
-      'TRIGGER:PT0M',
-      'ACTION:DISPLAY',
-      `DESCRIPTION:${_icsEscape(title)}`,
-      'END:VALARM',
-      'END:VEVENT'
-    );
-  }
-  lines.push('END:VCALENDAR');
-  return lines.join('\r\n');
-}
-function downloadReminders(){
-  try{
-    const ics=buildRemindersIcs();
-    const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download=`dumbass-lift-reminders-${new Date().getFullYear()}.ics`;
-    document.body.appendChild(a);a.click();
-    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},300);
-    toast('Reminders downloaded · open the file in Calendar');
-  }catch(e){toast('Couldn\'t generate reminders');}
 }
 
 function importDataFromFile(input){
@@ -3328,7 +3347,7 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
 }
 function dismissIntro(){state.introSeen=true;save();document.getElementById('intro').classList.add('hidden');renderToday();}
 
-function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';renderProgress();}if(name==='profile')renderProfile();if(name==='program'){renderProgram();renderVolume();}if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
+function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';state.historyOpen='';renderProgress();}if(name==='profile')renderProfile();if(name==='program'){renderProgram();renderVolume();}if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
 
 // A day is DONE when you hit Finish on it this week (Monday reset, same as the
 // weekly volume) — or, for splits that aren't 7 days long, within the last
@@ -3352,7 +3371,7 @@ function renderProgram(){
     head.innerHTML=`
       <div class="eyebrow">${trainDays}-Day Split · ${restDays} Rest</div>
       <h1>${prog.name.toUpperCase()}</h1>
-      <div class="sub">${prog.author} · Tap a day to train it</div>
+      <div class="sub">${prog.author&&prog.author.toUpperCase()!==String(prog.name).toUpperCase()?esc(prog.author)+' · ':''}Tap a day to train it</div>
       ${sourceLink}
     `;
   }
@@ -3686,22 +3705,25 @@ function logInline(i){
 }
 // Most recent top set for this exercise from a PRIOR day (not today) — the
 // number to beat for progressive overload.
-function prevTopSet(ex){
+function prevSessionEx(ex){
   const todayK=todayDateKey();
   for(let i=state.history.length-1;i>=0;i--){
     const s=state.history[i];
     if(!s||!s.date||s.date.slice(0,10)===todayK)continue;
     const e=(s.exercises||[]).find(x=>(ex.libId&&x.libId===ex.libId)||x.name===ex.name);
-    if(e&&e.topSet&&(e.topSet.reps||e.topSet.kg))return {kg:e.topSet.kg,reps:e.topSet.reps};
+    if(e&&e.topSet&&(e.topSet.reps||e.topSet.kg))return e;
   }
   return null;
 }
+function prevTopSet(ex){const e=prevSessionEx(ex);return e?{kg:e.topSet.kg,reps:e.topSet.reps}:null;}
 function renderToday(){
   if(!state.today)loadDay(state.currentDayIdx||0);
   const t=state.today;
   const prog=getActiveProgram();
   const pn=document.getElementById('program-current-name');
   if(pn)pn.textContent=prog.name;
+  const tsn=document.getElementById('today-split-name');
+  if(tsn)tsn.textContent=prog.name;
   renderSyncBanner();
   if(t.type==='rest'){showView('rest');return;}
   try{renderAccountability();refreshPushSchedule();}catch(e){}
@@ -3721,11 +3743,9 @@ function renderToday(){
     if(typeof ex.completedSets!=='number'){
       ex.completedSets=ex.done?(ex.targetSets||0):0;
     }
-    if(ex.completedSets>(ex.targetSets||0))ex.completedSets=ex.targetSets||0;
-    if(!ex.skipped)ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+    ensureSets(ex);deriveFromSets(ex);
   });
   const doneCount=exs.filter(e=>e.done).length;
-  document.getElementById('today-count').textContent=`${doneCount} / ${exs.length}`;
   const currentIdx=exs.findIndex(e=>!e.done);
   // Track the open panel by exercise name, not its DOM index — if the list
   // reshapes (day advances, an exercise gets removed/skipped) the same index
@@ -3745,38 +3765,24 @@ function renderToday(){
     else if(i===currentIdx)cls+=' current';
     if(ex.primary)cls+=' primary';
     if(ex.tag==='WARM-UP')cls+=' warmup';
-    const topInfo=(ex.topLogged&&ex.topSet&&(ex.topSet.reps||ex.topSet.kg))?`<span class="ex-top">TOP <b>${topSetLabel(ex.topSet,ex)}</b></span>`:'';
-    let dotsHtml='';
-    for(let d=0;d<(ex.targetSets||0);d++){
-      const filled=d<ex.completedSets;
-      dotsHtml+=`<span class="set-dot${filled?' filled':''}" onclick="event.stopPropagation();toggleSet(${i},${d})" title="Set ${d+1}"></span>`;
-    }
     const _last=prevTopSet(ex);
     const lastHtml=_last?`<span class="ex-last">LAST <b>${topSetLabel(_last,ex)}</b></span>`:`<span class="ex-last new">First time</span>`;
-    const skippedProgress=(ex.completedSets>0)?`<span class="ex-last">${ex.completedSets}/${ex.targetSets} logged<b>${(ex.topSet&&(ex.topSet.kg||ex.topSet.reps))?' · '+topSetLabel(ex.topSet,ex):''}</b></span>`:'';
+    const skippedProgress=(ex.completedSets>0)?`<span class="ex-last">${ex.completedSets} set${ex.completedSets===1?'':'s'} logged<b>${(ex.topSet&&(ex.topSet.kg||ex.topSet.reps))?' · '+topSetLabel(ex.topSet,ex):''}</b></span>`:'';
     const leftMeta=ex.skipped
       ? `<span class="ex-skipped-badge">${ex.completedSets>0?'REST SKIPPED':'SKIPPED'}</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>${skippedProgress}`
-      : `<span class="ex-target">${sxr(ex,' × ')}</span>${lastHtml}`;
+      : `<span class="ex-target">${sxr(ex,' × ')}</span>${ex.ss?`<span class="ex-ss">SUPERSET</span>`:''}${lastHtml}`;
     // Explicit LOG button — don't make people guess that tapping the exercise
     // name opens the weight/reps panel.
-    const logBtn=ex.skipped?'':`<button class="ex-log-btn${ex.topLogged?' done':''}" onclick="event.stopPropagation();toggleInlineLog(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>`;
-    const rightSets=ex.skipped?"":`<div class="ex-sets">${logBtn}<div class="ex-sets-row"><span class="set-dots" onclick="event.stopPropagation()">${dotsHtml}</span><span class="ex-count">${ex.completedSets}/${ex.targetSets}</span></div></div>`;
-    const _bw=isBodyweightEx(ex);
-    const _fk=(ex.topSet&&ex.topSet.kg)?ex.topSet.kg:(_last?_last.kg:'');
-    const _fr=(ex.topLogged&&ex.topSet)?(ex.topSet.reps||''):'';
-    const _kgPlaceholder=_bw?'BW':(_last&&_last.kg?_last.kg:'kg');
+    const logBtn=ex.skipped?'':`<button class="ex-log-btn${ex.done?' done':''}" onclick="event.stopPropagation();toggleInlineLog(${i})">${ex.done?'✓ DONE':'LOG'}</button>`;
+    const rightSets=ex.skipped?"":`<div class="ex-sets">${logBtn}</div>`;
     const inlineHtml=ex.skipped?'':`<div class="inline-log" id="inline-${i}">
-      <p class="il-hint">Log your top set — the heaviest one — to track progress</p>
-      <div class="il-row">
-        <div class="il-field"><label>${_bw?'ADDED · KG':'WEIGHT · KG'}</label><input class="il-input" id="il-kg-${i}" type="number" inputmode="decimal" placeholder="${_kgPlaceholder}" value="${_fk}" autocomplete="off" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
-        <div class="il-field"><label>REPS</label><input class="il-input" id="il-reps-${i}" type="number" inputmode="numeric" placeholder="${_last?_last.reps:'reps'}" value="${_fr}" autocomplete="off" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')logInline(${i})"></div>
-        <button class="il-log${ex.topLogged?' done':''}" onclick="event.stopPropagation();logInline(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>
-      </div>
+      <div class="sl-grid" id="setgrid-${i}">${setGridHtml(ex,i)}</div>
       <div class="il-actions">
         <button class="il-act" onclick="event.stopPropagation();openExerciseEdit(${i})">✎ Edit</button>
         <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— ${ex.completedSets>0?'Skip rest':'Skip'}</button>
       </div>
     </div>`;
+    if(ex.ss)cls+=' ss';
     return `<div class="${cls}" data-ex-idx="${i}" onclick="${ex.skipped?`unskipExerciseAt(${i})`:`toggleInlineLog(${i})`}">
       <div class="ex-info">
         <div class="ex-name">${esc(ex.name)}</div>
@@ -3800,7 +3806,119 @@ function renderToday(){
   btn.style.display='';
   btn.disabled=exs.length===0;
   if(exs.length>0&&exs.every(e=>e.done)){btn.textContent='Complete Workout →';btn.classList.remove('partial');}
-  else{btn.textContent=`Finish Workout · ${doneCount}/${exs.length} done`;btn.classList.add('partial');}
+  else{btn.textContent='Finish Workout';btn.classList.add('partial');}
+}
+
+// === SET LOG ===
+// One row per set, every row the same shape: SET · KG · REPS · ✓.
+// Each set is stored on its own so history shows every set and rep.
+function ensureSets(ex){
+  if(!Array.isArray(ex.sets)){
+    // Older data only has a set count + one top set — rebuild rows from that
+    // so nothing already logged disappears.
+    const c=ex.completedSets||0,ts=ex.topSet||{};
+    ex.sets=[];for(let k=0;k<c;k++)ex.sets.push({kg:ts.kg||'',reps:ts.reps||'',done:true});
+  }
+  const n=Math.max(1,parseInt(ex.targetSets)||1);
+  while(ex.sets.length<n)ex.sets.push({kg:'',reps:'',done:false});
+  // Never throw away a logged set just because the target went down.
+  while(ex.sets.length>n&&!ex.sets[ex.sets.length-1].done)ex.sets.pop();
+  if(ex.sets.length>n)ex.targetSets=ex.sets.length;
+}
+// Keep completedSets / topSet (used by PRs, progress charts, volume) in step with the rows.
+function deriveFromSets(ex){
+  const done=(ex.sets||[]).filter(r=>r.done);
+  ex.completedSets=done.length;
+  const bw=isBodyweightEx(ex);
+  let best=null;
+  done.forEach(r=>{
+    if(!best){best=r;return;}
+    const kg=parseFloat(r.kg)||0,bkg=parseFloat(best.kg)||0,rp=parseInt(r.reps)||0,brp=parseInt(best.reps)||0;
+    if(bw?(rp>brp||(rp===brp&&kg>bkg)):(kg>bkg||(kg===bkg&&rp>brp)))best=r;
+  });
+  ex.topSet=best?{kg:best.kg,reps:best.reps}:{kg:'',reps:''};
+  ex.topLogged=!!best;
+  if(!ex.skipped)ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
+}
+// Grey hint numbers for a row: the set above it, else the same set last session.
+function setSuggestion(ex,s){
+  for(let k=s-1;k>=0;k--){const r=ex.sets[k];if(r&&(r.kg||r.reps))return {kg:r.kg||'',reps:r.reps||''};}
+  const prev=prevSessionEx(ex);
+  if(prev){
+    const ps=Array.isArray(prev.sets)?(prev.sets.filter(r=>r.done)[s]||prev.sets.filter(r=>r.done).slice(-1)[0]):null;
+    if(ps)return {kg:ps.kg||'',reps:ps.reps||''};
+    if(prev.topSet)return {kg:prev.topSet.kg||'',reps:prev.topSet.reps||''};
+  }
+  return {kg:'',reps:''};
+}
+function setGridHtml(ex,i){
+  const bw=isBodyweightEx(ex);
+  const rows=ex.sets.map((r,s)=>{
+    const sug=setSuggestion(ex,s);
+    const kgPh=sug.kg||(bw?'BW':'kg');
+    const rPh=sug.reps||'reps';
+    return `<div class="sl-row${r.done?' done':''}">
+      <span class="sl-n">${s+1}</span>
+      <input class="sl-in" id="sl-kg-${i}-${s}" type="number" inputmode="decimal" placeholder="${esc(String(kgPh))}" data-sug="${esc(String(sug.kg||''))}" value="${esc(String(r.kg||''))}" autocomplete="off" onclick="event.stopPropagation()" oninput="setField(${i},${s},'kg',this.value)">
+      <input class="sl-in" id="sl-reps-${i}-${s}" type="number" inputmode="numeric" placeholder="${esc(String(rPh))}" data-sug="${esc(String(sug.reps||''))}" value="${esc(String(r.reps||''))}" autocomplete="off" onclick="event.stopPropagation()" oninput="setField(${i},${s},'reps',this.value)" onkeydown="if(event.key==='Enter'){this.blur();logSet(${i},${s})}">
+      <button class="sl-ok" onclick="event.stopPropagation();logSet(${i},${s})" title="${r.done?'Undo this set':'Log this set'}">✓</button>
+    </div>`;
+  }).join('');
+  return `<div class="sl-head"><span>SET</span><span>${bw?'+KG':'KG'}</span><span>REPS</span><span></span></div>${rows}
+    <button class="sl-add" onclick="event.stopPropagation();addSet(${i})">+ Add set</button>`;
+}
+function setField(i,s,field,v){
+  const ex=state.today.exercises[i];if(!ex||!ex.sets||!ex.sets[s])return;
+  ex.sets[s][field]=(v||'').trim();
+  if(ex.sets[s].done){deriveFromSets(ex);upsertLiveExercise(ex);}
+  save();
+}
+function logSet(i,s){
+  const ex=state.today.exercises[i];if(!ex)return;
+  ensureSets(ex);
+  const r=ex.sets[s];if(!r)return;
+  if(r.done){r.done=false;}
+  else{
+    const kgEl=document.getElementById(`sl-kg-${i}-${s}`),rEl=document.getElementById(`sl-reps-${i}-${s}`);
+    const kg=((kgEl&&kgEl.value)||(kgEl&&kgEl.dataset.sug)||'').trim();
+    const reps=((rEl&&rEl.value)||(rEl&&rEl.dataset.sug)||'').trim();
+    if(!reps){toast('Enter your reps');if(rEl)rEl.focus();return;}
+    if(!isBodyweightEx(ex)&&!kg){toast('Enter the weight');if(kgEl)kgEl.focus();return;}
+    r.kg=kg;r.reps=reps;r.done=true;
+    if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}
+  }
+  deriveFromSets(ex);
+  if(ex.completedSets>0)upsertLiveExercise(ex);else removeLiveExercise(ex);
+  save();
+  refreshSetLog(i);
+}
+function addSet(i){
+  const ex=state.today.exercises[i];if(!ex)return;
+  ex.targetSets=Math.min(12,(parseInt(ex.targetSets)||0)+1);
+  ensureSets(ex);deriveFromSets(ex);
+  syncTodayToSchedule();
+  if(ex.completedSets>0)upsertLiveExercise(ex);
+  save();
+  refreshSetLog(i);
+  const t=document.querySelector(`.exercise[data-ex-idx="${i}"] .ex-target`);if(t)t.textContent=sxr(ex,' × ');
+}
+// Patch one exercise's rows + card instead of re-rendering the list (keeps the
+// panel open and doesn't replay the list's entrance animation).
+function refreshSetLog(i){
+  const exs=state.today.exercises,ex=exs[i];
+  const grid=document.getElementById('setgrid-'+i);
+  const card=document.querySelector(`.exercise[data-ex-idx="${i}"]`);
+  if(!grid||!card){renderToday();return;}
+  grid.innerHTML=setGridHtml(ex,i);
+  card.classList.toggle('done',!!ex.done&&!ex.skipped);
+  const lb=card.querySelector('.ex-log-btn');
+  if(lb){lb.textContent=ex.done?'✓ DONE':'LOG';lb.classList.toggle('done',!!ex.done);}
+  const skipBtn=document.querySelector(`#inline-${i} .il-act[onclick*="skipExerciseAt"]`);
+  if(skipBtn)skipBtn.textContent=ex.completedSets>0?'— Skip rest':'— Skip';
+  const currentIdx=exs.findIndex(e=>!e.done);
+  document.querySelectorAll('.exercise.current').forEach(el=>{if(parseInt(el.dataset.exIdx,10)!==currentIdx)el.classList.remove('current');});
+  if(currentIdx>=0){const c=document.querySelector(`.exercise[data-ex-idx="${currentIdx}"]`);if(c&&!c.classList.contains('skipped'))c.classList.add('current');}
+  _updateTodayFooter(exs);
 }
 
 function toggleDetailCustomize(){
@@ -3861,14 +3979,11 @@ function updateExerciseCard(i){
 // Shared tail of both targeted-patch functions below: the "X / Y done" chip
 // and the complete-workout button.
 function _updateTodayFooter(exs){
-  const doneCount=exs.filter(e=>e.done).length;
-  const countChip=document.getElementById('today-count');
-  if(countChip)countChip.textContent=`${doneCount} / ${exs.length}`;
   const btn=document.getElementById('complete-btn');
   if(btn){
     btn.disabled=exs.length===0;
     if(exs.length>0&&exs.every(e=>e.done)){btn.textContent='Complete Workout →';btn.classList.remove('partial');}
-    else{btn.textContent=`Finish Workout · ${doneCount}/${exs.length} done`;btn.classList.add('partial');}
+    else{btn.textContent='Finish Workout';btn.classList.add('partial');}
   }
 }
 
@@ -4123,7 +4238,7 @@ function unskipExerciseAt(i){
 // "3 × 10" when reps were set, just "3 sets" when the user left reps blank.
 function sxr(ex,sep){const r=(ex.targetReps||'').toString().trim();return (r&&r!=='—')?`${ex.targetSets}${sep}${r}`:`${ex.targetSets} sets`;}
 
-function removeExAt(i){const ex=state.today.exercises[i];if(!ex)return;if(!confirm(`Remove ${ex.name}?`))return;state.today.exercises.splice(i,1);syncTodayToSchedule();save();renderToday();}
+function removeExAt(i){const ex=state.today.exercises[i];if(!ex)return;if(!confirm(`Remove ${ex.name}?`))return;state.today.exercises.splice(i,1);if(ex.ss){const left=state.today.exercises.filter(e=>e.ss===ex.ss);if(left.length<2)left.forEach(e=>e.ss=null);}syncTodayToSchedule();save();renderToday();}
 
 // EDIT sheet — one place to change sets, swap, or delete a logged exercise.
 function openExerciseEdit(i){
@@ -4133,6 +4248,7 @@ function openExerciseEdit(i){
   document.getElementById('ee-name').textContent=ex.name;
   document.getElementById('ee-sets').value=ex.targetSets||3;
   document.getElementById('ee-reps').value=ex.targetReps||'';
+  document.getElementById('ee-ss-btn').textContent=ex.ss?'Unlink superset':'+ Superset';
   document.getElementById('edit-ex-modal').classList.add('open');
 }
 function closeExerciseEdit(){
@@ -4148,7 +4264,9 @@ function eeBumpSets(d){
 function eeUpdateSets(v){
   const ex=state.today.exercises[state.currentExerciseIdx];if(!ex)return;
   ex.targetSets=Math.max(1,Math.min(12,parseInt(v)||1));
-  if((ex.completedSets||0)>ex.targetSets)ex.completedSets=ex.targetSets;
+  ensureSets(ex);deriveFromSets(ex);
+  if(ex.completedSets>0)upsertLiveExercise(ex);
+  const el=document.getElementById('ee-sets');if(el&&String(el.value)!==String(ex.targetSets)&&document.activeElement!==el)el.value=ex.targetSets;
   syncTodayToSchedule();save();
 }
 function eeUpdateReps(v){
@@ -4159,6 +4277,21 @@ function eeUpdateReps(v){
 function eeSwap(){
   document.getElementById('edit-ex-modal').classList.remove('open');
   swapExerciseAt(state.currentExerciseIdx);
+}
+function eeSuperset(){
+  const exs=state.today.exercises,ex=exs[state.currentExerciseIdx];if(!ex)return;
+  document.getElementById('edit-ex-modal').classList.remove('open');
+  if(ex.ss){
+    const id=ex.ss;ex.ss=null;
+    // A superset of one isn't a superset — unlink the partner too.
+    const left=exs.filter(e=>e.ss===id);if(left.length<2)left.forEach(e=>e.ss=null);
+    syncTodayToSchedule();save();renderToday();toast('Superset unlinked');
+    return;
+  }
+  libMode='superset';
+  document.getElementById('lib-title').innerHTML='PAIR <span class="accent">WITH</span>';
+  document.getElementById('lib-search').value='';filterLib();
+  document.getElementById('lib-modal').classList.add('open');
 }
 function eeDelete(){
   document.getElementById('edit-ex-modal').classList.remove('open');
@@ -4183,11 +4316,7 @@ function completeWorkout(){
   exs.forEach(ex=>{
     const sets=ex.completedSets||0;
     if(sets<=0)return;
-    if(ex.topSet){
-      const kg=parseFloat(ex.topSet.kg)||0;
-      const reps=parseInt(ex.topSet.reps)||0;
-      totalVolume+=kg*reps*sets;
-    }
+    totalVolume+=exVolume(ex);
     totalSets+=sets;
   });
   
@@ -4257,26 +4386,7 @@ function renderProgHistory(){
   const q=state.historySearch.toLowerCase();
 
   const sorted=[...state.history].reverse();
-  // The "Last Session" hero shows the most recent *completed* session, so an
-  // in-progress live session doesn't masquerade as the last one finished.
-  const last=sorted.find(h=>!h.partial)||sorted[0];
-  const lastPrSet=new Set((last.prs||[]).map(p=>p.name));
-  const lastLifts=last.exercises
-    .filter(ex=>ex.topSet&&(ex.topSet.reps||ex.topSet.kg))
-    .map(ex=>{
-      const isPr=lastPrSet.has(ex.name);
-      return `<div class="hl-lift${isPr?' is-pr':''}">${esc(ex.name)} · <b>${topSetLabel(ex.topSet,ex)}</b></div>`;
-    }).join('');
-  const lastD=new Date(last.date);
-  const lastDateStr=lastD.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
-  const lastHtml=`<div class="hist-last">
-    <div class="hl-eyebrow">Last Session · ${lastDateStr}</div>
-    <div class="hl-title">DAY ${last.dayNum} · ${esc(last.name.toUpperCase())}</div>
-    <div class="hl-lifts">${lastLifts}</div>
-  </div>`;
-
-  // Compact list — excludes the last session (already shown above) unless searching,
-  // where the full history including the last session is searchable.
+  // Every session starts closed — it only opens when you tap it.
   const filtered=q
     ?sorted.filter(h=>{
         if(h.name.toLowerCase().includes(q))return true;
@@ -4285,43 +4395,57 @@ function renderProgHistory(){
         if(dateStr.includes(q))return true;
         return h.exercises.some(ex=>ex.name.toLowerCase().includes(q));
       })
-    :sorted.filter(h=>h.date!==last.date);
+    :sorted;
 
   const rowsHtml=filtered.length===0
-    ?'<div class="empty-state">No sessions match "'+state.historySearch+'"</div>'
+    ?'<div class="empty-state">No sessions match "'+esc(state.historySearch)+'"</div>'
     :filtered.map(h=>{
         const d=new Date(h.date);
-        const dateStr=d.toLocaleDateString('en',{month:'short',day:'numeric'}).toUpperCase();
+        const dateStr=d.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
         const isOpen=state.historyOpen===h.date;
         const hasPr=h.prs&&h.prs.length>0;
         const prSet=new Set((h.prs||[]).map(p=>p.name));
         const partialDot=h.partial?'<span class="partial-dot" title="In progress"></span>':'';
         const meta=h.partial
-          ?`${partialDot}LIVE · <b>${h.exercises.filter(e=>e.topSet&&(e.topSet.reps||e.topSet.kg)).length}</b> LOGGED`
-          :(hasPr?`<b>${h.prs.length}</b> PR`:`${h.totalSets} SETS`);
+          ?`${partialDot}LIVE · <b>${h.totalSets||0}</b> SETS`
+          :(hasPr?`<b>${h.prs.length}</b> PR · ${h.totalSets||0} SETS`:`${h.totalSets||0} SETS`);
         const row=`<div class="hist-row${isOpen?' open':''}" onclick="toggleHistoryRow('${h.date}')">
           <div class="hr-date">${dateStr}</div>
-          <div class="hr-day">Day ${h.dayNum} · ${esc(h.name)}</div>
+          <div class="hr-day">${esc(h.name)}</div>
           <div class="hr-meta">${meta}</div>
         </div>`;
         if(!isOpen)return row;
         const safeDate=h.date.replace(/'/g,'');
         const lifts=h.exercises
-          .filter(ex=>ex.topSet&&(ex.topSet.reps||ex.topSet.kg))
+          .filter(ex=>(ex.completedSets||0)>0||(ex.topSet&&(ex.topSet.reps||ex.topSet.kg))||ex.skipped)
           .map(ex=>{
             const isPr=prSet.has(ex.name);
             const key=(ex.libId||'')+'::'+(ex.name||'');
-            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${esc(ex.name)}${isPr?' · PR':''}</span><span class="t">${sxr(ex,'×')}</span><span class="v">${topSetLabel(ex.topSet,ex).toUpperCase()}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this set">×</button></div>`;
+            let setsHtml;
+            if(Array.isArray(ex.sets)&&ex.sets.some(r=>r.done)){
+              setsHtml=ex.sets.filter(r=>r.done).map((r,k)=>`<div class="hd-set"><span class="sn">SET ${k+1}</span><span class="sv">${topSetLabel(r,ex).toUpperCase()}</span></div>`).join('');
+            }else if(ex.topSet&&(ex.topSet.reps||ex.topSet.kg)){
+              // Older sessions only stored the heaviest set + how many sets were done.
+              setsHtml=`<div class="hd-set"><span class="sn">TOP SET</span><span class="sv">${topSetLabel(ex.topSet,ex).toUpperCase()}</span></div><div class="hd-set"><span class="sn">SETS DONE</span><span class="sv">${ex.completedSets||0}</span></div>`;
+            }else{
+              setsHtml=`<div class="hd-set"><span class="sn">${ex.skipped?'SKIPPED':'NO SETS LOGGED'}</span><span class="sv"></span></div>`;
+            }
+            const vol=Math.round(exVolume(ex));
+            return `<div class="hd-ex${isPr?' is-pr':''}">
+              <div class="hd-ex-head"><span class="n">${esc(ex.name)}${isPr?' · PR':''}${ex.ss?' · SUPERSET':''}</span><span class="t">${vol?vol.toLocaleString('en')+' KG':''}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this lift">×</button></div>
+              ${setsHtml}
+            </div>`;
           }).join('');
+        const timeStr=d.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+        const summary=`<div class="hd-summary">${timeStr} · ${h.totalSets||0} sets · ${(h.totalVolume||0).toLocaleString('en')} kg total</div>`;
         const liveTag=h.partial?'<span class="hd-tag">● Logging in progress</span>':'<span class="hd-tag">● Completed</span>';
         const foot=`<div class="hd-foot">${liveTag}<button class="hd-del-all" onclick="event.stopPropagation();deleteHistorySession('${safeDate}')">Delete session</button></div>`;
-        return row+`<div class="hist-detail">${lifts||'<div style="color:var(--text-faint);font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase">No lifts logged</div>'}${foot}</div>`;
+        return row+`<div class="hist-detail">${summary}${lifts||'<div style="color:var(--text-faint);font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase">No lifts logged</div>'}${foot}</div>`;
       }).join('');
 
   c.innerHTML=`
-    ${lastHtml}
     <input type="text" class="search-input" id="history-search" placeholder="Search by date, day, or lift..." value="${state.historySearch}" oninput="updateHistorySearch(this.value)">
-    <div class="hist-section-label">All Sessions · ${filtered.length}${q?' / '+sorted.length:''}</div>
+    <div class="hist-section-label">All Sessions · ${filtered.length}${q?' / '+sorted.length:''} · tap one to see every set</div>
     ${rowsHtml}
   `;
 }
@@ -4352,6 +4476,7 @@ function deleteHistoryLift(date,key){
         ex.topLogged=false;
         ex.topSet={kg:'',reps:''};
         ex.completedSets=0;
+        ex.sets=null;
         ex.done=false;
       }
     });
@@ -4374,6 +4499,7 @@ function deleteHistorySession(date){
       ex.topLogged=false;
       ex.topSet={kg:'',reps:''};
       ex.completedSets=0;
+      ex.sets=null;
       ex.done=false;
     });
   }
@@ -4500,7 +4626,7 @@ function filterLiftGrid(){
   }
   const pool=_liftGridAll.filter(l=>_liftSearchText(l).includes(q));
   const cards=pool.map(l=>{
-    const{bw,sessions}=_liftSessions(l,state.progMetric==='e1rm'?'e1rm':'top');
+    const{bw,sessions}=_liftSessions(l,'top');
     if(!sessions.length)return'';
     const last=sessions[sessions.length-1];
     const best=Math.max(...sessions.map(s=>s.val));
@@ -4534,9 +4660,7 @@ function renderLiftDetail(c){
   const lift=state.selectedLift;
   const bw=isBodyweightEx(lift);
   // Loaded lifts toggle Top Set vs Epley est-1RM. Bodyweight tracks reps — no toggle.
-  let metric=state.progMetric||'top';
-  if(metric!=='top'&&metric!=='e1rm')metric='top';
-  if(state.progMetric!==metric)state.progMetric=metric;
+  const metric='top';
 
   const{sessions}=_liftSessions(lift,metric);
   const unit=bw?'':'kg';
@@ -4578,10 +4702,6 @@ function renderLiftDetail(c){
       <div class="lp-chev">▾</div>
     </div>
 
-    ${bw?'':`<div class="metric-toggle">
-      <button class="mt ${metric==='top'?'active':''}" onclick="setMetric('top')">Top Set</button>
-      <button class="mt ${metric==='e1rm'?'active':''}" onclick="setMetric('e1rm')">Est 1RM</button>
-    </div>`}
 
     <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;gap:8px">
       <div class="big-stat"><div class="l">${peakLabel}</div><div class="v" style="font-size:24px"><span class="accent">${fmt(peak)}</span>${unit?`<span class="unit">${unit}</span>`:''}</div></div>
@@ -4811,7 +4931,7 @@ function openProgramPicker(){
   }).join('');
   const addCard=`<div class="program-card add-custom" onclick="openSplitBuilder()">
       <div class="pc-head"><div class="pc-name">+ BUILD YOUR OWN</div></div>
-      <div class="pc-desc">Just log what you do. Every day names itself once you've logged a few — a full week and you've got a plan.</div>
+      <div class="pc-desc">Name it, set the days, pick the exercises. All yours.</div>
     </div>`;
   const importCard=`<div class="program-card import-link" onclick="openImportLink()">
       <div class="pc-head"><div class="pc-name">▶ FROM A VIDEO</div></div>
@@ -4827,14 +4947,11 @@ function closeProgramModalBg(e){if(e.target.id==='program-modal')closeProgramMod
 
 let splitBuilder={name:'',days:[]};
 function openSplitBuilder(){
-  splitBuilder={name:'My Split',days:[
-    {name:'DAY 1',rest:false},
-    {name:'DAY 2',rest:false},
-    {name:'DAY 3',rest:false},
-    {name:'DAY 4',rest:false},
-    {name:'DAY 5',rest:false},
-    {name:'DAY 6',rest:false},
-    {name:'REST',rest:true},
+  splitBuilder={name:'',days:[
+    {name:'',rest:false,exercises:[]},
+    {name:'',rest:false,exercises:[]},
+    {name:'',rest:false,exercises:[]},
+    {name:'REST',rest:true,exercises:[]},
   ]};
   document.getElementById('program-modal').classList.remove('open');
   document.getElementById('split-builder-modal').classList.add('open');
@@ -4846,21 +4963,33 @@ function closeSplitBuilder(){
 function renderSplitBuilder(){
   document.getElementById('sb-name').value=splitBuilder.name;
   const list=document.getElementById('sb-days');
-  list.innerHTML=splitBuilder.days.map((d,i)=>`<div class="sb-day${d.rest?' rest':''}">
+  list.innerHTML=splitBuilder.days.map((d,i)=>{
+    const exs=d.rest?'':`<div class="sb-exs">${(d.exercises||[]).map((e,k)=>`<div class="sb-ex"><span class="sb-ex-n">${esc(e.name)}</span><span class="sb-ex-t">${sxr(e,'×')}</span><button class="sb-ex-rm" onclick="removeBuilderEx(${i},${k})" title="Remove">×</button></div>`).join('')}<button class="sb-ex-add" onclick="openBuilderLib(${i})">+ Exercise</button></div>`;
+    return `<div class="sb-day-wrap"><div class="sb-day${d.rest?' rest':''}">
     <div class="sb-day-num">${i+1}</div>
-    <input class="sb-day-name" type="text" value="${(d.name||'').replace(/"/g,'&quot;')}" placeholder="Day name" oninput="splitBuilder.days[${i}].name=this.value">
+    <input class="sb-day-name" type="text" value="${(d.name||'').replace(/"/g,'&quot;')}" placeholder="${d.rest?'Rest':'Name this day, e.g. Push'}" oninput="splitBuilder.days[${i}].name=this.value">
     <button class="sb-rest-toggle${d.rest?' on':''}" onclick="toggleBuilderRest(${i})" title="Toggle rest day">REST</button>
     <button class="sb-day-rm" onclick="removeBuilderDay(${i})" title="Remove">×</button>
-  </div>`).join('');
+  </div>${exs}</div>`;
+  }).join('');
 }
+let builderDayIdx=null;
+function openBuilderLib(i){
+  builderDayIdx=i;libMode='builder';
+  document.getElementById('lib-title').innerHTML=`ADD TO <span class="accent">DAY ${i+1}</span>`;
+  document.getElementById('lib-search').value='';filterLib();
+  document.getElementById('lib-modal').classList.add('open');
+}
+function removeBuilderEx(i,k){splitBuilder.days[i].exercises.splice(k,1);renderSplitBuilder();}
 function addBuilderDay(rest){
-  splitBuilder.days.push({name:rest?'REST':'NEW DAY',rest:!!rest});
+  splitBuilder.days.push({name:rest?'REST':'',rest:!!rest,exercises:[]});
   renderSplitBuilder();
 }
 function toggleBuilderRest(i){
   const d=splitBuilder.days[i];
   d.rest=!d.rest;
   if(d.rest&&!/rest/i.test(d.name))d.name='REST';
+  if(!d.rest&&/^rest$/i.test(d.name))d.name='';
   renderSplitBuilder();
 }
 function removeBuilderDay(i){
@@ -4875,20 +5004,23 @@ function saveCustomSplit(){
   const trainCount=splitBuilder.days.filter(d=>!d.rest).length;
   if(trainCount<1){toast('Need at least one training day');return;}
   const id='custom-'+Date.now().toString(36);
-  const schedule=splitBuilder.days.map((d,i)=>({
-    dayNum:i+1,
-    name:(d.name||(d.rest?'REST':'DAY '+(i+1))).toUpperCase(),
-    muscles:d.rest?'Recovery':'',
-    subtitle:'',
-    type:d.rest?'rest':'train',
-    exercises:[]
-  }));
+  const schedule=splitBuilder.days.map((d,i)=>{
+    const exs=d.rest?[]:(d.exercises||[]).map(e=>({libId:e.libId,name:e.name,targetSets:e.targetSets,targetReps:e.targetReps,primary:false,tag:null}));
+    const auto=exs.length?autoDayLabel(exs):null;
+    return {
+      dayNum:i+1,
+      name:((d.name||'').trim()||(d.rest?'REST':'DAY '+(i+1))).toUpperCase(),
+      muscles:d.rest?'Recovery':(auto?auto.muscles:''),
+      subtitle:'',
+      type:d.rest?'rest':'train',
+      exercises:exs
+    };
+  });
   const restCount=splitBuilder.days.filter(d=>d.rest).length;
   const prog={
     id,name:name.toUpperCase(),
     author:'YOU',
-    description:`Your custom split · ${trainCount} training day${trainCount===1?'':'s'}${restCount?' · '+restCount+' rest':''}. Log a day and its name fills in — a full week and you've got a plan.`,
-    planCompleteShown:false,
+    description:`Your custom split · ${trainCount} training day${trainCount===1?'':'s'}${restCount?' · '+restCount+' rest':''}.`,
     schedule
   };
   if(!Array.isArray(state.customPrograms))state.customPrograms=[];
@@ -5352,19 +5484,19 @@ function openSetsReps(libId,mode){
   // tracking what they actually did. Swap carries over whatever was already
   // there; a fresh add starts blank and the user decides.
   let sets,reps;
-  if(mode==='swap'){
+  if(mode==='swap'||mode==='superset'){
     const cur=state.today.exercises[state.currentExerciseIdx];
-    sets=(cur&&cur.targetSets)||3;reps=(cur&&cur.targetReps)||'';
+    sets=(cur&&cur.targetSets)||3;reps=mode==='swap'?((cur&&cur.targetReps)||''):'';
   }else{
     sets=3;reps='';
   }
   pendingEx={libId:libEx.id,mode:mode,name:libEx.name};
   document.getElementById('lib-modal').classList.remove('open');
-  document.getElementById('sr-title').innerHTML=(mode==='swap'?'SWAP <span class="accent">IN</span>':'NEW <span class="accent">LIFT</span>');
+  document.getElementById('sr-title').innerHTML=(mode==='swap'?'SWAP <span class="accent">IN</span>':mode==='superset'?'SUPER<span class="accent">SET</span>':'NEW <span class="accent">LIFT</span>');
   document.getElementById('sr-exname').textContent=libEx.name;
   document.getElementById('sr-sets').value=sets;
   document.getElementById('sr-reps').value=reps;
-  document.getElementById('sr-confirm').textContent=(mode==='swap'?'Swap it in →':'Add to today →');
+  document.getElementById('sr-confirm').textContent=(mode==='swap'?'Swap it in →':mode==='superset'?'Pair them up →':mode==='builder'?'Add to day →':'Add to today →');
   document.getElementById('setsreps-modal').classList.add('open');
 }
 function srBump(d){const el=document.getElementById('sr-sets');let v=(parseInt(el.value)||3)+d;v=Math.max(1,Math.min(12,v));el.value=v;}
@@ -5373,15 +5505,30 @@ function confirmSetsReps(){
   const libEx=getLibrary().find(e=>e.id===pendingEx.libId);if(!libEx){pendingEx=null;return;}
   let sets=parseInt(document.getElementById('sr-sets').value)||3;sets=Math.max(1,Math.min(12,sets));
   let reps=(document.getElementById('sr-reps').value||'').trim();
+  if(pendingEx.mode==='builder'){
+    const d=splitBuilder.days[builderDayIdx];
+    if(d){d.exercises=d.exercises||[];d.exercises.push({libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps});}
+    pendingEx=null;
+    document.getElementById('setsreps-modal').classList.remove('open');
+    renderSplitBuilder();
+    return;
+  }
   if(pendingEx.mode==='swap'){
     const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur){pendingEx=null;return;}
     if(typeof removeLiveExercise==='function')removeLiveExercise(cur);
-    state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:cur.primary||false,tag:cur.tag||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};
-    toast(`Swapped to ${libEx.name} · ${sets}×${reps}`);
+    state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:cur.primary||false,tag:cur.tag||null,ss:cur.ss||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};
+    toast(`Swapped to ${libEx.name}`);
+  }else if(pendingEx.mode==='superset'){
+    // Pair with the lift being edited: both share a superset id and sit next to each other.
+    const exs=state.today.exercises,idx=state.currentExerciseIdx,cur=exs[idx];if(!cur){pendingEx=null;return;}
+    if(!cur.ss)cur.ss='ss-'+Date.now().toString(36);
+    let at=idx+1;while(at<exs.length&&exs[at].ss===cur.ss)at++;
+    exs.splice(at,0,{libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:false,tag:null,ss:cur.ss,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});
+    toast(`Superset: ${cur.name} + ${libEx.name}`);
   }else{
     if(state.today.type==='rest'){toast('Not a training day');pendingEx=null;return;}
     state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:false,tag:null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});
-    toast(`${libEx.name} added · ${sets}×${reps}`);
+    toast(`${libEx.name} added`);
   }
   pendingEx=null;
   syncTodayToSchedule();save();
@@ -5667,7 +5814,7 @@ function registerSW(){
 }
 async function enableNotifications(){
   if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
-    toast("This device can't do app notifications — use the calendar reminder below");return;
+    toast("This device can't do app notifications. On iPhone, add the app to your Home Screen first");return;
   }
   try{
     const perm=await Notification.requestPermission();
