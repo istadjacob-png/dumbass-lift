@@ -1594,7 +1594,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-23.3';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-23.4';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3765,11 +3765,12 @@ function renderToday(){
     if(ex.primary)cls+=' primary';
     if(ex.tag==='WARM-UP')cls+=' warmup';
     const _last=prevTopSet(ex);
-    const lastHtml=_last?`<span class="ex-last">LAST <b>${topSetLabel(_last,ex)}</b></span>`:`<span class="ex-last new">First time</span>`;
+    // Under the name: just "First time", or what you did last time.
+    const lastHtml=_last?`<span class="ex-last">Last: <b>${topSetLabel(_last,ex)} reps</b></span>`:`<span class="ex-last new">First time</span>`;
     const skippedProgress=(ex.completedSets>0)?`<span class="ex-last">${ex.completedSets} set${ex.completedSets===1?'':'s'} logged<b>${(ex.topSet&&(ex.topSet.kg||ex.topSet.reps))?' · '+topSetLabel(ex.topSet,ex):''}</b></span>`:'';
     const leftMeta=ex.skipped
       ? `<span class="ex-skipped-badge">${ex.completedSets>0?'REST SKIPPED':'SKIPPED'}</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>${skippedProgress}`
-      : `<span class="ex-target">${sxr(ex,' × ')}</span>${ex.ss?`<span class="ex-ss">SUPERSET</span>`:''}${lastHtml}`;
+      : lastHtml;
     // Explicit LOG button — don't make people guess that tapping the exercise
     // name opens the weight/reps panel.
     const logBtn=ex.skipped?'':`<button class="ex-log-btn${ex.done?' done':''}" onclick="event.stopPropagation();toggleInlineLog(${i})">${ex.done?'✓ DONE':'LOG'}</button>`;
