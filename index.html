@@ -1077,7 +1077,6 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .sl-row.done .sl-ok{background:#000;color:#FFF}
 .sl-row.done .sl-in{background:#F2F2F2;border-color:#F2F2F2}
 .sl-row.done .sl-n{color:#FF3300}
-.sl-add{display:block;width:100%;margin-top:2px;background:none;border:1px dashed var(--border-soft);border-radius:2px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:9px}
 .ex-ss{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;font-weight:700;color:#FFF;background:#FF3300;padding:2px 6px;border-radius:2px}
 .exercise.ss{border-left:4px solid #FF3300!important}
 
@@ -1442,7 +1441,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   <div class="modal sr-modal">
     <h2>EDIT <span class="accent">LIFT</span></h2>
     <div class="sr-exname" id="ee-name">Exercise</div>
-    <div class="sr-hint">Change the sets, swap it out, or drop it.</div>
+    <div class="sr-hint">Add or remove sets, pair it as a superset, swap it, or drop it.</div>
     <div class="sr-row">
       <div class="sr-field">
         <div class="sr-flabel">Sets</div>
@@ -1595,7 +1594,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-23.2';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-23.3';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3864,8 +3863,7 @@ function setGridHtml(ex,i){
       <button class="sl-ok" onclick="event.stopPropagation();logSet(${i},${s})" title="${r.done?'Undo this set':'Log this set'}">✓</button>
     </div>`;
   }).join('');
-  return `<div class="sl-head"><span>SET</span><span>${bw?'+KG':'KG'}</span><span>REPS</span><span></span></div>${rows}
-    <button class="sl-add" onclick="event.stopPropagation();addSet(${i})">+ Add set</button>`;
+  return `<div class="sl-head"><span>SET</span><span>${bw?'+KG':'KG'}</span><span>REPS</span><span></span></div>${rows}`;
 }
 function setField(i,s,field,v){
   const ex=state.today.exercises[i];if(!ex||!ex.sets||!ex.sets[s])return;
@@ -3891,16 +3889,6 @@ function logSet(i,s){
   if(ex.completedSets>0)upsertLiveExercise(ex);else removeLiveExercise(ex);
   save();
   refreshSetLog(i);
-}
-function addSet(i){
-  const ex=state.today.exercises[i];if(!ex)return;
-  ex.targetSets=Math.min(12,(parseInt(ex.targetSets)||0)+1);
-  ensureSets(ex);deriveFromSets(ex);
-  syncTodayToSchedule();
-  if(ex.completedSets>0)upsertLiveExercise(ex);
-  save();
-  refreshSetLog(i);
-  const t=document.querySelector(`.exercise[data-ex-idx="${i}"] .ex-target`);if(t)t.textContent=sxr(ex,' × ');
 }
 // Patch one exercise's rows + card instead of re-rendering the list (keeps the
 // panel open and doesn't replay the list's entrance animation).
