@@ -146,6 +146,8 @@ input,textarea{user-select:text}
 .exercise.warmup::before{content:'';position:absolute;top:8px;bottom:8px;left:0;width:3px;background:repeating-linear-gradient(180deg,var(--text-faint) 0 3px,transparent 3px 6px);border-radius:0 2px 2px 0}
 .exercise.skipped{opacity:.5;border-style:dashed;background:var(--steel-dark)}
 .exercise.skipped .ex-name{color:var(--text-dim);text-decoration:line-through;text-decoration-thickness:1px}
+.exercise.skipped.partial{opacity:.8;border-style:solid}
+.exercise.skipped.partial .ex-name{text-decoration:none}
 .ex-skipped-badge{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;color:var(--text-dim);background:rgba(255,255,255,.05);padding:2px 8px;border-radius:3px;border:1px solid var(--border)}
 .ex-unskip{background:transparent;border:0;color:var(--cobalt-bright);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;cursor:pointer;padding:2px 6px;margin-left:6px;text-transform:uppercase}
 .ex-unskip:active{transform:scale(.95)}
@@ -1097,11 +1099,6 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .sr-stepper input{flex:1;width:100%;border:none;background:transparent;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--text);height:50px;-moz-appearance:textfield;font-variant-numeric:tabular-nums}
 .sr-stepper input::-webkit-outer-spin-button,.sr-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .sr-reps-input{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--steel-dark);text-align:center;font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--text);height:50px;box-sizing:border-box}
-.sr-quick{display:flex;gap:8px;margin-bottom:20px}
-.sr-quick button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;border:1px solid var(--border-soft);border-radius:10px;background:var(--steel-dark);cursor:pointer}
-.sr-quick button:active{border-color:var(--cobalt-bright);background:var(--cobalt-soft)}
-.sr-quick button b{font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:var(--text);letter-spacing:.02em}
-.sr-quick button span{font-family:'Oswald',sans-serif;font-size:8.5px;letter-spacing:.18em;color:var(--text-faint);text-transform:uppercase;font-weight:600}
 
 /* ============ LIFT PICKER + METRIC TOGGLE (PROGRESS) ============ */
 .lift-picker{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--border);border-left:4px solid var(--cobalt-bright);border-radius:12px;background:var(--steel-dark);cursor:pointer;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
@@ -1229,7 +1226,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <button class="back-btn" onclick="showView('today')">BACK</button>
       <div style="display:flex;gap:14px;align-items:center">
         <button class="btn-ghost" onclick="openSwap()" style="color:var(--cobalt-bright)">SWAP</button>
-        <button class="btn-ghost" onclick="skipCurrentEx()" style="color:var(--text-dim)" title="Skip — no time for this one">SKIP</button>
+        <button class="btn-ghost" id="ex-skip-btn" onclick="skipCurrentEx()" style="color:var(--text-dim)" title="Skip — no time for this one">SKIP</button>
         <button class="btn-ghost" onclick="toggleDetailCustomize()" id="detail-edit-btn" style="color:var(--text);font-size:18px;padding:4px 6px" title="Edit sets / reps">✎</button>
         <button class="btn-ghost" onclick="deleteCurrentEx()" style="color:var(--red)">REMOVE</button>
       </div>
@@ -1382,7 +1379,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   <div class="modal sr-modal">
     <h2 id="sr-title">SET IT <span class="accent">UP</span></h2>
     <div class="sr-exname" id="sr-exname">Exercise</div>
-    <div class="sr-hint">How many sets and reps for this lift?</div>
+    <div class="sr-hint">How many sets? Reps are your call.</div>
     <div class="sr-row">
       <div class="sr-field">
         <div class="sr-flabel">Sets</div>
@@ -1395,15 +1392,39 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <div class="sr-times">×</div>
       <div class="sr-field">
         <div class="sr-flabel">Reps</div>
-        <input id="sr-reps" class="sr-reps-input" type="text" value="8-10" placeholder="8-10">
+        <input id="sr-reps" class="sr-reps-input" type="text" value="" placeholder="e.g. 10">
       </div>
     </div>
-    <div class="sr-quick">
-      <button type="button" onclick="srPreset(4,'6-8')"><b>4 × 6-8</b><span>Strength</span></button>
-      <button type="button" onclick="srPreset(3,'8-12')"><b>3 × 8-12</b><span>Build</span></button>
-      <button type="button" onclick="srPreset(3,'12-15')"><b>3 × 12-15</b><span>Pump</span></button>
-    </div>
     <button class="log-btn" id="sr-confirm" onclick="confirmSetsReps()">Add to today →</button>
+  </div>
+</div>
+
+<!-- EDIT EXERCISE sheet — sets, swap, delete, all in one place -->
+<div class="modal-bg" id="edit-ex-modal" onclick="if(event.target.id==='edit-ex-modal')closeExerciseEdit()">
+  <div class="modal sr-modal">
+    <h2>EDIT <span class="accent">LIFT</span></h2>
+    <div class="sr-exname" id="ee-name">Exercise</div>
+    <div class="sr-hint">Change the sets, swap it out, or drop it.</div>
+    <div class="sr-row">
+      <div class="sr-field">
+        <div class="sr-flabel">Sets</div>
+        <div class="sr-stepper">
+          <button type="button" onclick="eeBumpSets(-1)">−</button>
+          <input id="ee-sets" type="number" min="1" max="12" inputmode="numeric" autocomplete="off" oninput="eeUpdateSets(this.value)">
+          <button type="button" onclick="eeBumpSets(1)">+</button>
+        </div>
+      </div>
+      <div class="sr-times">×</div>
+      <div class="sr-field">
+        <div class="sr-flabel">Reps</div>
+        <input id="ee-reps" class="sr-reps-input" type="text" placeholder="e.g. 10" oninput="eeUpdateReps(this.value)">
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn-ghost" onclick="eeSwap()" style="color:var(--cobalt-bright)">⇄ Swap</button>
+      <button class="btn-ghost" onclick="eeDelete()" style="color:var(--red)">Delete</button>
+    </div>
+    <button class="log-btn" onclick="closeExerciseEdit()">Done</button>
   </div>
 </div>
 
@@ -1486,7 +1507,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="modal-bg" id="split-builder-modal" onclick="if(event.target.id==='split-builder-modal')closeSplitBuilder()">
   <div class="modal">
     <h2>BUILD YOUR <span class="accent">SPLIT</span></h2>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Name your days. Toggle REST for rest days. You'll add exercises from Today after.</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Set how many days. Leave the names alone — they fill themselves in once you log exercises from Today. Rename any day if you want.</div>
     <div class="sb-field">
       <label class="sb-label">Split Name</label>
       <input class="modal-input" id="sb-name" type="text" placeholder="e.g. My Push Pull Legs" oninput="updateBuilderName(this.value)">
@@ -1535,7 +1556,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-11.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-23.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2618,6 +2639,48 @@ function resetActiveProgramToDefault(){
   toast('Program reset');
 }
 
+// Broad muscle groupings for auto-naming a freshly-logged day (chest/back/shoulders/arms/abs/legs).
+function muscleCategory(m){
+  if(m==='chest')return 'CHEST';
+  if(m==='lats'||m==='traps'||m==='lower-back')return 'BACK';
+  if(m==='front-delts'||m==='side-delts'||m==='rear-delts')return 'SHOULDERS';
+  if(m==='biceps'||m==='triceps'||m==='forearms')return 'ARMS';
+  if(m==='abs')return 'ABS';
+  if(m==='quads'||m==='hamstrings'||m==='glutes'||m==='calves')return 'LEGS';
+  return null;
+}
+// Names a day off what's actually in it — e.g. "CHEST & BACK" or "FULL BODY" — so a
+// freestyle-built split reads like a real program without the user typing anything.
+function autoDayLabel(exercises){
+  const catSets={},muscleSets={};
+  (exercises||[]).forEach(ex=>{
+    const lib=getLibrary().find(l=>l.id===ex.libId);
+    if(!lib)return;
+    const sets=parseInt(ex.targetSets)||1;
+    muscleSets[lib.muscle]=(muscleSets[lib.muscle]||0)+sets;
+    const c=muscleCategory(lib.muscle);
+    if(c)catSets[c]=(catSets[c]||0)+sets;
+  });
+  const catEntries=Object.entries(catSets).sort((a,b)=>b[1]-a[1]);
+  if(!catEntries.length)return null;
+  const catTotal=catEntries.reduce((a,e)=>a+e[1],0);
+  const sigCats=catEntries.filter(e=>e[1]/catTotal>=0.2);
+  const name=sigCats.length>=3?'FULL BODY':sigCats.slice(0,2).map(e=>e[0]).join(' & ');
+  const muscles=Object.entries(muscleSets).sort((a,b)=>b[1]-a[1]).slice(0,2).map(e=>MUSCLE_NAMES[e[0]]||e[0]).join(' · ');
+  return {name,muscles};
+}
+// Once every training day in a freestyle-built split has at least one exercise, the
+// week's worth of logging IS a full plan — say so, once.
+function checkPlanComplete(){
+  const custom=(state.customPrograms||[]).find(p=>p.id===state.activeProgramId);
+  if(!custom||custom.planCompleteShown)return;
+  const sched=getActiveSchedule();
+  const trainDays=sched.filter(d=>d.type==='train');
+  if(!trainDays.length||!trainDays.every(d=>Array.isArray(d.exercises)&&d.exercises.length))return;
+  custom.planCompleteShown=true;
+  custom.description=`Your custom split · ${trainDays.length} training day${trainDays.length===1?'':'s'}. Built from a week of logging.`;
+  toast('Your plan is built — every day is ready');
+}
 // Persist edits to today's exercises BACK to the active program schedule, so changes survive day switches and program reloads.
 function syncTodayToSchedule(){
   if(!state.today||state.today.type==='rest')return;
@@ -2625,6 +2688,11 @@ function syncTodayToSchedule(){
   const day=sched[state.currentDayIdx];
   if(!day)return;
   day.exercises=state.today.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null}));
+  if(/^DAY\s*\d+$/i.test((day.name||'').trim())&&day.exercises.length){
+    const auto=autoDayLabel(day.exercises);
+    if(auto){day.name=auto.name;day.muscles=auto.muscles;state.today.name=auto.name;state.today.muscles=auto.muscles;}
+  }
+  checkPlanComplete();
 }
 function save(){
   if(!_suppressCloudPush)state._lastModified=Date.now();
@@ -3262,6 +3330,15 @@ function dismissIntro(){state.introSeen=true;save();document.getElementById('int
 
 function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';renderProgress();}if(name==='profile')renderProfile();if(name==='program'){renderProgram();renderVolume();}if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
 
+// A day is DONE when you hit Finish on it this week (Monday reset, same as the
+// weekly volume) — or, for splits that aren't 7 days long, within the last
+// cycle. Order doesn't matter: train Thursday's day on Wednesday and it counts.
+function dayCompletedRecently(day,len){
+  if(day.type==='rest')return false;
+  let since=weekStartMs();
+  if(len!==7){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(len-1));since=d.getTime();}
+  return (state.history||[]).some(h=>h&&!h.partial&&h.programId===state.activeProgramId&&h.dayNum===day.dayNum&&h.date&&Date.parse(h.date)>=since);
+}
 function renderProgram(){
   const sched=getActiveSchedule();
   const prog=getActiveProgram();
@@ -3283,15 +3360,15 @@ function renderProgram(){
   document.getElementById('day-list').innerHTML=sched.map((day,i)=>{
     const isToday=i===state.currentDayIdx;
     const isRealToday=i===realToday;
-    const isDone=i<realToday && day.type!=='rest' && !isToday;
+    const isDone=dayCompletedRecently(day,sched.length);
     const cls=`day-card${isToday?' today':''}${isDone?' done':''}${day.type==='rest'?' rest':''}`;
     let icon;
     if(day.type==='rest') icon='<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>';
     else if(isDone) icon='<svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M5 12l5 5 9-11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     else icon='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
     let labelTxt;
-    if(isToday) labelTxt=isRealToday?'TODAY':'SELECTED';
-    else if(isDone) labelTxt=weekdayLabel(i)+' · DONE';
+    if(isDone) labelTxt=(isRealToday?'TODAY':weekdayLabel(i))+' · DONE';
+    else if(isToday) labelTxt=isRealToday?'TODAY':'SELECTED';
     else labelTxt=isRealToday?weekdayLabel(i)+' · TODAY':weekdayLabel(i);
     return `<div class="${cls}" onclick="switchToDay(${i})"><div class="num">${weekdayShort(i)}</div><div class="day-info"><div class="d-label">${labelTxt}</div><div class="d-name">${day.name}</div><div class="d-muscles">${day.muscles}</div></div><div class="play-btn">${icon}</div></div>`;
   }).join('');
@@ -3318,7 +3395,7 @@ function computeWeeklySets(){
 }
 
 // Actually-completed sets across the last N days. Mirrors the planned-vs-actual
-// math: primary muscle 1×, secondary 0.5×, count only completedSets that weren't skipped.
+// math: primary muscle 1×, secondary 0.5×, count completedSets (sets done before a skip still count).
 // Monday 00:00 (local) of the current calendar week — the honest "this week" reset.
 function weekStartMs(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
 function _thisWeekRange(){const s=new Date(weekStartMs());const e=new Date();const f=d=>d.toLocaleDateString('en',{month:'short',day:'numeric'});return f(s)+' – '+f(e);}
@@ -3330,7 +3407,6 @@ function computeActualSetsSince(sinceMs){
     const t=Date.parse(h.date);
     if(isNaN(t)||t<since)return;
     (h.exercises||[]).forEach(ex=>{
-      if(ex.skipped)return;
       const lib=getLibrary().find(l=>l.id===ex.libId);
       if(!lib)return;
       const sets=parseInt(ex.completedSets)||0;
@@ -3664,7 +3740,7 @@ function renderToday(){
   }
   document.getElementById('exercise-list').innerHTML=exs.map((ex,i)=>{
     let cls='exercise';
-    if(ex.skipped)cls+=' skipped';
+    if(ex.skipped)cls+=(ex.completedSets>0?' skipped partial':' skipped');
     else if(ex.done)cls+=' done';
     else if(i===currentIdx)cls+=' current';
     if(ex.primary)cls+=' primary';
@@ -3679,8 +3755,8 @@ function renderToday(){
     const lastHtml=_last?`<span class="ex-last">LAST <b>${topSetLabel(_last,ex)}</b></span>`:`<span class="ex-last new">First time</span>`;
     const skippedProgress=(ex.completedSets>0)?`<span class="ex-last">${ex.completedSets}/${ex.targetSets} logged<b>${(ex.topSet&&(ex.topSet.kg||ex.topSet.reps))?' · '+topSetLabel(ex.topSet,ex):''}</b></span>`:'';
     const leftMeta=ex.skipped
-      ? `<span class="ex-skipped-badge">SKIPPED</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>${skippedProgress}`
-      : `<span class="ex-target">${ex.targetSets} × ${ex.targetReps}</span>${lastHtml}`;
+      ? `<span class="ex-skipped-badge">${ex.completedSets>0?'REST SKIPPED':'SKIPPED'}</span><button class="ex-unskip" onclick="event.stopPropagation();unskipExerciseAt(${i})" title="Undo skip">undo</button>${skippedProgress}`
+      : `<span class="ex-target">${sxr(ex,' × ')}</span>${lastHtml}`;
     // Explicit LOG button — don't make people guess that tapping the exercise
     // name opens the weight/reps panel.
     const logBtn=ex.skipped?'':`<button class="ex-log-btn${ex.topLogged?' done':''}" onclick="event.stopPropagation();toggleInlineLog(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>`;
@@ -3697,8 +3773,8 @@ function renderToday(){
         <button class="il-log${ex.topLogged?' done':''}" onclick="event.stopPropagation();logInline(${i})">${ex.topLogged?'✓ LOGGED':'LOG'}</button>
       </div>
       <div class="il-actions">
-        <button class="il-act" onclick="event.stopPropagation();swapExerciseAt(${i})">⇄ Swap</button>
-        <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— Skip</button>
+        <button class="il-act" onclick="event.stopPropagation();openExerciseEdit(${i})">✎ Edit</button>
+        <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— ${ex.completedSets>0?'Skip rest':'Skip'}</button>
       </div>
     </div>`;
     return `<div class="${cls}" data-ex-idx="${i}" onclick="${ex.skipped?`unskipExerciseAt(${i})`:`toggleInlineLog(${i})`}">
@@ -3766,6 +3842,8 @@ function updateExerciseCard(i){
   const count=card.querySelector('.ex-count');
   if(count)count.textContent=`${ex.completedSets}/${ex.targetSets}`;
   card.classList.toggle('done',!!ex.done);
+  const skipBtn=document.querySelector(`#inline-${i} .il-act[onclick*="skipExerciseAt"]`);
+  if(skipBtn)skipBtn.textContent=ex.completedSets>0?'— Skip rest':'— Skip';
 
   // Move the "current" (next-up) highlight if this tap finished or reopened an exercise.
   const currentIdx=exs.findIndex(e=>!e.done);
@@ -3837,8 +3915,9 @@ function openExercise(i){
   state.currentExerciseIdx=i;
   const ex=state.today.exercises[i];
   document.getElementById('ex-detail-name').textContent=ex.name;
-  document.getElementById('ex-detail-target').innerHTML=`Target: <b>${ex.targetSets} × ${ex.targetReps}</b>${ex.tag?' · '+ex.tag:''}`;
-  document.getElementById('topset-sub').textContent=`Target: ${ex.targetSets} sets × ${ex.targetReps} reps`;
+  document.getElementById('ex-detail-target').innerHTML=`Target: <b>${sxr(ex,' × ')}</b>${ex.tag?' · '+ex.tag:''}`;
+  {const sb=document.getElementById('ex-skip-btn');if(sb)sb.textContent=(ex.completedSets>0)?'SKIP REST':'SKIP';}
+  document.getElementById('topset-sub').textContent=`Target: ${(ex.targetReps&&ex.targetReps!=='—')?ex.targetSets+' sets × '+ex.targetReps+' reps':ex.targetSets+' sets'}`;
   const teSets=document.getElementById('te-sets');if(teSets)teSets.value=ex.targetSets;
   const teReps=document.getElementById('te-reps');if(teReps)teReps.value=ex.targetReps;
   // Customize panel always starts collapsed; user opens via the pencil
@@ -3901,15 +3980,17 @@ function updateDetailSets(v){
   ex.targetSets=Math.max(1,Math.min(10,parseInt(v)||1));
   if((ex.completedSets||0)>ex.targetSets)ex.completedSets=ex.targetSets;
   ex.done=(ex.completedSets||0)>=ex.targetSets;
-  document.getElementById('ex-detail-target').innerHTML=`Target: <b>${ex.targetSets} × ${ex.targetReps}</b>${ex.tag?' · '+ex.tag:''}`;
-  document.getElementById('topset-sub').textContent=`Target: ${ex.targetSets} sets × ${ex.targetReps} reps`;
+  document.getElementById('ex-detail-target').innerHTML=`Target: <b>${sxr(ex,' × ')}</b>${ex.tag?' · '+ex.tag:''}`;
+  {const sb=document.getElementById('ex-skip-btn');if(sb)sb.textContent=(ex.completedSets>0)?'SKIP REST':'SKIP';}
+  document.getElementById('topset-sub').textContent=`Target: ${(ex.targetReps&&ex.targetReps!=='—')?ex.targetSets+' sets × '+ex.targetReps+' reps':ex.targetSets+' sets'}`;
   syncTodayToSchedule();save();
 }
 function updateDetailReps(v){
   const ex=state.today.exercises[state.currentExerciseIdx];if(!ex)return;
   ex.targetReps=(v||'').trim()||'8-10';
-  document.getElementById('ex-detail-target').innerHTML=`Target: <b>${ex.targetSets} × ${ex.targetReps}</b>${ex.tag?' · '+ex.tag:''}`;
-  document.getElementById('topset-sub').textContent=`Target: ${ex.targetSets} sets × ${ex.targetReps} reps`;
+  document.getElementById('ex-detail-target').innerHTML=`Target: <b>${sxr(ex,' × ')}</b>${ex.tag?' · '+ex.tag:''}`;
+  {const sb=document.getElementById('ex-skip-btn');if(sb)sb.textContent=(ex.completedSets>0)?'SKIP REST':'SKIP';}
+  document.getElementById('topset-sub').textContent=`Target: ${(ex.targetReps&&ex.targetReps!=='—')?ex.targetSets+' sets × '+ex.targetReps+' reps':ex.targetSets+' sets'}`;
   syncTodayToSchedule();save();
 }
 
@@ -4016,7 +4097,8 @@ function skipCurrentEx(){
   if(i==null)return;
   const ex=state.today.exercises[i];
   if(!ex)return;
-  if(!confirm(`Skip ${ex.name}? It'll be marked as skipped (no sets logged).`))return;
+  const done=ex.completedSets||0;
+  if(!confirm(done?`Skip the rest of ${ex.name}? Your ${done} set${done===1?'':'s'} stay logged.`:`Skip ${ex.name}?`))return;
   skipExerciseAt(i);
   showView('today');
 }
@@ -4038,7 +4120,50 @@ function unskipExerciseAt(i){
   renderToday();
 }
 
+// "3 × 10" when reps were set, just "3 sets" when the user left reps blank.
+function sxr(ex,sep){const r=(ex.targetReps||'').toString().trim();return (r&&r!=='—')?`${ex.targetSets}${sep}${r}`:`${ex.targetSets} sets`;}
+
 function removeExAt(i){const ex=state.today.exercises[i];if(!ex)return;if(!confirm(`Remove ${ex.name}?`))return;state.today.exercises.splice(i,1);syncTodayToSchedule();save();renderToday();}
+
+// EDIT sheet — one place to change sets, swap, or delete a logged exercise.
+function openExerciseEdit(i){
+  const ex=state.today&&state.today.exercises&&state.today.exercises[i];
+  if(!ex)return;
+  state.currentExerciseIdx=i;
+  document.getElementById('ee-name').textContent=ex.name;
+  document.getElementById('ee-sets').value=ex.targetSets||3;
+  document.getElementById('ee-reps').value=ex.targetReps||'';
+  document.getElementById('edit-ex-modal').classList.add('open');
+}
+function closeExerciseEdit(){
+  document.getElementById('edit-ex-modal').classList.remove('open');
+  renderToday();
+}
+function eeBumpSets(d){
+  const el=document.getElementById('ee-sets');
+  let v=(parseInt(el.value)||3)+d;v=Math.max(1,Math.min(12,v));
+  el.value=v;
+  eeUpdateSets(v);
+}
+function eeUpdateSets(v){
+  const ex=state.today.exercises[state.currentExerciseIdx];if(!ex)return;
+  ex.targetSets=Math.max(1,Math.min(12,parseInt(v)||1));
+  if((ex.completedSets||0)>ex.targetSets)ex.completedSets=ex.targetSets;
+  syncTodayToSchedule();save();
+}
+function eeUpdateReps(v){
+  const ex=state.today.exercises[state.currentExerciseIdx];if(!ex)return;
+  ex.targetReps=(v||'').trim();
+  syncTodayToSchedule();save();
+}
+function eeSwap(){
+  document.getElementById('edit-ex-modal').classList.remove('open');
+  swapExerciseAt(state.currentExerciseIdx);
+}
+function eeDelete(){
+  document.getElementById('edit-ex-modal').classList.remove('open');
+  removeExAt(state.currentExerciseIdx);
+}
 
 // Aggressive autosave: save on visibility change and pagehide (when user backgrounds the app)
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save();});
@@ -4186,7 +4311,7 @@ function renderProgHistory(){
           .map(ex=>{
             const isPr=prSet.has(ex.name);
             const key=(ex.libId||'')+'::'+(ex.name||'');
-            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${esc(ex.name)}${isPr?' · PR':''}</span><span class="t">${ex.targetSets}×${ex.targetReps}</span><span class="v">${topSetLabel(ex.topSet,ex).toUpperCase()}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this set">×</button></div>`;
+            return `<div class="hd-lift${isPr?' is-pr':''}"><span class="n">${esc(ex.name)}${isPr?' · PR':''}</span><span class="t">${sxr(ex,'×')}</span><span class="v">${topSetLabel(ex.topSet,ex).toUpperCase()}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this set">×</button></div>`;
           }).join('');
         const liveTag=h.partial?'<span class="hd-tag">● Logging in progress</span>':'<span class="hd-tag">● Completed</span>';
         const foot=`<div class="hd-foot">${liveTag}<button class="hd-del-all" onclick="event.stopPropagation();deleteHistorySession('${safeDate}')">Delete session</button></div>`;
@@ -4684,9 +4809,15 @@ function openProgramPicker(){
       <div class="pc-desc">${p.description}</div>
     </div>`;
   }).join('');
-  // Change-split flow is just that: pick another split, or go back to the one
-  // you're already on. Building/importing splits lives elsewhere, off this path.
-  document.getElementById('program-results').innerHTML=cards;
+  const addCard=`<div class="program-card add-custom" onclick="openSplitBuilder()">
+      <div class="pc-head"><div class="pc-name">+ BUILD YOUR OWN</div></div>
+      <div class="pc-desc">Just log what you do. Every day names itself once you've logged a few — a full week and you've got a plan.</div>
+    </div>`;
+  const importCard=`<div class="program-card import-link" onclick="openImportLink()">
+      <div class="pc-head"><div class="pc-name">▶ FROM A VIDEO</div></div>
+      <div class="pc-desc">Paste a YouTube link. We read the title and build a split from it.</div>
+    </div>`;
+  document.getElementById('program-results').innerHTML=cards+addCard+importCard;
   const keepBtn=document.getElementById('prog-keep-current');
   if(keepBtn){const curName=(getProgramDef(active)||{}).name||'current split';keepBtn.textContent=`‹ Keep current (${curName})`;}
   document.getElementById('program-modal').classList.add('open');
@@ -4697,9 +4828,12 @@ function closeProgramModalBg(e){if(e.target.id==='program-modal')closeProgramMod
 let splitBuilder={name:'',days:[]};
 function openSplitBuilder(){
   splitBuilder={name:'My Split',days:[
-    {name:'CHEST & BACK',rest:false},
-    {name:'SHOULDERS & ARMS',rest:false},
-    {name:'LEGS',rest:false},
+    {name:'DAY 1',rest:false},
+    {name:'DAY 2',rest:false},
+    {name:'DAY 3',rest:false},
+    {name:'DAY 4',rest:false},
+    {name:'DAY 5',rest:false},
+    {name:'DAY 6',rest:false},
     {name:'REST',rest:true},
   ]};
   document.getElementById('program-modal').classList.remove('open');
@@ -4753,7 +4887,8 @@ function saveCustomSplit(){
   const prog={
     id,name:name.toUpperCase(),
     author:'YOU',
-    description:`Your custom split · ${trainCount} training day${trainCount===1?'':'s'}${restCount?' · '+restCount+' rest':''}. Add exercises from Today.`,
+    description:`Your custom split · ${trainCount} training day${trainCount===1?'':'s'}${restCount?' · '+restCount+' rest':''}. Log a day and its name fills in — a full week and you've got a plan.`,
+    planCompleteShown:false,
     schedule
   };
   if(!Array.isArray(state.customPrograms))state.customPrograms=[];
@@ -5149,7 +5284,7 @@ function renderImportPreview(){
   const sure={high:'sure',medium:'best guess',low:'rough guess'}[inf.confidence]||'';
   const chanBit=inf.channel?` · ${inf.channel}`:'';
   const inferLine=`<div class="ilp-infer"><span class="ilp-dot" style="background:${dot}"></span>${inf.reason}<span class="ilp-sure">${sure}${chanBit}</span></div>`;
-  const lifts=trainDays.map(d=>`<div class="ilp-day"><div class="ilp-day-head">${d.name}<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A;font-weight:400;letter-spacing:0;margin-left:8px">${d.muscles}</span></div>${d.exercises.map(e=>`<div class="ilp-lift">→ ${e.name} <span class="ilp-sxr">${e.targetSets}×${e.targetReps}</span></div>`).join('')}</div>`).join('');
+  const lifts=trainDays.map(d=>`<div class="ilp-day"><div class="ilp-day-head">${d.name}<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A;font-weight:400;letter-spacing:0;margin-left:8px">${d.muscles}</span></div>${d.exercises.map(e=>`<div class="ilp-lift">→ ${e.name} <span class="ilp-sxr">${sxr(e,'×')}</span></div>`).join('')}</div>`).join('');
   box.innerHTML=`${titleLine}${inferLine}<div class="ilp-summary">Building <b>${styleLabel}</b> · ${trainDays.length} training + ${restCount} rest · ${liftCount} lifts</div>${lifts}<div class="ilp-foot">Not right? Swap or add any lift after — it’s yours.</div>`;
 }
 
@@ -5213,14 +5348,15 @@ let pendingEx=null; // {libId, mode:'add'|'swap', name}
 function openSetsReps(libId,mode){
   const libEx=getLibrary().find(e=>e.id===libId);if(!libEx)return;
   if(mode==='add'&&state.today.type==='rest'){toast('Not a training day');return;}
+  // No prescriptive defaults — we're not coaching anyone's programming, just
+  // tracking what they actually did. Swap carries over whatever was already
+  // there; a fresh add starts blank and the user decides.
   let sets,reps;
   if(mode==='swap'){
     const cur=state.today.exercises[state.currentExerciseIdx];
-    sets=(cur&&cur.targetSets)||3;reps=(cur&&cur.targetReps)||'8-10';
+    sets=(cur&&cur.targetSets)||3;reps=(cur&&cur.targetReps)||'';
   }else{
-    // Sensible starting point by lift type — compound heavier, isolation higher reps
-    if(libEx.type==='COMPOUND'){sets=4;reps='6-8';}
-    else{sets=3;reps='10-12';}
+    sets=3;reps='';
   }
   pendingEx={libId:libEx.id,mode:mode,name:libEx.name};
   document.getElementById('lib-modal').classList.remove('open');
@@ -5232,12 +5368,11 @@ function openSetsReps(libId,mode){
   document.getElementById('setsreps-modal').classList.add('open');
 }
 function srBump(d){const el=document.getElementById('sr-sets');let v=(parseInt(el.value)||3)+d;v=Math.max(1,Math.min(12,v));el.value=v;}
-function srPreset(s,r){document.getElementById('sr-sets').value=s;document.getElementById('sr-reps').value=r;}
 function confirmSetsReps(){
   if(!pendingEx)return;
   const libEx=getLibrary().find(e=>e.id===pendingEx.libId);if(!libEx){pendingEx=null;return;}
   let sets=parseInt(document.getElementById('sr-sets').value)||3;sets=Math.max(1,Math.min(12,sets));
-  let reps=(document.getElementById('sr-reps').value||'').trim()||'8-10';
+  let reps=(document.getElementById('sr-reps').value||'').trim();
   if(pendingEx.mode==='swap'){
     const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur){pendingEx=null;return;}
     if(typeof removeLiveExercise==='function')removeLiveExercise(cur);
