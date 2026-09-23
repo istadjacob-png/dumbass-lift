@@ -969,6 +969,23 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .program-card.add-custom .pc-name{color:#FF3300}
 .program-card .pc-del{font-size:22px;line-height:1;color:#888;font-weight:400;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #DDD;border-radius:50%}
 .program-card .pc-del:active{color:#FFF;background:#FF3300;border-color:#FF3300}
+.program-card .pc-actions{display:flex;gap:8px;margin-top:12px}
+.program-card .pc-actions button{flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:10px;cursor:pointer;border-radius:2px}
+.program-card .pc-look{background:#FFF;border:1px solid #000;color:#000}
+.program-card .pc-use{background:#000;border:1px solid #000;color:#FFF}
+#split-overview-modal h2{margin-bottom:4px}
+.so-meta{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:#7A7A7A;text-transform:uppercase;margin-bottom:10px}
+.so-desc{font-family:'Inter',sans-serif;font-size:13px;color:#3A3A3A;line-height:1.55;margin-bottom:14px}
+.so-day{border:1px solid #000;border-left:3px solid #000;border-radius:2px;padding:10px 12px;margin-bottom:8px;background:#FFF}
+.so-day.rest{border-color:#DDD;border-left-color:#FF3300;background:#FFF6F2}
+.so-day-head{display:flex;gap:10px;align-items:baseline}
+.so-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:#7A7A7A;font-weight:700}
+.so-name{font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#000}
+.so-day.rest .so-name{color:#FF3300}
+.so-muscles{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7A7A7A;margin:2px 0 6px}
+.so-ex{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid #EEE;font-family:'Inter',sans-serif;font-size:13px;color:#000}
+.so-ex b{font-family:'JetBrains Mono',monospace;font-size:11px;color:#3A3A3A;font-weight:700;white-space:nowrap}
+.so-current{margin-top:12px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:#FF3300;text-transform:uppercase;font-weight:700;padding:12px;border:1px solid #FF3300}
 
 /* SPLIT BUILDER */
 .sb-label{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.3em;color:#7A7A7A;text-transform:uppercase;font-weight:700;margin-bottom:6px;display:block}
@@ -1234,9 +1251,6 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <h1>SPLIT</h1>
       <div class="sub">Tap a day to train it</div>
     </div>
-    <div class="today-meta" style="justify-content:center;margin-top:2px">
-      <button class="tm-link accent" onclick="openProgramPicker()">⇄ Switch split</button>
-    </div>
 
     <div id="day-list"></div>
     <div class="protocol-box">
@@ -1368,13 +1382,6 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div class="profile-card">
       <div class="ds-eyebrow">Your Training</div>
       <div id="profile-stats"></div>
-    </div>
-
-    <div class="profile-card">
-      <div class="field-label">Don't Skip · Daily Nudge</div>
-      <p class="ds-hint" style="margin:6px 0 12px">A 3 PM check-in from the app so you never skip a session by accident. On rest days it just says "recover well".</p>
-      <button class="btn-secondary" id="notif-btn" onclick="enableNotifications()" style="width:100%;margin-bottom:8px">🔔 TURN ON PHONE NOTIFICATIONS</button>
-      <p class="ds-hint" id="notif-hint" style="margin:0 0 14px;font-size:11px">Pings you in-app and on your phone when it's open. On iPhone, add the app to your Home Screen first.</p>
     </div>
 
     <div class="profile-card sync-card" id="sync-card">
@@ -1537,8 +1544,15 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   <div class="modal">
     <button class="prog-back" id="prog-keep-current" onclick="closeProgramModal()" style="margin-bottom:6px">‹ Keep current split</button>
     <h2>CHANGE <span class="accent">SPLIT</span></h2>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">The most-trusted routines in lifting. Pick one. Run it 12 weeks. Then judge.</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">The most-trusted routines in lifting. Tap one to see every day and exercise before you switch.</div>
     <div id="program-results"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="split-overview-modal" onclick="if(event.target.id==='split-overview-modal')closeSplitOverview()">
+  <div class="modal">
+    <button class="prog-back" onclick="closeSplitOverview()" style="margin-bottom:6px">‹ Back to splits</button>
+    <div id="so-body"></div>
   </div>
 </div>
 
@@ -1594,7 +1608,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-23.4';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-23.6';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3725,7 +3739,7 @@ function renderToday(){
   if(tsn)tsn.textContent=prog.name;
   renderSyncBanner();
   if(t.type==='rest'){showView('rest');return;}
-  try{renderAccountability();refreshPushSchedule();}catch(e){}
+  try{renderAccountability();}catch(e){}
   const isRealToday=(state.currentDayIdx===todayScheduleIdx());
   // weekdayLabel(t.dayNum-1) just maps the split's rotating day-slot onto
   // Mon-Sun by index — only actually the calendar weekday when the schedule
@@ -4896,6 +4910,28 @@ function deleteCustomExercise(id){
   toast('Deleted');
 }
 function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=getLibrary().filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>{const custom=e.custom?` <span style="color:var(--cobalt-bright);font-size:9px;letter-spacing:.15em">· CUSTOM</span>`:'';const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';return `<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(e.name)}${custom}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;}).join('');}
+// Look at a split without switching to it: every day, every exercise.
+function openSplitOverview(id){
+  const p=getProgramDef(id);if(!p)return;
+  const isActive=p.id===state.activeProgramId;
+  const train=p.schedule.filter(d=>d.type==='train').length,rest=p.schedule.length-train;
+  const days=p.schedule.map((d,i)=>d.type==='rest'
+    ?`<div class="so-day rest"><div class="so-day-head"><span class="so-num">DAY ${i+1}</span><span class="so-name">REST</span></div></div>`
+    :`<div class="so-day"><div class="so-day-head"><span class="so-num">DAY ${i+1}</span><span class="so-name">${esc(d.name)}</span></div>
+      ${d.muscles?`<div class="so-muscles">${esc(d.muscles)}</div>`:''}
+      ${(d.exercises||[]).map(e=>`<div class="so-ex"><span>${esc(e.name)}</span><b>${sxr(e,' × ')}</b></div>`).join('')||'<div class="so-muscles">No exercises yet</div>'}
+    </div>`).join('');
+  const totalSets=p.schedule.reduce((a,d)=>a+(d.exercises||[]).reduce((b,e)=>b+(parseInt(e.targetSets)||0),0),0);
+  document.getElementById('so-body').innerHTML=`
+    <h2>${esc(p.name)}</h2>
+    <div class="so-meta">${esc(p.author||'')} · ${train} training days · ${rest} rest · ${totalSets} sets a week</div>
+    <div class="so-desc">${esc(p.description||'')}</div>
+    ${days}
+    ${isActive?'<div class="so-current">You\'re on this split</div>':`<button class="btn-primary" style="width:100%;margin-top:12px" onclick="closeSplitOverview();switchProgram('${p.id}')">Use this split →</button>`}`;
+  document.getElementById('split-overview-modal').classList.add('open');
+  const m=document.querySelector('#split-overview-modal .modal');if(m)m.scrollTop=0;
+}
+function closeSplitOverview(){document.getElementById('split-overview-modal').classList.remove('open');}
 function openProgramPicker(){
   const active=state.activeProgramId;
   const all=getAllPrograms();
@@ -4906,7 +4942,7 @@ function openProgramPicker(){
     const isCustom=(state.customPrograms||[]).some(c=>c.id===p.id);
     const deleteBtn=isCustom?`<span class="pc-del" onclick="event.stopPropagation();deleteCustomSplit('${p.id}')" title="Delete">×</span>`:'';
     const sourceBadge=p.sourceUrl?`<span class="pc-source" title="${p.sourceUrl}">▶ VIDEO</span>`:'';
-    return `<div class="program-card${isActive?' active':''}${isCustom?' custom':''}" onclick="switchProgram('${p.id}')">
+    return `<div class="program-card${isActive?' active':''}${isCustom?' custom':''}" onclick="openSplitOverview('${p.id}')">
       <div class="pc-head">
         <div class="pc-name">${p.name}${sourceBadge}</div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -4916,6 +4952,10 @@ function openProgramPicker(){
       </div>
       <div class="pc-author">${p.author} · ${trainDays} training days · ${restDays} rest</div>
       <div class="pc-desc">${p.description}</div>
+      <div class="pc-actions">
+        <button class="pc-look" onclick="event.stopPropagation();openSplitOverview('${p.id}')">Just look</button>
+        ${isActive?'':`<button class="pc-use" onclick="event.stopPropagation();switchProgram('${p.id}')">Use this split →</button>`}
+      </div>
     </div>`;
   }).join('');
   const addCard=`<div class="program-card add-custom" onclick="openSplitBuilder()">
@@ -5556,7 +5596,6 @@ function profileStats(){
 }
 
 function renderProfile(){
-  try{updateNotifUI();}catch(e){}
   try{ var _bl=document.getElementById('build-line'); if(_bl)_bl.textContent='Build '+APP_BUILD; }catch(e){}
   document.getElementById('profile-name').value=state.userName||'';
   const st=profileStats();
@@ -5645,12 +5684,7 @@ if(window.__acct)cloudInitOnLoad();
    ANTI-SKIP ACCOUNTABILITY + PUSH NOTIFICATIONS
    Three layers so a session never slips by accident:
    1) in-app strip on TODAY (streak / behind / done)
-   2) phone push at 3 PM, sent by a free daily GitHub Action
-   3) calendar reminder as the always-on fallback
    ============================================================ */
-const VAPID_PUBLIC_KEY='BENuzycG9643G7Uuwav_VoxR0fzodkYb8DkFjszpOnr5LXTaO2lwKiyYgEUiRtrWaXp9H06hcbn8R2UJSY2JtM8';
-
-function scheduleSnapshot(){return (getActiveSchedule()||[]).map(s=>({name:s.name||'',type:s.type||'train'}));}
 
 // Escape user-controlled text before it goes into innerHTML (custom lift names
 // are user-entered and now also arrive via cloud sync, so treat them as untrusted).
@@ -5790,53 +5824,13 @@ function renderAccountability(){
   el.innerHTML=`${ico?`<div class="acct-ico">${ico}</div>`:''}<div class="acct-body"><div class="acct-title">${title}</div>${sub?`<div class="acct-sub">${sub}</div>`:''}</div><div class="acct-cta">Split →</div>`;
 }
 
-function urlB64ToUint8Array(s){
-  const pad='='.repeat((4-s.length%4)%4);
-  const b64=(s+pad).replace(/-/g,'+').replace(/_/g,'/');
-  const raw=atob(b64);const arr=new Uint8Array(raw.length);
-  for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
-  return arr;
-}
 function registerSW(){
   if(!('serviceWorker' in navigator))return Promise.resolve(null);
   return navigator.serviceWorker.register('sw.js').catch(e=>{console.warn('SW reg failed',e);return null;});
 }
-async function enableNotifications(){
-  if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
-    toast("This device can't do app notifications. On iPhone, add the app to your Home Screen first");return;
-  }
-  try{
-    const perm=await Notification.requestPermission();
-    if(perm!=='granted'){toast('Notifications blocked — turn them on in settings');updateNotifUI();return;}
-    const reg=await registerSW();
-    await navigator.serviceWorker.ready;
-    let sub=await reg.pushManager.getSubscription();
-    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8Array(VAPID_PUBLIC_KEY)});
-    state.push={sub:sub.toJSON(),tz:(Intl.DateTimeFormat().resolvedOptions().timeZone)||'Europe/Oslo',hour:15,schedule:scheduleSnapshot(),enabledAt:Date.now()};
-    save();
-    reg.showNotification('DUMBASS LIFT',{body:"You're set. I'll nudge you at 3 PM on any training day you haven't logged.",icon:'icon-192.png',badge:'icon-192.png'});
-    if(!currentUid())toast('On ✓ — log in (Profile) so the 3 PM nudge works when the app is closed');
-    else toast('Notifications on ✓');
-    updateNotifUI();
-  }catch(e){console.warn(e);toast("Couldn't turn on notifications");}
-}
-function updateNotifUI(){
-  const btn=document.getElementById('notif-btn'),hint=document.getElementById('notif-hint');
-  if(!btn)return;
-  const on=('Notification' in window)&&Notification.permission==='granted'&&state.push&&state.push.sub;
-  if(on){btn.textContent='🔔 NOTIFICATIONS ON ✓';btn.style.opacity='.65';if(hint)hint.textContent=currentUid()?"You're covered. I check at 3 PM daily and only ping on a training day you haven't logged.":"Almost — log in below so the nudge reaches you when the app is closed.";}
-  else{btn.textContent='🔔 TURN ON PHONE NOTIFICATIONS';btn.style.opacity='';if(hint)hint.textContent='Pings you at 3 PM if you haven\'t trained. On iPhone, add the app to your Home Screen first.';}
-}
-
-// Keep the cloud copy of the schedule fresh so the daily job knows your rest days.
-function refreshPushSchedule(){
-  if(!state.push)return;
-  const snap=scheduleSnapshot();
-  if(JSON.stringify(state.push.schedule||[])!==JSON.stringify(snap)){state.push.schedule=snap;save();}
-}
-
-registerSW();
-try{updateNotifUI();}catch(e){}
+// The daily nudge is gone. Drop any old push subscription so nothing gets sent.
+if(state&&state.push){delete state.push;try{save();}catch(e){}}
+registerSW().then(reg=>{if(reg&&reg.pushManager)reg.pushManager.getSubscription().then(sub=>{if(sub)sub.unsubscribe();}).catch(()=>{});});
 
 // === LAN LIVE-RELOAD === only on local network, harmless elsewhere
 (function(){
