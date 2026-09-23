@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>DUMBASS v1.8 · LIFT — For people who think they can do better</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Crect%20width%3D%2724%27%20height%3D%2724%27%20fill%3D%27%23000%27%2F%3E%3Cpolygon%20points%3D%274.5%2C6.5%2019.5%2C6.5%2012%2C19.5%27%20fill%3D%27%23FF3300%27%2F%3E%3C%2Fsvg%3E">
@@ -859,6 +859,11 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .nav::before{display:none}
 .nav-item{color:#000}
 .nav-item.active{color:#FF3300}
+.header{padding-top:calc(22px + env(safe-area-inset-top))}
+.nav{padding-bottom:max(24px,calc(10px + env(safe-area-inset-bottom)))}
+.app{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+.modal{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.modal-bg{padding-top:env(safe-area-inset-top)}
 .eyebrow{font-family:'JetBrains Mono',monospace;font-weight:400;color:#7A7A7A;letter-spacing:.18em}
 .title{font-family:'Inter',sans-serif;font-weight:900;letter-spacing:-.04em;font-size:64px;line-height:.92}
 .title .accent{color:#FF3300}
@@ -1217,7 +1222,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
   <div class="header">
     <div class="logo"><svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#000"/><polygon points="4.5,6.5 19.5,6.5 12,19.5" fill="#FF3300"/></svg>DUMBASS</div>
-    <div class="avatar" onclick="avatarTap()" id="avatar-btn">J</div>
+    <div class="avatar" onclick="avatarTap()" id="avatar-btn">•</div>
   </div>
 
   <!-- TODAY -->
@@ -1404,6 +1409,11 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     </div>
 
     <button class="btn-ghost" onclick="resetAllData()" style="color:var(--red);width:100%;margin-top:6px">Reset All Data · Requires Typing DELETE</button>
+    <div style="text-align:center;margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em">
+      <a href="https://istadjacob-png.github.io/dumbass-lift/privacy.html" target="_blank" rel="noopener" style="color:var(--text-dim)">Privacy</a>
+      <span style="color:var(--text-faint);margin:0 8px">·</span>
+      <a href="https://istadjacob-png.github.io/dumbass-lift/support.html" target="_blank" rel="noopener" style="color:var(--text-dim)">Support</a>
+    </div>
     <div id="build-line" style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);margin-top:14px;letter-spacing:.04em"></div>
   </div>
 
@@ -1509,6 +1519,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <div id="login-error" class="login-err"></div>
     <button class="login-cta" id="login-submit" onclick="submitLogin()">LOG IN</button>
     <button class="login-toggle" id="login-toggle" onclick="toggleLoginMode()">New here? <b>Create an account</b></button>
+    <button class="login-toggle" id="login-forgot" onclick="forgotPassword()" style="margin-top:0">Forgot password?</button>
     <div class="login-foot">Syncs your lifts across phone, web &amp; tablet</div>
   </div>
 </div>
@@ -1608,7 +1619,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-23.6';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-23.7';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -1965,9 +1976,9 @@ const PROGRAMS=[
   },
   {
     id:'nippard-ppl',
-    name:'Nippard Ultimate PPL',
-    author:'Jeff Nippard',
-    description:'Most-watched PPL on the internet. Six training days — Push / Pull / Legs, twice through. Evidence-based, balanced, brutal.',
+    name:'Science-Based PPL',
+    author:'Evidence-based',
+    description:'Six training days — Push / Pull / Legs, twice through. Evidence-based, balanced, brutal.',
     schedule:[
       {dayNum:1,name:'PUSH A',muscles:'Chest · Shoulders · Triceps',subtitle:'Heavy compounds',type:'train',exercises:[
         {libId:'flat-bench',name:'Flat Bench Press',targetSets:4,targetReps:'6-8',primary:true,tag:'PRIMARY'},
@@ -2017,9 +2028,9 @@ const PROGRAMS=[
   },
   {
     id:'cbum-olympia',
-    name:'CBum Olympia Split',
-    author:'Chris Bumstead',
-    description:'5x Mr. Olympia Classic Physique. Push / Pull / Legs run twice. Heavy compounds, brutal volume, room for one rest day.',
+    name:'Classic Physique PPL',
+    author:'Classic physique',
+    description:'Built for the classic physique look. Push / Pull / Legs run twice. Heavy compounds, brutal volume, room for one rest day.',
     schedule:[
       {dayNum:1,name:'PUSH',muscles:'Chest · Shoulders · Triceps',subtitle:'Pressing power',type:'train',exercises:[
         {libId:'inc-bench',name:'Incline Bench Press',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
@@ -2037,7 +2048,7 @@ const PROGRAMS=[
         {libId:'rev-fly',name:'Reverse DB Fly',targetSets:3,targetReps:'12-15'},
         {libId:'preacher',name:'Preacher Curl',targetSets:3,targetReps:'8-12'},
         {libId:'hammer',name:'Hammer Curl',targetSets:3,targetReps:'10-12'}]},
-      {dayNum:3,name:'LEGS',muscles:'Quads · Hams · Glutes · Calves',subtitle:'CBum legs · the differentiator',type:'train',exercises:[
+      {dayNum:3,name:'LEGS',muscles:'Quads · Hams · Glutes · Calves',subtitle:'Legs · the differentiator',type:'train',exercises:[
         {libId:'squat',name:'Back Squat',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
         {libId:'hack-sq',name:'Hack Squat',targetSets:4,targetReps:'8-12'},
         {libId:'rdl',name:'Romanian Deadlift',targetSets:3,targetReps:'8-12'},
@@ -2074,7 +2085,7 @@ const PROGRAMS=[
   {
     id:'ppl-classic',
     name:'Classic PPL',
-    author:'Reddit · /r/Fitness',
+    author:'Community classic',
     description:'The internet\'s favorite hypertrophy split. Push / Pull / Legs run twice. Six days, one rest. Simple. Effective. Hard to outgrow.',
     schedule:[
       {dayNum:1,name:'PUSH',muscles:'Chest · Shoulders · Triceps',subtitle:'Heavy day',type:'train',exercises:[
@@ -2210,9 +2221,9 @@ const PROGRAMS=[
   },
   {
     id:'arnold-split',
-    name:'Arnold Split',
-    author:'Arnold Schwarzenegger',
-    description:'Six days. Chest+Back · Shoulders+Arms · Legs · repeat. High frequency, brutal volume. Built the Austrian Oak.',
+    name:'Old School 6-Day',
+    author:'Old school',
+    description:'Six days. Chest+Back · Shoulders+Arms · Legs · repeat. High frequency, brutal volume. The way the 70s greats trained.',
     schedule:[
       {dayNum:1,name:'CHEST & BACK',muscles:'Push & pull',subtitle:'Antagonist pairing',type:'train',exercises:[
         {libId:'flat-bench',name:'Flat Bench Press',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
@@ -2295,10 +2306,9 @@ const PROGRAMS=[
   },
   {
     id:'sulek-6',
-    name:'Sam Sulek 6-Day',
-    author:'Sam Sulek',
-    sourceUrl:'https://www.youtube.com/@SamSulek',
-    description:'Viral high-volume bro split. One muscle per day, brutal sets, no excuses. The internet\'s favourite young bodybuilder.',
+    name:'High-Volume Bro Split',
+    author:'High volume',
+    description:'High-volume bro split. One muscle per day, brutal sets, no excuses.',
     schedule:[
       {dayNum:1,name:'CHEST',muscles:'Chest · Triceps',subtitle:'Press until empty',type:'train',exercises:[
         {libId:'inc-bench',name:'Incline Bench Press',targetSets:4,targetReps:'6-10',primary:true,tag:'PRIMARY'},
@@ -2347,10 +2357,9 @@ const PROGRAMS=[
   },
   {
     id:'rp-5day',
-    name:'RP 5-Day Hypertrophy',
-    author:'Dr. Mike Israetel · RP',
-    sourceUrl:'https://www.youtube.com/@RenaissancePeriodization',
-    description:'Evidence-based hypertrophy at MEV→MAV→MRV. Push / Pull / Legs / Upper / Lower. The RP-school approach to natural growth.',
+    name:'5-Day Hypertrophy',
+    author:'Volume landmarks',
+    description:'Evidence-based hypertrophy at MEV→MAV→MRV. Push / Pull / Legs / Upper / Lower. Built for natural growth.',
     schedule:[
       {dayNum:1,name:'PUSH',muscles:'Chest · Shoulders · Triceps',subtitle:'Compounds first, isolations to MRV',type:'train',exercises:[
         {libId:'inc-bench',name:'Incline Bench Press',targetSets:3,targetReps:'6-10',primary:true,tag:'PRIMARY'},
@@ -2794,23 +2803,21 @@ function save(){
 }
 
 // ============================================================
-// ACCOUNT SYNC (email + password, stored in Firestore — no Firebase Auth)
-// Each account is one doc in `accounts`, keyed by a hash of the email,
-// holding a PBKDF2 password hash + the synced state JSON. One login per
-// device persists locally. deviceId prevents echo loops; _lastModified
-// makes the newer side win so a reload never clobbers unsynced sets.
+// ACCOUNT SYNC — Firebase Auth + one cloud doc per workout.
+//   users/{uid}                 settings, splits, today (everything but history)
+//   users/{uid}/sessions/{id}   one workout each
+// Workouts sync one by one, so two devices can't overwrite each other's
+// sessions. A deleted workout leaves a small "deleted" marker so other
+// devices drop it too. If the same workout changed on two devices, the
+// version with more logged sets wins — sets are never silently lost.
 // ============================================================
-function getDeviceId(){
-  let d=localStorage.getItem('dumbass_device_id');
-  if(!d){d='d-'+Math.random().toString(36).slice(2,10);localStorage.setItem('dumbass_device_id',d);}
-  return d;
-}
 let _cloudPushTimer=null, _suppressCloudPush=false, _lastCloudPushAt=0;
+let _user=null;   // {uid,email} from Firebase Auth
+let _meta=null;   // {known:{sessionId:hash|'DEL'}, profile:hash, first:bool} — what the cloud has, per device
 
-// --- crypto + session helpers ---
+// --- crypto helpers (only for moving pre-2026-09 accounts over) ---
 function _b64(bytes){ let s=''; for(const b of bytes) s+=String.fromCharCode(b); return btoa(s); }
 function _b64url(bytes){ return _b64(bytes).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
-function _newSalt(){ const s=new Uint8Array(16); crypto.getRandomValues(s); return _b64(s); }
 async function _emailKey(email){
   const data=new TextEncoder().encode('dumbass:'+email.trim().toLowerCase());
   const h=await crypto.subtle.digest('SHA-256', data);
@@ -2822,102 +2829,153 @@ async function _pbkdf2(pw, saltB64){
   const bits=await crypto.subtle.deriveBits({name:'PBKDF2', salt, iterations:200000, hash:'SHA-256'}, keyMat, 256);
   return _b64(new Uint8Array(bits));
 }
-function _loadSession(){ try{return JSON.parse(localStorage.getItem('dumbass_account')||'null');}catch(e){return null;} }
-function _saveSession(s){ try{ if(s)localStorage.setItem('dumbass_account',JSON.stringify(s)); else localStorage.removeItem('dumbass_account'); }catch(e){} }
-let _session=_loadSession();   // {key, email} or null
 
-function currentUid(){ return _session ? _session.key : ''; }
-function currentEmail(){ return _session ? _session.email : ''; }
+function currentUid(){ return _user ? _user.uid : ''; }
+function currentEmail(){ return _user ? _user.email : ''; }
+
+// Everything except workouts and screen-only UI state.
+const PROFILE_SKIP=new Set(['history','currentExerciseIdx','selectedLift','progLiftView','historySearch','historyOpen','showPastWeek','lastCompletedSession','push']);
+function profileOf(st){ const o={}; for(const k in st) if(!PROFILE_SKIP.has(k)) o[k]=st[k]; return o; }
+// Stable id from the session's start time — the same old session gets the same id on every device.
+function sessionId(h){ if(!h.id) h.id='s'+(Date.parse(h.date)||0).toString(36)+'-'+(h.dayNum||0); return h.id; }
+function _hash(str){ let h=0x811c9dc5; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(36)+':'+str.length; }
+function sessionHash(h){ return _hash(JSON.stringify(h)); }
+function _setsIn(h){ return (h.exercises||[]).reduce((a,e)=>a+(parseInt(e.completedSets)||0),0)+(h.partial?0:0.5); }
+
+function _metaKey(){ return 'dumbass_sync_'+currentUid(); }
+function _loadMeta(){ try{ _meta=JSON.parse(localStorage.getItem(_metaKey())||'null'); }catch(e){ _meta=null; } if(!_meta) _meta={known:{},profile:'',first:true}; }
+function _saveMeta(){ try{ localStorage.setItem(_metaKey(),JSON.stringify(_meta)); }catch(e){} }
 
 function cloudPushDebounced(){
-  if(_suppressCloudPush)return;
-  const key=currentUid();
-  if(!key||!window.__acct)return;
+  if(_suppressCloudPush||!currentUid()||!window.__cloud)return;
   clearTimeout(_cloudPushTimer);
-  _cloudPushTimer=setTimeout(()=>{
-    window.__acct.writeState(key, JSON.stringify(state), state._lastModified||Date.now()).then(()=>{
-      _lastCloudPushAt=Date.now();
-      renderSyncBanner();
-    }).catch(()=>{});
-  }, 1500);
+  _cloudPushTimer=setTimeout(cloudPushNow,1200);
 }
-function _adoptRemoteState(remoteState){
-  _suppressCloudPush=true;
-  try{
-    state=remoteState;
-    try{localStorage.setItem('dumbass_state',JSON.stringify(state));}catch(e){}
-    loadDay(state.currentDayIdx||0);
-    renderToday&&renderToday();
-  }finally{
-    _suppressCloudPush=false;
-  }
+async function cloudPushNow(){
+  const uid=currentUid(); if(!uid||!_meta||_meta.first||!window.__cloud)return;
+  const jobs=[], localIds=new Set();
+  (state.history||[]).forEach(h=>{
+    if(!h||!h.date)return;
+    const id=sessionId(h); localIds.add(id);
+    const hs=sessionHash(h);
+    if(_meta.known[id]!==hs) jobs.push(window.__cloud.putSession(uid,id,{json:JSON.stringify(h),date:h.date,deleted:false,_m:Date.now()}).then(()=>{_meta.known[id]=hs;}));
+  });
+  Object.keys(_meta.known).forEach(id=>{
+    if(!localIds.has(id)&&_meta.known[id]!=='DEL') jobs.push(window.__cloud.putSession(uid,id,{json:'',date:'',deleted:true,_m:Date.now()}).then(()=>{_meta.known[id]='DEL';}));
+  });
+  const pj=JSON.stringify(profileOf(state)), ph=_hash(pj);
+  if(_meta.profile!==ph) jobs.push(window.__cloud.putProfile(uid,{profile:pj,email:currentEmail(),_m:state._lastModified||Date.now()}).then(()=>{_meta.profile=ph;}));
+  if(!jobs.length)return;
+  const res=await Promise.allSettled(jobs);
+  if(res.some(r=>r.status==='rejected'))console.warn('[sync] some writes failed',res.filter(r=>r.status==='rejected').map(r=>r.reason));
+  else _lastCloudPushAt=Date.now();
+  _saveMeta(); renderSyncBanner();
 }
 
-// Reconcile this device with the account doc: newer side wins.
-async function _syncFromAccount(key){
-  try{
-    const data=await window.__acct.read(key);
-    if(!data) return;
-    let remoteState=null; try{remoteState=JSON.parse(data.state||'null');}catch(e){}
-    if(!remoteState){
-      // Account has no state yet — seed it from this device.
-      await window.__acct.writeState(key, JSON.stringify(state), state._lastModified||Date.now());
-      _lastCloudPushAt=Date.now();
+// Merge workouts coming from the cloud. Returns true if anything changed locally.
+function _mergeRemoteSessions(docs){
+  if(!Array.isArray(state.history))state.history=[];
+  let changed=false;
+  docs.forEach(({id,data})=>{
+    const idx=state.history.findIndex(h=>h&&h.date&&sessionId(h)===id);
+    const local=idx>=0?state.history[idx]:null;
+    const known=_meta.known[id];
+    const localChanged=local?(sessionHash(local)!==known):(!!known&&known!=='DEL');
+    if(data.deleted){
+      if(local&&!localChanged){ state.history.splice(idx,1); changed=true; }
+      if(!localChanged||!local) _meta.known[id]='DEL';
       return;
     }
-    const remoteMod=remoteState._lastModified||0;
-    const localMod=state._lastModified||0;
-    if(remoteMod>=localMod){
-      snapshotBackup&&snapshotBackup();
-      _adoptRemoteState(remoteState);
-    }else{
-      await window.__acct.writeState(key, JSON.stringify(state), localMod);
+    let rs; try{ rs=JSON.parse(data.json); }catch(e){ return; }
+    if(!rs||!rs.date)return;
+    rs.id=id;
+    const rh=sessionHash(rs);
+    if(!local){
+      if(localChanged)return;               // deleted here, not pushed yet — our delete wins
+      state.history.push(rs); _meta.known[id]=rh; changed=true; return;
     }
-    _lastCloudPushAt=Date.now();
-  }catch(e){ console.warn('[acct] sync', e); }
+    if(sessionHash(local)===rh){ _meta.known[id]=rh; return; }
+    // Both sides changed: keep whichever has more logged sets.
+    if(!localChanged||_setsIn(rs)>_setsIn(local)){ state.history[idx]=rs; _meta.known[id]=rh; changed=true; }
+  });
+  if(changed) state.history.sort((a,b)=>(Date.parse(a.date)||0)-(Date.parse(b.date)||0));
+  return changed;
+}
+function _adoptRemoteProfile(data,force){
+  let rp; try{ rp=JSON.parse(data.profile||'null'); }catch(e){ return false; }
+  if(!rp)return false;
+  const rh=_hash(data.profile);
+  if(rh===_meta.profile)return false;
+  const localHash=_hash(JSON.stringify(profileOf(state)));
+  if(localHash===rh){ _meta.profile=rh; return false; }   // our own write coming back
+  const localChanged=localHash!==_meta.profile;
+  if(!force&&localChanged&&(data._m||0)<(state._lastModified||0))return false;   // ours is newer, it'll be pushed
+  const keep={}; PROFILE_SKIP.forEach(k=>{ if(k in state) keep[k]=state[k]; });
+  // Custom splits / exercises made on this device before logging in are kept, not dropped.
+  const mergeById=(a,b)=>{ const out=[...(b||[])]; (a||[]).forEach(x=>{ if(x&&!out.some(y=>y&&y.id===x.id)) out.push(x); }); return out; };
+  const cp=mergeById(state.customPrograms,rp.customPrograms), ce=mergeById(state.customExercises,rp.customExercises);
+  state=Object.assign(rp,keep); state.customPrograms=cp; state.customExercises=ce;
+  _meta.profile=rh;
+  return true;
+}
+function _afterRemoteChange(){
+  _suppressCloudPush=true;
+  try{
+    try{ localStorage.setItem('dumbass_state',JSON.stringify(state)); }catch(e){}
+    if(!state.today)loadDay(state.currentDayIdx||0); else restoreLiveSessionIntoToday();
+    const v=document.querySelector('.view.active'); const id=v?v.id.replace('view-',''):'today';
+    if(id==='today')renderToday(); else if(id==='progress')renderProgress(); else if(id==='program'){renderProgram();renderVolume();}
+  }finally{ _suppressCloudPush=false; }
+  _saveMeta(); renderSyncBanner();
 }
 
-// Live mirror from the account doc (ignore our own writes & stale data).
-function _subscribeAccount(key){
-  if(!window.__acct)return;
-  window.__acct.subscribe(key, (data)=>{
-    if(!data||!data.state)return;
-    if(data.deviceId===getDeviceId())return;
-    let rs=null; try{rs=JSON.parse(data.state);}catch(e){return;}
-    if(!rs)return;
-    if((rs._lastModified||0) < (state._lastModified||0))return; // ours is newer
-    _adoptRemoteState(rs);
-    toast('Synced from cloud');
+// First sync on a device: pull everything, merge, then push what only this device has.
+async function _firstSync(){
+  const uid=currentUid();
+  const [prof,docs]=await Promise.all([window.__cloud.getProfile(uid),window.__cloud.getSessions(uid)]);
+  if(prof)_adoptRemoteProfile(prof,true);         // the account's settings win on a new device
+  _mergeRemoteSessions(docs);
+  _meta.first=false;
+  _afterRemoteChange();
+  await cloudPushNow();
+}
+async function _startSync(){
+  if(!currentUid()||!window.__cloud)return;
+  _loadMeta();
+  try{ if(_meta.first) await _firstSync(); }catch(e){ console.warn('[sync] first',e); return; }
+  window.__cloud.subscribe(currentUid(),
+    data=>{ if(_adoptRemoteProfile(data,false)) _afterRemoteChange(); },
+    docs=>{ if(_mergeRemoteSessions(docs)) _afterRemoteChange(); else _saveMeta(); });
+  cloudPushNow();
+}
+
+// Wait for the cloud module, then follow Firebase's signed-in state.
+function cloudInitOnLoad(){
+  if(!window.__cloud||cloudInitOnLoad._done)return;
+  cloudInitOnLoad._done=true;
+  window.__cloud.onAuth(u=>{
+    const was=currentUid();
+    _user=u;
+    if(u&&u.uid!==was)_startSync();
+    if(!u){ window.__cloud.unsubscribe(); _meta=null; }
+    renderSyncBanner(); renderSyncCard();
+    try{ document.getElementById('avatar-btn').textContent=avatarInitial(); }catch(e){}
   });
 }
 
-// On page load: resume a saved session, reconcile, and start the live mirror.
-async function cloudInitOnLoad(){
-  if(!window.__acct){ renderSyncBanner&&renderSyncBanner(); return; }
-  if(_session){
-    await _syncFromAccount(_session.key);
-    _subscribeAccount(_session.key);
-  }
-  renderSyncBanner&&renderSyncBanner(); renderSyncCard&&renderSyncCard();
-}
-
-// Manual immediate pull (banner "PULL NOW") for when a device looks behind.
+// "PULL" on the banner: re-read everything from the cloud right now.
 async function manualCloudPull(){
   if(!currentUid()){openLogin('login');return;}
-  if(!window.__acct){toast('Cloud not loaded yet');return;}
-  toast('Pulling from cloud…');
+  if(!window.__cloud){toast('Cloud not loaded yet');return;}
   try{
-    const data=await window.__acct.read(currentUid());
-    if(!data||!data.state){toast('Account has no data yet');return;}
-    let rs=null; try{rs=JSON.parse(data.state);}catch(e){}
-    if(!rs){toast('Cloud data unreadable');return;}
-    if(data.deviceId===getDeviceId()){toast('Already up to date');_lastCloudPushAt=Date.now();renderSyncBanner();return;}
-    snapshotBackup&&snapshotBackup();
-    _adoptRemoteState(rs);
-    _lastCloudPushAt=Date.now();
-    renderSyncBanner();
-    toast('Synced — latest pulled');
-  }catch(e){toast('Cloud reach failed');}
+    const [prof,docs]=await Promise.all([window.__cloud.getProfile(currentUid()),window.__cloud.getSessions(currentUid())]);
+    let ch=_mergeRemoteSessions(docs);
+    if(prof&&_adoptRemoteProfile(prof,false))ch=true;
+    if(ch)_afterRemoteChange();
+    await cloudPushNow();
+    _lastCloudPushAt=Date.now(); renderSyncBanner();
+    toast(ch?'Synced — latest pulled':'Already up to date');
+  }catch(e){toast('Couldn’t reach the cloud');}
 }
 
 function fmtAgo(ms){
@@ -2978,6 +3036,7 @@ function renderSyncCard(){
       <button class="btn-ghost" onclick="manualCloudPull()" style="color:var(--cobalt-bright);flex:1">PULL NOW</button>
       <button class="btn-ghost" onclick="doLogout()" style="color:var(--red);flex:1">LOG OUT</button>
     </div>
+    <button class="btn-ghost" onclick="deleteAccountFlow()" style="color:var(--text-faint);width:100%;margin-top:6px;font-size:10px">Delete account</button>
   `;
 }
 
@@ -3011,6 +3070,7 @@ function syncLoginRender(){
   const toggle=document.getElementById('login-toggle');
   if(toggle)toggle.innerHTML=isSignup?'Have an account? <b>Log in</b>':'New here? <b>Create an account</b>';
   const hint=document.getElementById('login-hint'); if(hint)hint.style.display=isSignup?'':'none';
+  const fg=document.getElementById('login-forgot'); if(fg)fg.style.display=isSignup?'none':'';
   const pw=document.getElementById('login-pw'); if(pw)pw.setAttribute('autocomplete', isSignup?'new-password':'current-password');
   _setLoginPwShown(false);
   const err=document.getElementById('login-error'); if(err)err.textContent='';
@@ -3023,79 +3083,115 @@ function _setLoginBusy(on){
 }
 // A cloud call that never answers must not leave the button spinning forever.
 function _withTimeout(pr,ms){return Promise.race([pr,new Promise((_,rej)=>setTimeout(()=>rej(new Error('__net')),ms))]);}
+function _authMsg(e){
+  const c=(e&&e.code)||(e&&e.message)||'';
+  if(/network|__net|unavailable/i.test(c))return 'Couldn’t reach the cloud. Check your connection and try again.';
+  if(/too-many-requests/.test(c))return 'Too many tries. Wait a minute and try again.';
+  if(/weak-password/.test(c))return 'Use at least 6 characters.';
+  if(/invalid-email/.test(c))return 'That email looks invalid.';
+  if(/operation-not-allowed|configuration-not-found/i.test(c))return 'Accounts are switched off right now. Try again later.';
+  return 'Something went wrong. Try again.';
+}
+// Accounts made before real logins existed live in the old `accounts` store.
+// If the password matches there, pull that data into this device first; the
+// new account is then created with the same email + password and gets it all.
+async function _tryLegacyLogin(email,pw){
+  let old=null;
+  try{ old=await _withTimeout(window.__cloud.legacyRead(await _emailKey(email)),20000); }catch(e){ return 'none'; }
+  if(!old||!old.salt)return 'none';
+  if(await _pbkdf2(pw,old.salt)!==old.pwHash)return 'wrong';
+  let ls=null; try{ ls=JSON.parse(old.state||'null'); }catch(e){}
+  if(ls){
+    snapshotBackup&&snapshotBackup();
+    const tmp=_meta; _meta={known:{},profile:'',first:true};
+    _mergeRemoteSessions((ls.history||[]).filter(h=>h&&h.date).map(h=>({id:sessionId(h),data:{json:JSON.stringify(h),deleted:false}})));
+    if((ls._lastModified||0)>(state._lastModified||0)){
+      const keep={}; PROFILE_SKIP.forEach(k=>{ if(k in state) keep[k]=state[k]; });
+      state=Object.assign(profileOf(ls),keep);
+    }
+    _meta=tmp;
+    _suppressCloudPush=true; try{ save(); }finally{ _suppressCloudPush=false; }
+    loadDay(state.currentDayIdx||0);
+  }
+  return 'ok';
+}
 async function submitLogin(){
-  const email=(document.getElementById('login-email').value||'').trim();
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
   const pw=(document.getElementById('login-pw').value||'');
   const err=document.getElementById('login-error');
   const signup=_loginMode==='signup';
   if(!email||!pw){ if(err)err.textContent='Enter email and password.'; return; }
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ if(err)err.textContent='That email looks invalid.'; return; }
   if(signup && pw.length<6){ if(err)err.textContent='Use at least 6 characters.'; return; }
-  if(!window.__acct){ if(err)err.textContent='Still loading — try again in a second.'; return; }
+  if(!window.__cloud){ if(err)err.textContent='Still loading — try again in a second.'; return; }
   _setLoginBusy(true);
   if(err)err.textContent='';
   try{
-    const key=await _emailKey(email);
-    let existing;
-    try{ existing=await _withTimeout(window.__acct.read(key),20000); }
-    catch(netErr){ throw new Error('__net'); }
     if(signup){
-      if(existing){
-        // Account already exists — flip to login, keep the email, focus password.
-        _setLoginBusy(false);
-        setLoginMode('login');
-        const em=document.getElementById('login-email'); if(em)em.value=email;
-        if(err)err.textContent='That email already has an account.';
-        const p=document.getElementById('login-pw'); if(p){p.value='';p.focus();}
-        return;
+      try{ await _withTimeout(window.__cloud.signUp(email,pw),20000); }
+      catch(e){
+        if(/email-already-in-use/.test(e&&e.code)){
+          _setLoginBusy(false); setLoginMode('login');
+          const em=document.getElementById('login-email'); if(em)em.value=email;
+          if(err)err.textContent='That email already has an account. Log in instead.';
+          return;
+        }
+        throw e;
       }
-      const salt=_newSalt();
-      const pwHash=await _pbkdf2(pw, salt);
-      state._lastModified=state._lastModified||Date.now();
-      try{
-        await _withTimeout(window.__acct.create(key, { email: email.toLowerCase(), salt, pwHash, state: JSON.stringify(state), _lastModified: state._lastModified }),20000);
-      }catch(netErr){ throw new Error(/longer than|too large|size/i.test(String(netErr&&netErr.message))?'__big':'__net'); }
-      _session={key, email:email.toLowerCase()}; _saveSession(_session);
-      _lastCloudPushAt=Date.now();
-      _subscribeAccount(key);
       closeLogin(); toast('Account created · you\'re signed in and synced');
     }else{
-      if(!existing || !existing.salt){
-        // No account under this email — most likely they meant to create one.
+      try{ await _withTimeout(window.__cloud.signIn(email,pw),20000); }
+      catch(e){
+        if(!/invalid-credential|user-not-found|wrong-password|invalid-login/.test(e&&e.code))throw e;
+        const legacy=await _tryLegacyLogin(email,pw);
+        if(legacy==='ok'){ await _withTimeout(window.__cloud.signUp(email,pw),20000); closeLogin(); toast('Logged in · your account was moved to the new secure login'); return; }
         _setLoginBusy(false);
-        setLoginMode('signup');
-        const em=document.getElementById('login-email'); if(em)em.value=email;
-        const p=document.getElementById('login-pw'); if(p)p.value=pw;
-        if(err)err.textContent='No account with that email yet. Tap Create account to make one.';
+        if(err)err.textContent=legacy==='wrong'?'Wrong password.':'Wrong email or password. New here? Tap Create an account below.';
         return;
       }
-      const pwHash=await _pbkdf2(pw, existing.salt);
-      if(pwHash!==existing.pwHash) throw new Error('Wrong email or password.');
-      _session={key, email:email.toLowerCase()}; _saveSession(_session);
-      try{ await _withTimeout(_syncFromAccount(key),20000); }catch(netErr){ /* logged in locally; sync retries later */ }
-      _subscribeAccount(key);
       closeLogin(); toast('Logged in');
     }
-    renderSyncBanner(); renderSyncCard();
   }catch(e){
-    const m=e&&e.message;
-    const msg=m==='__net'?'Couldn’t reach the cloud. Check your connection and try again.'
-      :m==='__big'?'Your lift history is too big to upload in one go. Tell us and we’ll fix it.'
-      :(m||'Something went wrong.');
-    if(err)err.textContent=msg;
+    if(err)err.textContent=_authMsg(e);
   }finally{
     // Re-enable WITHOUT syncLoginRender() — that would wipe the error message.
     _setLoginBusy(false);
   }
 }
+async function forgotPassword(){
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
+  const err=document.getElementById('login-error');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ if(err)err.textContent='Type your email above first.'; return; }
+  try{ await _withTimeout(window.__cloud.resetPassword(email),20000); if(err)err.textContent=''; toast('Check your email for a reset link'); }
+  catch(e){ if(err)err.textContent=_authMsg(e); }
+}
 // Esc closes the login modal.
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ const m=document.getElementById('login-modal'); if(m&&m.classList.contains('open'))closeLogin(); }});
 async function doLogout(){
   if(!confirm('Log out? Your lifts stay safe in the cloud and on this device.'))return;
-  if(window.__acct)window.__acct.unsubscribe();
-  _session=null; _saveSession(null);
+  clearTimeout(_cloudPushTimer);
+  try{ await cloudPushNow(); }catch(e){}
+  try{ await window.__cloud.signOut(); }catch(e){}
   toast('Logged out');
-  renderSyncBanner(); renderSyncCard();
+}
+// Apple requires this: delete the account and everything stored in the cloud.
+async function deleteAccountFlow(){
+  if(!currentUid())return;
+  if(!confirm('Delete your account? Every workout stored in the cloud is erased for good. Lifts on this device stay here.'))return;
+  const pw=prompt('Type your password to confirm');
+  if(!pw)return;
+  toast('Deleting account…');
+  try{
+    clearTimeout(_cloudPushTimer); window.__cloud.unsubscribe();
+    const uid=currentUid();
+    await _withTimeout(window.__cloud.deleteAccount(pw),30000);
+    try{ localStorage.removeItem('dumbass_sync_'+uid); }catch(e){}
+    toast('Account deleted');
+  }catch(e){
+    const c=(e&&e.code)||'';
+    toast(/wrong-password|invalid-credential/.test(c)?'Wrong password — account not deleted':'Couldn’t delete right now. Try again.');
+    if(currentUid())window.__cloud.subscribe&&_startSync();
+  }
 }
 
 // ============================================================
@@ -3213,109 +3309,6 @@ function backupStatusText(){
   return`${backups.length} auto-backup${backups.length===1?'':'s'} · last ${when}`;
 }
 // ============ SEEDED WITH JACOB'S 2 REAL WORKOUTS ONLY ============
-function seedDemoData(){
-  const now=new Date();
-  const history=[];
-  
-  const realWorkouts=[
-    // -- BLOCK 2, WEEK 3 --
-    {daysAgo:13,dayNum:1,name:'CHEST & BACK',lifts:[
-      {libId:'inc-bench',name:'Incline Bench Press',sets:4,reps:'6-8',primary:true,tag:'PRIMARY',kg:92.5,done:7},
-      {libId:'wide-pulldown',name:'Wide-Grip Lat Pulldown',sets:4,reps:'8-10',primary:true,tag:'PRIMARY',kg:80,done:9},
-      {libId:'inc-db',name:'Incline DB Press',sets:3,reps:'8-10',kg:35,done:9},
-      {libId:'row-db',name:'Single-Arm DB Row',sets:3,reps:'8-10',kg:40,done:10},
-      {libId:'inc-cable-fly',name:'Incline Cable Fly',sets:3,reps:'10-12',kg:16,done:11},
-      {libId:'pullover',name:'Cable Pullover',sets:3,reps:'12-15',kg:30,done:13},
-    ]},
-    {daysAgo:12,dayNum:2,name:'SHOULDERS & ARMS',lifts:[
-      {libId:'lat-raise',name:'DB Lateral Raise',sets:4,reps:'12-15',primary:true,tag:'PRIMARY',kg:7,done:13},
-      {libId:'ohp',name:'Overhead Press',sets:3,reps:'6-8',kg:90,done:7},
-      {libId:'cable-lat',name:'Cable Lateral Raise',sets:3,reps:'12-15',kg:7,done:9},
-      {libId:'rev-fly',name:'Reverse DB Fly',sets:3,reps:'12-15',kg:16,done:11},
-      {libId:'bb-curl',name:'Barbell Curl',sets:3,reps:'8-10',kg:32.5,done:10},
-      {libId:'pushdown',name:'Cable Tricep Pushdown',sets:3,reps:'10-12',kg:22.5,done:11},
-      {libId:'hammer',name:'Hammer Curl',sets:3,reps:'10-12',kg:16,done:11},
-    ]},
-    {daysAgo:11,dayNum:3,name:'LEGS A',lifts:[
-      {libId:'seated-curl',name:'Seated Leg Curl',sets:4,reps:'8-10',primary:true,tag:'PRIMARY',kg:70,done:8},
-      {libId:'standing-calf',name:'Standing Calf Raise',sets:4,reps:'10-12',primary:true,tag:'PRIMARY',kg:95,done:15},
-      {libId:'rdl',name:'Romanian Deadlift',sets:3,reps:'8-10',kg:160,done:6},
-      {libId:'lying-curl',name:'Lying Leg Curl',sets:3,reps:'10-12',kg:37.5,done:9},
-      {libId:'seated-calf',name:'Seated Calf Raise',sets:3,reps:'12-15',kg:95,done:25},
-    ]},
-    {daysAgo:9,dayNum:4,name:'CHEST & BACK',lifts:[
-      {libId:'pullup',name:'Pull-Ups',sets:4,reps:'6-10',primary:true,tag:'PRIMARY',kg:0,done:9},
-      {libId:'flat-bench',name:'Flat Bench Press',sets:4,reps:'6-8',primary:true,tag:'PRIMARY',kg:107.5,done:7},
-      {libId:'t-bar',name:'T-Bar Row',sets:3,reps:'8-10',kg:60,done:9},
-      {libId:'inc-db',name:'Incline DB Press',sets:3,reps:'8-10',kg:35,done:9},
-      {libId:'cable-row',name:'Seated Cable Row',sets:3,reps:'10-12',kg:70,done:11},
-      {libId:'cable-fly-high',name:'High-to-Low Cable Fly',sets:3,reps:'12-15',kg:14,done:13},
-    ]},
-    {daysAgo:8,dayNum:5,name:'SHOULDERS & ARMS',lifts:[
-      {libId:'cable-lat',name:'Cable Lateral Raise',sets:4,reps:'12-15',primary:true,tag:'PRIMARY',kg:8,done:13},
-      {libId:'db-press',name:'Seated DB Shoulder Press',sets:3,reps:'8-10',kg:30,done:9},
-      {libId:'face-pull',name:'Face Pull',sets:3,reps:'12-15',kg:30,done:14},
-      {libId:'preacher',name:'Preacher Curl',sets:3,reps:'8-10',kg:30,done:9},
-      {libId:'skull',name:'Skull Crushers',sets:3,reps:'8-10',kg:35,done:9},
-      {libId:'incline-curl',name:'Incline DB Curl',sets:3,reps:'10-12',kg:14,done:11},
-    ]},
-    {daysAgo:7,dayNum:6,name:'LEGS B',lifts:[
-      {libId:'squat',name:'Back Squat',sets:4,reps:'6-8',primary:true,tag:'PRIMARY',kg:130,done:7},
-      {libId:'hack-sq',name:'Hack Squat',sets:3,reps:'8-10',kg:80,done:9},
-      {libId:'leg-ext',name:'Leg Extension',sets:3,reps:'12-15',kg:70,done:14},
-      {libId:'hanging-raise',name:'Hanging Leg Raise',sets:4,reps:'10-12',kg:0,done:11},
-      {libId:'weighted-crunch',name:'Weighted Crunch',sets:3,reps:'12-15',kg:25,done:13},
-    ]},
-    // -- BLOCK 2, WEEK 4 --
-    {daysAgo:5,dayNum:1,name:'CHEST & BACK',lifts:[
-      {libId:'inc-bench',name:'Incline Bench Press',sets:4,reps:'6-8',primary:true,tag:'PRIMARY',kg:95,done:7},
-      {libId:'wide-pulldown',name:'Wide-Grip Lat Pulldown',sets:4,reps:'8-10',primary:true,tag:'PRIMARY',kg:82.5,done:8},
-      {libId:'inc-db',name:'Incline DB Press',sets:3,reps:'8-10',kg:37.5,done:8},
-      {libId:'row-db',name:'Single-Arm DB Row',sets:3,reps:'8-10',kg:42,done:9},
-      {libId:'inc-cable-fly',name:'Incline Cable Fly',sets:3,reps:'10-12',kg:16,done:12},
-      {libId:'pullover',name:'Cable Pullover',sets:3,reps:'12-15',kg:32,done:12},
-    ]},
-    // -- existing demo entries --
-    {daysAgo:2,dayNum:2,name:'SHOULDERS & ARMS',lifts:[
-      {libId:'lat-raise',name:'DB Lateral Raise',sets:4,reps:'12-15',primary:true,tag:'PRIMARY',kg:7.5,done:12},
-      {libId:'ohp',name:'Overhead Press',sets:3,reps:'6-8',kg:94.4,done:7},
-      {libId:'cable-lat',name:'Cable Lateral Raise',sets:3,reps:'12-15',kg:7.5,done:8},
-      {libId:'rev-fly',name:'Reverse DB Fly',sets:3,reps:'12-15',kg:18,done:10},
-      {libId:'bb-curl',name:'Barbell Curl',sets:3,reps:'8-10',kg:35,done:10},
-    ]},
-    {daysAgo:1,dayNum:3,name:'LEGS A',lifts:[
-      {libId:'seated-curl',name:'Seated Leg Curl',sets:4,reps:'8-10',primary:true,tag:'PRIMARY',kg:75,done:6},
-      {libId:'standing-calf',name:'Standing Calf Raise',sets:4,reps:'10-12',primary:true,tag:'PRIMARY',kg:100,done:15},
-      {libId:'rdl',name:'Romanian Deadlift',sets:3,reps:'8-10',kg:170,done:4},
-      {libId:'lying-curl',name:'Lying Leg Curl',sets:3,reps:'10-12',kg:40,done:8},
-      {libId:'seated-calf',name:'Seated Calf Raise',sets:3,reps:'12-15',kg:100,done:25},
-    ]},
-  ];
-  
-  realWorkouts.forEach(w=>{
-    const date=new Date(now.getTime()-w.daysAgo*24*60*60*1000);
-    const exercises=w.lifts.map(l=>({
-      libId:l.libId,name:l.name,targetSets:l.sets,targetReps:l.reps,
-      primary:l.primary||false,tag:l.tag||null,
-      topSet:{kg:l.kg.toString(),reps:l.done.toString()},
-      done:true,note:''
-    }));
-    let totalSets=0;
-    exercises.forEach(ex=>totalSets+=ex.targetSets||0);
-    history.push({
-      date:date.toISOString(),dayNum:w.dayNum,name:w.name,
-      exercises,totalVolume:0,totalSets,prs:[]
-    });
-  });
-  
-  state.history=history;
-  state.streak=history.length;
-  state.lastCompletedSession=history[history.length-1];
-  state.currentDayIdx=3;
-  state.introSeen=true;
-  loadDay(3);
-  save();
-}
 
 function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let parsed=null;
   try{parsed=JSON.parse(raw);}catch(parseErr){
@@ -3353,7 +3346,6 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
   }
   if(!state.today)loadDay(state.currentDayIdx||0);
   state._v=10;
-  if(state.history.length===0&&!state.introSeen){seedDemoData();}
   // No calendar-based auto-jump: the day shown is whatever completeWorkout()
   // advanced it to, or whatever you last picked via the day picker — it never
   // silently moves on its own just because a calendar day rolled over.
@@ -3712,7 +3704,7 @@ function logInline(i){
   ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
   if(typeof upsertLiveExercise==='function')upsertLiveExercise(ex);
   save();
-  if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}
+  buzz();
   updateExerciseLogUI(i);
   toast(firstLog?'Top set logged':'Updated');
 }
@@ -3823,6 +3815,12 @@ function renderToday(){
   else{btn.textContent='Finish Workout';btn.classList.add('partial');}
 }
 
+// Small tap feedback when a set is logged: native haptics in the iPhone app,
+// vibrate() on Android browsers, nothing elsewhere.
+function buzz(){
+  try{ const H=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Haptics; if(H){ H.impact({style:'LIGHT'}); return; } }catch(e){}
+  if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}
+}
 // === SET LOG ===
 // One row per set, every row the same shape: SET · KG · REPS · ✓.
 // Each set is stored on its own so history shows every set and rep.
@@ -3898,7 +3896,7 @@ function logSet(i,s){
     if(!reps){toast('Enter your reps');if(rEl)rEl.focus();return;}
     if(!isBodyweightEx(ex)&&!kg){toast('Enter the weight');if(kgEl)kgEl.focus();return;}
     r.kg=kg;r.reps=reps;r.done=true;
-    if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}
+    buzz();
   }
   deriveFromSets(ex);
   if(ex.completedSets>0)upsertLiveExercise(ex);else removeLiveExercise(ex);
@@ -5570,7 +5568,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 
 function avatarTap(){showView('profile');}
 
-function avatarInitial(){const n=(state.userName||'').trim();return n?n[0].toUpperCase():'J';}
+function avatarInitial(){const n=(state.userName||'').trim();if(n)return n[0].toUpperCase();const e=(typeof currentEmail==='function'&&currentEmail())||'';return e?e[0].toUpperCase():'•';}
 
 // Lifetime training stats from your logged history — the stuff a lifter
 // actually wants on a profile.
@@ -5678,7 +5676,8 @@ try{
 
 // Cloud sync kicks in after Firebase module reports ready. Will pull-on-load if syncCode is set.
 window.addEventListener('dumbass:sync-ready',()=>{cloudInitOnLoad();});
-if(window.__acct)cloudInitOnLoad();
+if(window.__cloud)cloudInitOnLoad();
+try{ localStorage.removeItem('dumbass_account'); }catch(e){}  // old pre-Auth login
 
 /* ============================================================
    ANTI-SKIP ACCOUNTABILITY + PUSH NOTIFICATIONS
@@ -5889,79 +5888,68 @@ registerSW().then(reg=>{if(reg&&reg.pushManager)reg.pushManager.getSubscription(
 </script>
 
 <!-- ============================================================
-     CLOUD SYNC · Firebase Firestore (single doc per sync code).
-     Reuses the legacy poengliste-17mai-jacob project — now repurposed
-     for DUMBASS LIFT. Rules are open read/write; security comes from
-     the 8-char sync code (32^8 ≈ trillion combinations).
+     CLOUD · Firebase Auth (email + password) + Firestore.
+     Only the signed-in user can read or write their own data.
 ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getFirestore, doc, setDoc, updateDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, getDocs, deleteDoc, collection, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-const firebaseConfig = {
+const app = initializeApp({
   apiKey: "AIzaSyD8cBJlSucIESwRYruh55u15xX21YEMbyM",
   authDomain: "poengliste-17mai-jacob.firebaseapp.com",
   projectId: "poengliste-17mai-jacob",
   storageBucket: "poengliste-17mai-jacob.firebasestorage.app",
   messagingSenderId: "941172987533",
   appId: "1:941172987533:web:dca8398f89afa9e59fb4c4"
-};
+});
+// Offline cache: writes made without signal are queued and sent later.
+let db;
+try{ db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+catch(e){ db = initializeFirestore(app, {}); }
+// initializeAuth (not getAuth) — getAuth pulls in popup/iframe code that hangs inside the iPhone app.
+const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] });
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const userRef = uid => doc(db, "users", uid);
+const sessRef = (uid, id) => doc(db, "users", uid, "sessions", id);
+const sessCol = uid => collection(db, "users", uid, "sessions");
+let unsubs = [];
 
-// Account-based sync WITHOUT Firebase Auth (Auth requires a console/billing step
-// we can't do for the user). Each account is one Firestore doc in `accounts`,
-// keyed by a hash of the email, holding the password hash + the synced state.
-const COLLECTION = "accounts";
-let unsub = null;
-
-function getDeviceIdLocal(){
-  let d=localStorage.getItem('dumbass_device_id');
-  if(!d){d='d-'+Math.random().toString(36).slice(2,10);localStorage.setItem('dumbass_device_id',d);}
-  return d;
-}
-function refOf(key){ return doc(db, COLLECTION, key); }
-
-// Read a full account doc (auth fields + state). Returns null if missing.
-async function acctRead(key){
-  const snap = await getDoc(refOf(key));
-  if(!snap.exists()) return null;
-  return snap.data() || null;
-}
-// Create a brand-new account doc (auth + seeded state).
-async function acctCreate(key, fields){
-  await setDoc(refOf(key), {
-    ...fields,
-    deviceId: getDeviceIdLocal(),
-    updatedAt: serverTimestamp()
-  });
-}
-// Update ONLY the synced state on an existing account (auth fields untouched).
-async function acctWriteState(key, stateJson, lastModified){
-  await updateDoc(refOf(key), {
-    state: stateJson,
-    _lastModified: lastModified,
-    deviceId: getDeviceIdLocal(),
-    updatedAt: serverTimestamp()
-  });
-}
-function acctSubscribe(key, cb){
-  if(unsub){try{unsub();}catch(e){}unsub=null;}
-  unsub = onSnapshot(refOf(key), snap=>{
-    if(!snap.exists())return;
-    cb(snap.data()||{});
-  }, err=>{ console.warn('[acct] subscribe error', err); });
-}
-function acctUnsubscribe(){ if(unsub){try{unsub();}catch(e){}unsub=null;} }
-
-window.__acct = {
-  read: acctRead,
-  create: acctCreate,
-  writeState: acctWriteState,
-  subscribe: acctSubscribe,
-  unsubscribe: acctUnsubscribe,
-  getDeviceId: getDeviceIdLocal,
+window.__cloud = {
+  onAuth: cb => onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email || "" } : null)),
+  signUp: async (email, pw) => (await createUserWithEmailAndPassword(auth, email, pw)).user.uid,
+  signIn: async (email, pw) => (await signInWithEmailAndPassword(auth, email, pw)).user.uid,
+  signOut: () => signOut(auth),
+  resetPassword: email => sendPasswordResetEmail(auth, email),
+  getProfile: async uid => { const s = await getDoc(userRef(uid)); return s.exists() ? s.data() : null; },
+  getSessions: async uid => (await getDocs(sessCol(uid))).docs.map(d => ({ id: d.id, data: d.data() })),
+  putProfile: (uid, data) => setDoc(userRef(uid), data),
+  putSession: (uid, id, data) => setDoc(sessRef(uid, id), data),
+  subscribe: (uid, onProfile, onSessions) => {
+    unsubs.forEach(u => { try{ u(); }catch(e){} });
+    unsubs = [
+      onSnapshot(userRef(uid), s => { if (!s.metadata.hasPendingWrites && s.exists()) onProfile(s.data()); }, e => console.warn("[cloud] profile", e)),
+      onSnapshot(sessCol(uid), q => {
+        const ch = q.docChanges().filter(c => c.type !== "removed" && !c.doc.metadata.hasPendingWrites).map(c => ({ id: c.doc.id, data: c.doc.data() }));
+        if (ch.length) onSessions(ch);
+      }, e => console.warn("[cloud] sessions", e))
+    ];
+  },
+  unsubscribe: () => { unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; },
+  // Apple requires in-app account deletion: wipe every doc, then the login itself.
+  deleteAccount: async pw => {
+    const u = auth.currentUser; if (!u) throw new Error("not signed in");
+    await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw));
+    const docs = (await getDocs(sessCol(u.uid))).docs;
+    for (let i = 0; i < docs.length; i += 400) {
+      const b = writeBatch(db); docs.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit();
+    }
+    await deleteDoc(userRef(u.uid));
+    await deleteUser(u);
+  },
+  // One-time move of accounts made before real logins existed.
+  legacyRead: async key => { const s = await getDoc(doc(db, "accounts", key)); return s.exists() ? s.data() : null; },
 };
 window.dispatchEvent(new Event('dumbass:sync-ready'));
 </script>

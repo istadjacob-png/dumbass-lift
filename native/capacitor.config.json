@@ -1,0 +1,13 @@
+{
+  "appId": "com.dumbasslift.app",
+  "appName": "DUMBASS LIFT",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#FFFFFF"
+  },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 400, "backgroundColor": "#FFFFFF", "showSpinner": false },
+    "StatusBar": { "style": "LIGHT", "backgroundColor": "#FFFFFF" }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "dumbass-lift-native",
+  "private": true,
+  "version": "1.0.0",
+  "description": "iPhone app wrapper for DUMBASS LIFT (Capacitor). The web app in ../ is the source of truth.",
+  "scripts": {
+    "copy-web": "rm -rf www && mkdir -p www && cp ../index.html ../manifest.json ../icon-*.png ../favicon-32.png www/",
+    "sync": "npm run copy-web && npx cap sync ios",
+    "open": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2"
+  }
+}

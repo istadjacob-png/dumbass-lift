@@ -1,39 +1,46 @@
 /* DUMBASS LIFT — service worker.
-   Push notifications only. No fetch/caching on purpose: the app already
-   self-updates via APP_BUILD, and a caching SW would fight that. */
+   Offline support, network-first: when online you always get the newest
+   build (so the APP_BUILD auto-updater still works); when offline the last
+   copy is served from cache. Cloud-sync traffic (Firestore/Auth APIs) is
+   never touched — Firestore has its own offline queue. */
 
-self.addEventListener('install', e => self.skipWaiting());
-self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+const CACHE = 'dumbass-lift-v1';
+const PRECACHE = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'favicon-32.png'];
+// Third-party files the app needs to boot: Firebase SDK + fonts.
+const CACHEABLE_HOSTS = ['www.gstatic.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
-self.addEventListener('push', event => {
-  let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch (e) {}
-  const title = data.title || 'DUMBASS LIFT';
-  const body  = data.body  || "Don't skip today's session.";
-  const url   = data.url   || 'https://istadjacob-png.github.io/dumbass-lift/';
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon: 'icon-192.png',
-      badge: 'icon-192.png',
-      tag: 'dumbass-daily',
-      renotify: true,
-      vibrate: [40, 30, 40],
-      data: { url }
-    })
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)).catch(() => {}).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) ||
-              'https://istadjacob-png.github.io/dumbass-lift/';
-  event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      for (const c of list) {
-        if (c.url.indexOf('dumbass-lift') !== -1 && 'focus' in c) return c.focus();
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  const sameOrigin = url.origin === self.location.origin;
+  const firebaseSdk = url.hostname === 'www.gstatic.com' && url.pathname.startsWith('/firebasejs/');
+  if (!sameOrigin && !(CACHEABLE_HOSTS.includes(url.hostname) && (firebaseSdk || url.hostname !== 'www.gstatic.com'))) return;
+
+  e.respondWith(
+    fetch(req).then(res => {
+      if (res && (res.ok || res.type === 'opaque')) {
+        const copy = res.clone();
+        // Cache the page under one key so "?v=..." reloads still work offline.
+        const key = sameOrigin && req.mode === 'navigate' ? 'index.html' : req;
+        caches.open(CACHE).then(c => c.put(key, copy)).catch(() => {});
       }
-      if (self.clients.openWindow) return self.clients.openWindow(url);
-    })
+      return res;
+    }).catch(() =>
+      caches.match(req, { ignoreSearch: sameOrigin }).then(hit =>
+        hit || (req.mode === 'navigate' ? caches.match('index.html') : Response.error())
+      )
+    )
   );
 });
