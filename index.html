@@ -1670,7 +1670,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.3';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2630,16 +2630,18 @@ function loadDay(idx){
 }
 
 // === LIVE SESSION PERSISTENCE ===
-// Every logged top set is immediately upserted into state.history as a "partial" session,
-// keyed by (today's date, programId, dayNum). This means browsing or switching splits
-// can never lose work — sets only disappear if the user deletes them from history.
+// Every logged set is immediately upserted into state.history as a "partial" session,
+// keyed by (programId, dayNum). It stays open — across midnight too — until you
+// hit Finish; only finished workouts count on Progress. An unfinished one is
+// picked back up for up to a week, so next week's same day starts fresh.
+const LIVE_MAX_AGE=6*864e5;
 function todayDateKey(){return new Date().toISOString().slice(0,10);}
+function _liveFresh(h){const t=Date.parse(h.date);return !isNaN(t)&&Date.now()-t<LIVE_MAX_AGE;}
 function findLiveSessionFor(programId,dayNum){
   if(!Array.isArray(state.history))return null;
-  const key=todayDateKey();
   for(let i=state.history.length-1;i>=0;i--){
     const h=state.history[i];
-    if(h&&h.partial&&h.date&&h.date.slice(0,10)===key&&h.programId===programId&&h.dayNum===dayNum){
+    if(h&&h.partial&&h.date&&_liveFresh(h)&&h.programId===programId&&h.dayNum===dayNum){
       return {idx:i,session:h};
     }
   }
@@ -2651,10 +2653,9 @@ function findCurrentLiveSession(){
 }
 function findAnyLiveSessionForProgram(programId){
   if(!Array.isArray(state.history))return null;
-  const key=todayDateKey();
   for(let i=state.history.length-1;i>=0;i--){
     const h=state.history[i];
-    if(h&&h.partial&&h.date&&h.date.slice(0,10)===key&&h.programId===programId){
+    if(h&&h.partial&&h.date&&_liveFresh(h)&&h.programId===programId){
       return {idx:i,session:h};
     }
   }
@@ -2853,8 +2854,25 @@ function syncTodayToSchedule(){
 }
 function save(){
   if(!_suppressCloudPush)state._lastModified=Date.now();
-  try{localStorage.setItem('dumbass_state',JSON.stringify(state));}catch(e){}
+  _writeState(JSON.stringify(state));
   cloudPushDebounced();
+}
+// Write the live state. Safari gives a site ~5 MB; old auto-backups used to fill
+// it, and then every save failed silently — sets looked logged but were gone
+// on the next reload. Now old backups are dropped to make room (your current
+// data always wins), and if it still won't fit you get told.
+let _storageWarned=false;
+function _writeState(raw){
+  for(let n=0;n<40;n++){
+    try{localStorage.setItem('dumbass_state',raw);_storageWarned=false;return true;}
+    catch(e){
+      const old=_listKeys(RECOVERY_PREFIX).concat(_listKeys(BACKUP_PREFIX));
+      if(!old.length)break;
+      try{localStorage.removeItem(old[0]);}catch(e2){break;}
+    }
+  }
+  if(!_storageWarned){_storageWarned=true;try{toast('Storage full — this workout is NOT being saved on this device');}catch(e){}}
+  return false;
 }
 
 // ============================================================
@@ -2976,7 +2994,7 @@ function _adoptRemoteProfile(data,force){
 function _afterRemoteChange(){
   _suppressCloudPush=true;
   try{
-    try{ localStorage.setItem('dumbass_state',JSON.stringify(state)); }catch(e){}
+    _writeState(JSON.stringify(state));
     if(!state.today)loadDay(state.currentDayIdx||0); else restoreLiveSessionIntoToday();
     const v=document.querySelector('.view.active'); const id=v?v.id.replace('view-',''):'today';
     if(id==='today')renderToday(); else if(id==='progress')renderProgress(); else if(id==='program'){renderProgram();renderVolume();}
@@ -3259,8 +3277,14 @@ async function deleteAccountFlow(){
 // ============================================================
 const BACKUP_PREFIX='dumbass_backup_';
 const RECOVERY_PREFIX='dumbass_recovery_';
-const MAX_BACKUPS=10;
-const MAX_RECOVERIES=5;
+const MAX_BACKUPS=3;
+const MAX_RECOVERIES=2;
+// Trim old slots down to the limits (older builds kept 10 + 5 full copies).
+function pruneBackups(){
+  [[BACKUP_PREFIX,MAX_BACKUPS],[RECOVERY_PREFIX,MAX_RECOVERIES]].forEach(([pre,max])=>{
+    const l=_listKeys(pre);while(l.length>max){try{localStorage.removeItem(l.shift());}catch(e){break;}}
+  });
+}
 
 function _listKeys(prefix){
   const out=[];
@@ -3278,6 +3302,7 @@ function snapshotBackup(){
     const raw=localStorage.getItem('dumbass_state');
     if(!raw)return;
     const key=BACKUP_PREFIX+Date.now();
+    pruneBackups();
     localStorage.setItem(key,raw);
     const list=_listKeys(BACKUP_PREFIX);
     while(list.length>MAX_BACKUPS){
@@ -3335,7 +3360,7 @@ function importDataFromFile(input){
       if(!incomingState||typeof incomingState!=='object'){toast('Bad backup file');return;}
       if(!confirm('Restore this backup? Your current data will be moved to a recovery slot first.'))return;
       safelyWipeState('import');
-      localStorage.setItem('dumbass_state',JSON.stringify(incomingState));
+      if(!_writeState(JSON.stringify(incomingState)))return;
       // Also restore numbered backups if present
       if(Array.isArray(parsed.backups)){
         parsed.backups.forEach(b=>{
@@ -3389,15 +3414,18 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
     }
   }
 }}catch(e){}
+  try{pruneBackups();}catch(e){}
   if(!state.activeProgramId)state.activeProgramId='aesthetic-6';
   if(!state.programs)state.programs={};
   if(!Array.isArray(state.customPrograms))state.customPrograms=[];
   if(!Array.isArray(state.customExercises))state.customExercises=[];
-  // Finalize any partial sessions left over from previous calendar days — they're
-  // no longer "in progress" once today rolls over.
-  if(Array.isArray(state.history)){
-    const tk=todayDateKey();
-    state.history.forEach(h=>{if(h&&h.partial&&h.date&&h.date.slice(0,10)!==tk)h.partial=false;});
+  // Unfinished workouts are NOT closed when the day rolls over — they stay in
+  // progress until you finish them. Older builds did close them overnight; a
+  // finished workout always has exCount, so one without it from the last week
+  // was closed by that rollover and gets reopened (once).
+  if(Array.isArray(state.history)&&!state._reopenedRollover){
+    state.history.forEach(h=>{if(h&&!h.partial&&h.date&&h.exCount===undefined&&_liveFresh(h)&&Array.isArray(h.exercises)&&h.exercises.length)h.partial=true;});
+    state._reopenedRollover=true;
   }
   if(!state.today)loadDay(state.currentDayIdx||0);
   state._v=10;
@@ -3767,9 +3795,10 @@ function logInline(i){
 // number to beat for progressive overload.
 function prevSessionEx(ex){
   const todayK=todayDateKey();
+  const live=findCurrentLiveSession(),liveIdx=live?live.idx:-1;
   for(let i=state.history.length-1;i>=0;i--){
     const s=state.history[i];
-    if(!s||!s.date||s.date.slice(0,10)===todayK)continue;
+    if(!s||!s.date||i===liveIdx||s.date.slice(0,10)===todayK)continue;
     const e=(s.exercises||[]).find(x=>(ex.libId&&x.libId===ex.libId)||x.name===ex.name);
     if(e&&e.topSet&&(e.topSet.reps||e.topSet.kg))return e;
   }
@@ -4540,13 +4569,14 @@ function completeWorkout(){
 function renderProgHistory(){
   const c=document.getElementById('prog-tab-history');
   if(!c)return;
-  if(state.history.length===0){c.innerHTML='<div class="empty-state">No sessions logged yet<br><br>Complete your first workout.</div>';return;}
+  // Only finished workouts live on Progress — one you're still logging stays on Today.
+  if(!state.history.some(h=>h&&!h.partial)){c.innerHTML='<div class="empty-state">No sessions logged yet<br><br>Complete your first workout.</div>';return;}
 
   if(!state.historySearch)state.historySearch='';
   if(!state.historyOpen)state.historyOpen='';
   const q=state.historySearch.toLowerCase();
 
-  const sorted=[...state.history].reverse();
+  const sorted=state.history.filter(h=>h&&!h.partial).reverse();
   // Every session starts closed — it only opens when you tap it.
   const filtered=q
     ?sorted.filter(h=>{
