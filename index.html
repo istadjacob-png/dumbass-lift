@@ -1104,6 +1104,21 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .exercise.ss{border-left:4px solid #FF3300!important}
 
 /* ===== SUPERSET BLOCK — lifts done back to back, drawn as one unit ===== */
+.sw-wrap{position:relative;margin-bottom:8px}
+.sw-wrap>:last-child{margin-bottom:0!important;position:relative;z-index:1;touch-action:pan-y}
+.sw-wrap.sw-moving>:last-child{transition:none}
+.sw-wrap.sw-back>:last-child{transition:transform .2s ease}
+.sw-under{position:absolute;inset:0;display:none;align-items:center;justify-content:space-between;padding:0 18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;font-weight:700;color:#FFF;text-transform:uppercase}
+.sw-under span{opacity:.55;transition:opacity .1s}
+.sw-wrap.arm .sw-under span{opacity:1}
+.sw-wrap.sw-l .sw-under{display:flex;background:#FF3300;justify-content:flex-end}
+.sw-wrap.sw-r .sw-under{display:flex;background:#000;justify-content:flex-start}
+.sw-wrap.sw-l .sw-under .l,.sw-wrap.sw-r .sw-under .r{display:none}
+.ss-block .sw-wrap{margin-bottom:4px}
+.sb-exs .sw-wrap{margin-bottom:0}
+.sb-exs .sw-wrap>.sb-ex{background:#FFF}
+.hist-detail .sw-wrap{margin-bottom:0}
+.hist-detail .sw-wrap>.hd-ex{background:#FFF}
 .cx-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
 .cx-tools button{border:1px solid #000;background:#FFF;color:#000;padding:10px 4px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:0}
 .cx-tools button.on{background:#000;color:#FFF}
@@ -1665,7 +1680,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.9';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.10';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4151,13 +4166,13 @@ function renderToday(){
     </div>`;
     if(ex.ss)cls+=' ss';
     if(ex===ssPickEx)cls+=' ss-picking';
-    return `<div class="${cls}" data-ex-idx="${i}" onclick="${ex.skipped?`unskipExerciseAt(${i})`:`cardTap(${i})`}">
+    return swWrap(`<div class="${cls}" data-ex-idx="${i}" onclick="${ex.skipped?`unskipExerciseAt(${i})`:`cardTap(${i})`}">
       <div class="ex-info">
         <div class="ex-name">${esc(ex.name)}${isCustomLift(ex)?'<span class="cm-badge">CM</span>':''}</div>
         <div class="ex-meta">${leftMeta}</div>
       </div>
       ${rightSets}
-    </div>${inlineHtml}`;
+    </div>`,`removeExAt(${i})`,`openExerciseEdit(${i})`)+inlineHtml;
   };
   // Supersets render as one joined block; everything else as a plain card.
   const ssL=ssLetters(exs);
@@ -4923,10 +4938,10 @@ function renderProgHistory(){
               setsHtml=`<div class="hd-set"><span class="sn">${ex.skipped?'SKIPPED':'NO SETS LOGGED'}</span><span class="sv"></span></div>`;
             }
             const vol=Math.round(exVolume(ex));
-            return `<div class="hd-ex${isPr?' is-pr':''}">
+            return swWrap(`<div class="hd-ex${isPr?' is-pr':''}">
               <div class="hd-ex-head"><span class="n">${esc(ex.name)}${isPr?' · PR':''}${ex.ss?' · SUPERSET':''}</span><span class="t">${vol?vol.toLocaleString('en')+' KG':''}</span><button class="x" onclick="event.stopPropagation();deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')" title="Delete this lift">×</button></div>
               ${setsHtml}
-            </div>`;
+            </div>`,`deleteHistoryLift('${safeDate}','${key.replace(/'/g,'')}')`,'');
           }).join('');
         const timeStr=d.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
         const summary=`<div class="hd-summary">${timeStr} · ${h.totalSets||0} sets · ${(h.totalVolume||0).toLocaleString('en')} kg total</div>`;
@@ -5365,19 +5380,111 @@ function closeModalBg(e){if(e.target.classList.contains('modal-bg')){e.target.cl
 function openCustomExForm(){
   const sel=document.getElementById('cx-muscle');
   sel.innerHTML=Object.keys(MUSCLE_NAMES).map(k=>`<option value="${k}">${MUSCLE_NAMES[k]}</option>`).join('');
+  _cxEditId=null;
+  document.querySelector('#custom-ex-modal h2').innerHTML='ADD TO <span class="accent">LIBRARY</span>';
   document.getElementById('cx-name').value='';
   cxPickTool('BARBELL');
   document.getElementById('custom-ex-modal').classList.add('open');
   setTimeout(()=>document.getElementById('cx-name').focus(),50);
 }
+// === SWIPE: left = delete, right = edit — on every list of lifts ===
+// Works with a finger (iPhone) and a two-finger trackpad swipe (Mac).
+// swWrap(html, leftAction, rightAction) — actions are JS strings like inline onclicks.
+function swWrap(html,left,right){
+  const a=v=>v?String(v).replace(/"/g,'&quot;'):'';
+  return `<div class="sw-wrap" data-swl="${a(left)}" data-swr="${a(right)}"><div class="sw-under"><span class="l">✎ Edit</span><span class="r">Delete ✕</span></div>${html}</div>`;
+}
+const SW_FIRE=80;
+let _sw=null,_swBlockClick=0;
+function _swTop(w){return w.lastElementChild;}
+function _swMove(w,dx){
+  const L=w.dataset.swl,R=w.dataset.swr;
+  if((dx<0&&!L)||(dx>0&&!R))dx=dx/5;              // no action that way: just a little give
+  _swTop(w).style.transform=dx?`translateX(${dx}px)`:'';
+  w.classList.toggle('sw-l',dx<0&&!!L);w.classList.toggle('sw-r',dx>0&&!!R);
+  w.classList.toggle('arm',Math.abs(dx)>=SW_FIRE&&((dx<0&&L)||(dx>0&&R)));
+  return dx;
+}
+function _swEnd(w,dx){
+  const act=dx<=-SW_FIRE?w.dataset.swl:dx>=SW_FIRE?w.dataset.swr:'';
+  w.classList.remove('sw-moving');w.classList.add('sw-back');
+  _swMove(w,0);w.classList.remove('sw-l','sw-r','arm');
+  setTimeout(()=>w.classList.remove('sw-back'),220);
+  if(act){_swBlockClick=Date.now();buzz();setTimeout(()=>{try{new Function(act)();}catch(e){console.warn('[swipe]',e);}},10);}
+}
+document.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  const w=e.target.closest&&e.target.closest('.sw-wrap');if(!w)return;
+  if(e.target.closest('input,select,textarea'))return;
+  _sw={w,x:e.clientX,y:e.clientY,dx:0,dir:0,id:e.pointerId};
+},{passive:true});
+document.addEventListener('pointermove',e=>{
+  if(!_sw||e.pointerId!==_sw.id)return;
+  const dx=e.clientX-_sw.x,dy=e.clientY-_sw.y;
+  if(!_sw.dir){
+    if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)*1.2){_sw.dir=1;_sw.w.classList.add('sw-moving');try{_sw.w.setPointerCapture(e.pointerId);}catch(_){}}
+    else if(Math.abs(dy)>8){_sw=null;return;}
+    else return;
+  }
+  _sw.dx=_swMove(_sw.w,dx);
+});
+function _swUp(e){
+  if(!_sw||e.pointerId!==_sw.id)return;
+  const s=_sw;_sw=null;
+  if(s.dir){_swBlockClick=Date.now();_swEnd(s.w,s.dx);}
+}
+document.addEventListener('pointerup',_swUp);
+document.addEventListener('pointercancel',e=>{if(_sw&&e.pointerId===_sw.id){const s=_sw;_sw=null;if(s.dir)_swEnd(s.w,0);}});
+// A swipe must never also count as a tap on the card.
+document.addEventListener('click',e=>{if(Date.now()-_swBlockClick<350){e.stopPropagation();e.preventDefault();}},true);
+// Mac trackpad: two-finger sideways swipe arrives as wheel events.
+let _swWheel=null;
+document.addEventListener('wheel',e=>{
+  const w=e.target.closest&&e.target.closest('.sw-wrap');
+  if(!_swWheel){
+    if(!w||Math.abs(e.deltaX)<=Math.abs(e.deltaY)||Math.abs(e.deltaX)<2)return;
+    _swWheel={w,dx:0,t:0};w.classList.add('sw-moving');
+  }
+  if(w&&w!==_swWheel.w&&!_swWheel.dx)return;
+  e.preventDefault();
+  const s=_swWheel;
+  s.dx=Math.max(-160,Math.min(160,s.dx-e.deltaX));
+  const shown=_swMove(s.w,s.dx);
+  clearTimeout(s.t);
+  s.t=setTimeout(()=>{_swWheel=null;_swEnd(s.w,shown);},140);
+},{passive:false});
+
 function cxPickTool(v){document.getElementById('cx-equip').value=v;document.querySelectorAll('#cx-tools button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));}
 function closeCustomExForm(){document.getElementById('custom-ex-modal').classList.remove('open');}
+// Swipe right on one of your own lifts: same form, filled in.
+let _cxEditId=null;
+function editCustomExercise(id){
+  const ex=(state.customExercises||[]).find(e=>e.id===id);if(!ex)return;
+  openCustomExForm();
+  _cxEditId=id;
+  document.getElementById('cx-name').value=ex.name;
+  document.getElementById('cx-muscle').value=ex.muscle;
+  cxPickTool(ex.equipment||'OTHER');
+  document.querySelector('#custom-ex-modal h2').innerHTML='EDIT <span class="accent">LIFT</span>';
+}
 function saveCustomExercise(){
   const name=(document.getElementById('cx-name').value||'').trim();
   const muscle=document.getElementById('cx-muscle').value;
   const equipment=document.getElementById('cx-equip').value;
   if(!name){toast('Name required');return;}
   if(!muscle){toast('Pick a muscle');return;}
+  if(_cxEditId){
+    const ex=(state.customExercises||[]).find(e=>e.id===_cxEditId);_cxEditId=null;
+    if(ex){
+      const old=ex.name;Object.assign(ex,{name,muscle,equipment});
+      // Rename it wherever it's already planned.
+      const fix=l=>(l||[]).forEach(e=>{if(e&&e.libId===ex.id&&e.name===old)e.name=name;});
+      if(state.today)fix(state.today.exercises);
+      try{getActiveSchedule().forEach(d=>fix(d.exercises));}catch(e){}
+    }
+    save();closeCustomExForm();filterLib();renderToday();
+    toast('Saved');return;
+  }
   const baseId='cx-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32);
   let id=baseId||('cx-'+Date.now());
   const existing=new Set(getLibrary().map(e=>e.id));
@@ -5413,7 +5520,8 @@ function filterLib(){
   document.getElementById('lib-results').innerHTML=filtered.map(e=>{
     const cm=e.custom?' <span class="cm-badge" title="Made by you">CM</span>':'';
     const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';
-    return `<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(e.name)}${cm}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;
+    const row=`<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(e.name)}${cm}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;
+    return e.custom?swWrap(row,`deleteCustomExercise('${e.id}')`,`editCustomExercise('${e.id}')`):row;
   }).join('')||'<div class="empty-state">Not in the library yet — add it with the button above</div>';
 }
 // Look at a split without switching to it: every day, every exercise.
@@ -5499,7 +5607,7 @@ function renderSplitBuilder(){
   document.getElementById('sb-name').value=splitBuilder.name;
   const list=document.getElementById('sb-days');
   list.innerHTML=splitBuilder.days.map((d,i)=>{
-    const exs=d.rest?'':`<div class="sb-exs">${(d.exercises||[]).map((e,k)=>`<div class="sb-ex"><span class="sb-ex-n">${esc(e.name)}</span><span class="sb-ex-t">${sxr(e,'×')}</span><button class="sb-ex-rm" onclick="removeBuilderEx(${i},${k})" title="Remove">×</button></div>`).join('')}<button class="sb-ex-add" onclick="openBuilderLib(${i})">+ Exercise</button></div>`;
+    const exs=d.rest?'':`<div class="sb-exs">${(d.exercises||[]).map((e,k)=>swWrap(`<div class="sb-ex"><span class="sb-ex-n">${esc(e.name)}</span><span class="sb-ex-t">${sxr(e,'×')}</span><button class="sb-ex-rm" onclick="removeBuilderEx(${i},${k})" title="Remove">×</button></div>`,`removeBuilderEx(${i},${k})`,`editBuilderEx(${i},${k})`)).join('')}<button class="sb-ex-add" onclick="openBuilderLib(${i})">+ Exercise</button></div>`;
     return `<div class="sb-day-wrap"><div class="sb-day${d.rest?' rest':''}">
     <div class="sb-day-num">${i+1}</div>
     <input class="sb-day-name" type="text" value="${(d.name||'').replace(/"/g,'&quot;')}" placeholder="${d.rest?'Rest':'Name this day, e.g. Push'}" oninput="splitBuilder.days[${i}].name=this.value">
@@ -5514,6 +5622,17 @@ function openBuilderLib(i){
   document.getElementById('lib-title').innerHTML=`ADD TO <span class="accent">DAY ${i+1}</span>`;
   document.getElementById('lib-search').value='';filterLib();
   document.getElementById('lib-modal').classList.add('open');
+}
+function editBuilderEx(i,k){
+  const e=splitBuilder.days[i]&&splitBuilder.days[i].exercises[k];if(!e)return;
+  pendingEx={libId:e.libId,mode:'builder-edit',name:e.name,i,k};
+  document.getElementById('sr-title').innerHTML='EDIT <span class="accent">LIFT</span>';
+  document.getElementById('sr-exname').textContent=e.name;
+  document.getElementById('sr-sets').value=e.targetSets||3;
+  document.getElementById('sr-reps').value=e.targetReps||'';
+  document.getElementById('sr-ss-wrap').style.display='none';
+  document.getElementById('sr-confirm').textContent='Save →';
+  document.getElementById('setsreps-modal').classList.add('open');
 }
 function removeBuilderEx(i,k){splitBuilder.days[i].exercises.splice(k,1);renderSplitBuilder();}
 function addBuilderDay(rest){
@@ -6043,9 +6162,14 @@ function ssGroupIsTemp(id){const g=((state.today&&state.today.exercises)||[]).fi
 function srBump(d){const el=document.getElementById('sr-sets');let v=(parseInt(el.value)||3)+d;v=Math.max(1,Math.min(12,v));el.value=v;}
 function confirmSetsReps(){
   if(!pendingEx)return;
-  const libEx=getLibrary().find(e=>e.id===pendingEx.libId);if(!libEx){pendingEx=null;return;}
   let sets=parseInt(document.getElementById('sr-sets').value)||3;sets=Math.max(1,Math.min(12,sets));
   let reps=(document.getElementById('sr-reps').value||'').trim();
+  if(pendingEx.mode==='builder-edit'){
+    const e=splitBuilder.days[pendingEx.i]&&splitBuilder.days[pendingEx.i].exercises[pendingEx.k];
+    if(e){e.targetSets=sets;e.targetReps=reps;}
+    pendingEx=null;document.getElementById('setsreps-modal').classList.remove('open');renderSplitBuilder();return;
+  }
+  const libEx=getLibrary().find(e=>e.id===pendingEx.libId);if(!libEx){pendingEx=null;return;}
   if(pendingEx.mode==='builder'){
     const d=splitBuilder.days[builderDayIdx];
     if(d){d.exercises=d.exercises||[];d.exercises.push({libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps});}
