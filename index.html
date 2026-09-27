@@ -1144,6 +1144,22 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 .cx-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
 .cx-tools button{border:1px solid var(--g000000);background:var(--gFFFFFF);color:var(--g000000);padding:10px 4px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:0}
 .cx-tools button.on{background:var(--g000000);color:var(--gFFFFFF)}
+.pp-chips{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 12px}
+.pp-chip{border:1px solid var(--text);background:none;color:var(--text);padding:8px 12px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;cursor:pointer;border-radius:0}
+.pp-chip.on{background:var(--text);color:var(--bg)}
+.pp-chart{margin-bottom:10px}
+.pp-legend{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.pp-leg{display:grid;grid-template-columns:12px 1fr auto auto;gap:10px;align-items:center;width:100%;text-align:left;background:var(--bg);border:1px solid var(--border-soft);padding:11px 12px;cursor:pointer;border-radius:0;color:var(--text)}
+.pp-leg i{width:12px;height:12px;border-radius:50%;display:block}
+.pp-leg .n{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp-leg .v{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);white-space:nowrap}
+.pp-tr{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--text-dim);white-space:nowrap}
+.pp-tr.up{color:#1f9e52}.pp-tr.down{color:#E0463A}
+.pp-leg.on{border:2px solid var(--text)}
+.pp-leg.dim{opacity:.45}
+#pp-results .modal-row{margin-bottom:6px}
+#pp-detail .chart-box{display:none}
+#pp-detail .pp-bw-note{display:none}
 .lib-fam-go{font-size:26px;font-weight:300;color:var(--text);line-height:1;padding-left:10px}
 .lib-back{background:none;border:none;padding:4px 0 10px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;color:var(--text-dim);cursor:pointer}
 .lib-fam-title{font-family:'Inter',sans-serif;font-weight:900;font-size:24px;letter-spacing:-.02em;text-transform:uppercase;color:var(--text);line-height:1.05}
@@ -1423,8 +1439,13 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
     <div class="eyebrow">Progressive Overload</div>
     <div class="title"><span class="accent">PROGRESS</span></div>
 
+    <div class="progress-tabs">
+      <button class="progress-tab active" onclick="setProgTab('progress')" id="pt-progress">PROGRESS</button>
+      <button class="progress-tab" onclick="setProgTab('history')" id="pt-history">HISTORY</button>
+    </div>
+    <div id="prog-tab-progress"></div>
     <div id="prog-tab-lifts" style="display:none"></div>
-    <div id="prog-tab-history"></div>
+    <div id="prog-tab-history" style="display:none"></div>
   </div>
 
   <div class="nav">
@@ -1708,7 +1729,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.17';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.18';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -5162,8 +5183,13 @@ function updateHistorySearch(val){
 }
 function renderHistory(){renderProgHistory();}
 
-function setProgTab(tab){['lifts','history'].forEach(t=>{document.getElementById('prog-tab-'+t).style.display=t===tab?'':'none';});if(tab==='lifts')renderProgLifts();if(tab==='history')renderProgHistory();}
-function renderProgress(){renderProgLifts();renderProgHistory();}
+function setProgTab(tab){
+  state.progTab=tab;
+  document.querySelectorAll('.progress-tab').forEach(b=>b.classList.toggle('active',b.id==='pt-'+tab));
+  ['progress','lifts','history'].forEach(t=>{const el=document.getElementById('prog-tab-'+t);if(el)el.style.display=t===tab?'':'none';});
+  if(tab==='progress')renderPP();if(tab==='history')renderProgHistory();
+}
+function renderProgress(){setProgTab(state.progTab==='history'?'history':'progress');}
 
 // All lifts you've ever logged, MOST RECENTLY TRAINED FIRST so your current
 // lifts sit at the front instead of being buried in insertion order.
@@ -5195,7 +5221,8 @@ function _liftSessions(lift,metric){
   const key=lift.libId||lift.name;
   const byDay={};
   state.history.forEach(h=>{
-    const ex=h.exercises.find(e=>(e.libId||e.name)===key);
+    if(!h||h.partial)return;
+    const ex=(h.exercises||[]).find(e=>(e.libId||e.name)===key);
     if(!ex||!ex.topSet)return;
     const w=parseFloat(ex.topSet.kg)||0;
     const reps=parseInt(ex.topSet.reps)||0;
@@ -5296,7 +5323,7 @@ function openLiftDetail(id){const l=_progLiftArray().find(x=>(x.libId||x.name)==
 function backToLiftGrid(){state.progLiftView='grid';try{save();}catch(e){}renderProgLifts();}
 
 // Deep view for ONE lift: chart, headline stats, session log.
-function renderLiftDetail(c){
+function renderLiftDetail(c,embed){
   const lift=state.selectedLift;
   const bw=isBodyweightEx(lift);
   // Loaded lifts toggle Top Set vs Epley est-1RM. Bodyweight tracks reps — no toggle.
@@ -5335,13 +5362,13 @@ function renderLiftDetail(c){
     </div>`;
   }).join('');
 
-  c.innerHTML=`
+  c.innerHTML=(embed?'':`
     <button class="prog-back" onclick="backToLiftGrid()">‹ All lifts</button>
     <div class="lift-picker" onclick="openLiftPicker()" style="cursor:pointer">
       <div style="min-width:0"><div class="lp-l">Viewing</div><div class="lp-name">${esc(lift.name)}</div></div>
       <div class="lp-chev">▾</div>
     </div>
-
+`)+`
 
     <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;gap:8px">
       <div class="big-stat"><div class="l">${peakLabel}</div><div class="v" style="font-size:24px"><span class="accent">${fmt(peak)}</span>${unit?`<span class="unit">${unit}</span>`:''}</div></div>
@@ -5370,6 +5397,127 @@ function renderLiftDetail(c){
   `;
 
   drawChart('weight-chart',sessions,{unit:unit});
+}
+
+// ============ PROGRESS TAB ============
+// One muscle at a time: every lift you've trained for it as its own coloured
+// line (top set over time). Tap a lift underneath to isolate it — the chart
+// zooms to just that lift and its full log shows below. Search by lift name
+// ("bench") or by muscle ("chest") to jump straight there.
+const PP_GROUPS=['CHEST','BACK','SHOULDERS','ARMS','LEGS','ABS'];
+const PP_COLORS=['var(--acc)','#30B158','#AF52DE','#FF9F0A','#FF2D55','#0A84FF','#A2845E','#00B3A4','#8E8E93','#E5C400'];
+let ppGroup=null,ppLift=null;
+function _ppLifts(){
+  const lib=getLibrary(),map=new Map();
+  (state.history||[]).forEach(h=>{
+    if(!h||h.partial||!h.date)return;
+    (h.exercises||[]).forEach(ex=>{
+      const key=ex.libId||ex.name;
+      if(map.has(key))return;
+      const le=lib.find(l=>l.id===ex.libId)||lib.find(l=>l.name===ex.name);
+      const group=le?muscleCategory(le.muscle):null;
+      if(!group)return;
+      map.set(key,{key,libId:ex.libId,name:ex.name,muscle:le.muscle,group});
+    });
+  });
+  const out=[];
+  map.forEach(l=>{const r=_liftSessions(l,'top');if(r.sessions.length){l.bw=r.bw;l.sessions=r.sessions;out.push(l);}});
+  // Most-trained first → they get the strongest colours.
+  out.sort((a,b)=>b.sessions.length-a.sessions.length||a.name.localeCompare(b.name));
+  return out;
+}
+const _ppKey=k=>String(k).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+function renderPP(){
+  const c=document.getElementById('prog-tab-progress');if(!c)return;
+  const all=_ppLifts();
+  if(!all.length){c.innerHTML='<div class="empty-state">Finish a workout and your progress shows up here.</div>';return;}
+  const groups=PP_GROUPS.filter(g=>all.some(l=>l.group===g));
+  if(!ppGroup||!groups.includes(ppGroup))ppGroup=groups[0];
+  c.innerHTML=`
+    <input class="modal-input" id="pp-search" type="text" placeholder="Search a lift or muscle — e.g. bench, chest" autocomplete="off" oninput="ppSearch()">
+    <div id="pp-results"></div>
+    <div class="pp-chips">${groups.map(g=>`<button class="pp-chip${g===ppGroup?' on':''}" onclick="ppPickGroup('${g}')">${g[0]+g.slice(1).toLowerCase()}</button>`).join('')}</div>
+    <div id="pp-body"></div>`;
+  ppRenderBody();
+}
+function ppPickGroup(g){ppGroup=g;ppLift=null;renderPP();}
+function ppPickLift(key){
+  const l=_ppLifts().find(x=>x.key===key);if(!l)return;
+  ppGroup=l.group;ppLift=key;
+  renderPP();
+  const b=document.getElementById('pp-body');if(b)try{b.scrollIntoView({block:'start',behavior:'smooth'});}catch(e){}
+}
+function ppToggleLift(key){ppLift=ppLift===key?null:key;ppRenderBody();}
+function ppSearch(){
+  const box=document.getElementById('pp-results');if(!box)return;
+  const q=(document.getElementById('pp-search').value||'').trim().toLowerCase();
+  if(!q){box.innerHTML='';return;}
+  const all=_ppLifts();
+  const isGroup=g=>q.length>2&&(g.toLowerCase().startsWith(q.replace(/s$/,''))||q.startsWith(g.toLowerCase().replace(/s$/,'')));
+  const hitsMuscle=l=>isGroup(l.group)||(MUSCLE_NAMES[l.muscle]||'').toLowerCase().includes(q)||l.muscle.includes(q);
+  const groups=PP_GROUPS.filter(g=>isGroup(g)&&all.some(l=>l.group===g));
+  const lifts=all.filter(l=>l.name.toLowerCase().includes(q)||hitsMuscle(l));
+  box.innerHTML=groups.map(g=>`<div class="modal-row" onclick="ppPickGroup('${g}')"><div><div class="name">All ${g.toLowerCase()} lifts</div><div class="meta">${all.filter(l=>l.group===g).length} lifts on one chart</div></div><div class="lib-fam-go">›</div></div>`).join('')+
+    lifts.map(l=>{const last=l.sessions[l.sessions.length-1];return `<div class="modal-row" onclick="ppPickLift('${_ppKey(l.key)}')"><div><div class="name">${esc(l.name)}</div><div class="meta">${MUSCLE_NAMES[l.muscle]||l.muscle} · last ${esc(String(last.label))}</div></div><div class="lib-fam-go">›</div></div>`;}).join('')||
+    '<div class="empty-state">No lift or muscle called that in your workouts yet</div>';
+}
+function ppRenderBody(){
+  const body=document.getElementById('pp-body');if(!body)return;
+  // Weighted lifts first (they share the kg chart); bodyweight lifts (reps) after.
+  const lifts=_ppLifts().filter(l=>l.group===ppGroup).sort((a,b)=>(a.bw?1:0)-(b.bw?1:0));
+  lifts.forEach((l,i)=>l.color=PP_COLORS[i%PP_COLORS.length]);
+  const iso=ppLift&&lifts.find(l=>l.key===ppLift);
+  if(ppLift&&!iso)ppLift=null;
+  // Weighted lifts share one kg chart; bodyweight lifts (reps) chart when isolated or when that's all there is.
+  const loaded=lifts.filter(l=>!l.bw);
+  const shown=iso?[iso]:(loaded.length?loaded:lifts);
+  const unit=shown.every(l=>l.bw)?'reps':'kg';
+  const legend=lifts.map(l=>{
+    const s=l.sessions,last=s[s.length-1],d=last.val-s[0].val,u=l.bw?'':'kg';
+    const trend=s.length<2?'<span class="pp-tr">new</span>':d>0?`<span class="pp-tr up">▲ ${d}${u}</span>`:d<0?`<span class="pp-tr down">▼ ${-d}${u}</span>`:'<span class="pp-tr">=</span>';
+    const on=ppLift===l.key,dim=ppLift&&!on;
+    const offChart=!iso&&!shown.includes(l);   // bodyweight: tap to see its reps chart
+    return `<button class="pp-leg${on?' on':''}${dim?' dim':''}" onclick="ppToggleLift('${_ppKey(l.key)}')"><i style="${offChart?`border:2px solid ${l.color};background:none`:`background:${l.color}`}"></i><span class="n">${esc(l.name)}</span><span class="v">${esc(String(last.label))}</span>${trend}</button>`;
+  }).join('');
+  body.innerHTML=`
+    <div class="chart-box pp-chart">
+      <div class="chart-title">${iso?esc(iso.name):ppGroup[0]+ppGroup.slice(1).toLowerCase()} · top set (${unit})</div>
+      ${ppChartSvg(shown)}
+      <div class="chart-hint">${iso?'Tap it again to see all lifts':'Tap a lift to see just that one'}</div>
+    </div>
+    <div class="pp-legend">${legend}</div>
+    <div id="pp-detail"></div>`;
+  if(iso){
+    state.selectedLift={libId:iso.libId,name:iso.name};
+    renderLiftDetail(document.getElementById('pp-detail'),true);
+  }
+}
+function ppChartSvg(lifts){
+  const W=360,H=210,PL=34,PR=12,PT=16,PB=26,cw=W-PL-PR,ch=H-PT-PB;
+  const pts=[];lifts.forEach(l=>l.sessions.forEach(s=>pts.push({t:Date.parse(s.date),v:s.val})));
+  if(!pts.length)return '';
+  let t0=Math.min(...pts.map(p=>p.t)),t1=Math.max(...pts.map(p=>p.t));if(t1===t0){t0-=864e5*3;t1+=864e5*3;}
+  let v0=Math.min(...pts.map(p=>p.v)),v1=Math.max(...pts.map(p=>p.v));
+  // Round axis numbers: steps of 1/2/5/10/20/25/50…
+  const raw=Math.max(1,(v1-v0))/4,mag=Math.pow(10,Math.floor(Math.log10(raw)));
+  const step=[1,2,2.5,5,10].map(m=>m*mag).find(x=>x>=raw)||10*mag;
+  v0=Math.max(0,Math.floor((v0-step*0.3)/step)*step);v1=v0+step;
+  while(v1<Math.max(...pts.map(p=>p.v))+step*0.2)v1+=step;
+  const X=t=>PL+(t-t0)/(t1-t0)*cw,Y=v=>PT+ch-(v-v0)/(v1-v0)*ch;
+  const txt='font-size="9" font-family="JetBrains Mono" style="fill:var(--g9A9A9A)"';
+  let g='';
+  for(let v=v0;v<=v1+1e-9;v+=step){const y=Y(v).toFixed(1);g+=`<line x1="${PL}" x2="${W-PR}" y1="${y}" y2="${y}" style="stroke:var(--gEEEEEE)" stroke-width="1"/><text x="${PL-6}" y="${(+y+3).toFixed(1)}" text-anchor="end" ${txt}>${+v.toFixed(1)}</text>`;}
+  const d=t=>new Date(t).toLocaleDateString('en',{month:'short',day:'numeric'}).toUpperCase();
+  g+=`<text x="${PL}" y="${H-8}" ${txt}>${d(t0)}</text><text x="${W-PR}" y="${H-8}" text-anchor="end" ${txt}>${d(t1)}</text>`;
+  const one=lifts.length===1;
+  lifts.forEach(l=>{
+    const P=l.sessions.map(s=>[X(Date.parse(s.date)).toFixed(1),Y(s.val).toFixed(1)]);
+    if(one&&P.length>1)g+=`<path d="M${P[0][0]},${PT+ch} ${P.map(p=>'L'+p[0]+','+p[1]).join(' ')} L${P[P.length-1][0]},${PT+ch}Z" style="fill:${l.color};opacity:.12"/>`;
+    if(P.length>1)g+=`<polyline points="${P.map(p=>p.join(',')).join(' ')}" fill="none" style="stroke:${l.color}" stroke-width="${one?3:2.4}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    P.forEach(p=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="${one?4:3}" style="fill:${l.color};stroke:var(--gFFFFFF)" stroke-width="1.5"/>`;});
+    if(one){const s=l.sessions[l.sessions.length-1],p=P[P.length-1];g+=`<text x="${Math.min(+p[0],W-PR).toFixed(1)}" y="${(+p[1]-9).toFixed(1)}" text-anchor="end" font-size="11" font-weight="700" font-family="JetBrains Mono" style="fill:${l.color}">${s.val}${l.bw?'':'kg'}</text>`;}
+  });
+  return `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
 }
 
 function openLiftPicker(){const s=document.getElementById('liftpick-search');if(s)s.value='';renderLiftPick();document.getElementById('liftpick-modal').classList.add('open');}
