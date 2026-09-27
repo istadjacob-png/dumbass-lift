@@ -1122,7 +1122,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .cx-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
 .cx-tools button{border:1px solid #000;background:#FFF;color:#000;padding:10px 4px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:0}
 .cx-tools button.on{background:#000;color:#FFF}
-.cm-badge{display:inline-block;vertical-align:middle;margin-left:6px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;font-weight:700;line-height:1;padding:2px 4px 2px 5px;border:1px solid currentColor;color:#FF3300;text-decoration:none}
+.cm-badge{display:inline-block;vertical-align:middle;margin-left:6px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;font-weight:700;line-height:1;padding:2px 4px 2px 5px;border:1px solid currentColor;color:#FF3300;text-decoration:none;white-space:nowrap;text-transform:uppercase}
 .exercise.current .cm-badge{color:#FFF}
 .ss-block{border-left:4px solid #FF3300;padding-left:8px;margin:4px 0 12px}
 .ss-block .exercise{margin-bottom:4px}
@@ -1680,7 +1680,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.12';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.13';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4167,7 +4167,7 @@ function renderToday(){
     if(ex===ssPickEx)cls+=' ss-picking';
     return swWrap(`<div class="${cls}" data-ex-idx="${i}" onclick="${ex.skipped?`unskipExerciseAt(${i})`:`cardTap(${i})`}">
       <div class="ex-info">
-        <div class="ex-name">${esc(ex.name)}${isCustomLift(ex)?'<span class="cm-badge">CM</span>':''}</div>
+        <div class="ex-name">${esc(ex.name)}${isCustomLift(ex)?'<span class="cm-badge">Added by you</span>':''}</div>
         <div class="ex-meta">${leftMeta}</div>
       </div>
       ${rightSets}
@@ -5543,7 +5543,7 @@ function filterLib(){
   }).map((e,i)=>({e,i})).sort((a,b)=>((b.e.custom?1:0)-(a.e.custom?1:0))||(MUSCLE_ORDER.indexOf(a.e.muscle)-MUSCLE_ORDER.indexOf(b.e.muscle))||(a.i-b.i)).map(x=>x.e);
   const sym=libMode==='swap'?'⇄':'+';
   document.getElementById('lib-results').innerHTML=filtered.map(e=>{
-    const cm=e.custom?' <span class="cm-badge" title="Made by you">CM</span>':'';
+    const cm=e.custom?' <span class="cm-badge">Added by you</span>':'';
     const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';
     const row=`<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(e.name)}${cm}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;
     return e.custom?swWrap(row,`deleteCustomExercise('${e.id}')`,`editCustomExercise('${e.id}')`):row;
