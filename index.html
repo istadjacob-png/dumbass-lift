@@ -1144,6 +1144,10 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 .cx-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
 .cx-tools button{border:1px solid var(--g000000);background:var(--gFFFFFF);color:var(--g000000);padding:10px 4px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:0}
 .cx-tools button.on{background:var(--g000000);color:var(--gFFFFFF)}
+.lib-fam-go{font-size:26px;font-weight:300;color:var(--text);line-height:1;padding-left:10px}
+.lib-back{background:none;border:none;padding:4px 0 10px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;color:var(--text-dim);cursor:pointer}
+.lib-fam-title{font-family:'Inter',sans-serif;font-weight:900;font-size:24px;letter-spacing:-.02em;text-transform:uppercase;color:var(--text);line-height:1.05}
+.lib-fam-sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);margin:4px 0 12px;font-weight:700}
 .cm-badge{display:inline-block;vertical-align:middle;margin-left:6px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;font-weight:700;line-height:1;padding:2px 4px 2px 5px;border:1px solid currentColor;color:var(--acc);text-decoration:none;white-space:nowrap;text-transform:uppercase}
 .exercise.current .cm-badge{color:var(--gFFFFFF)}
 .ss-block{border-left:4px solid var(--acc);padding-left:8px;margin:4px 0 12px}
@@ -1492,7 +1496,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="modal-bg" id="lib-modal" onclick="closeModalBg(event)">
   <div class="modal">
     <h2 id="lib-title">ADD <span class="accent">EXERCISE</span></h2>
-    <input class="modal-input" id="lib-search" placeholder="Search..." oninput="filterLib()">
+    <input class="modal-input" id="lib-search" placeholder="Search..." oninput="libFamily=null;filterLib()">
     <button class="add-ex-btn" style="margin-top:0;margin-bottom:12px" onclick="openCustomExForm()">+ ADD EXERCISE TO LIBRARY</button>
     <div id="lib-results"></div>
   </div>
@@ -1704,7 +1708,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.16';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.17';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2226,8 +2230,91 @@ const LIBRARY=[
   {id:'x-zercher-deadlift',name:'Zercher Deadlift',muscle:'hamstrings',secondary:['glutes','biceps'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
   {id:'x-jefferson-deadlift',name:'Jefferson Deadlift',muscle:'glutes',secondary:['quads','hamstrings'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
   {id:'x-landmine-squat',name:'Landmine Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
-  {id:'x-landmine-thruster',name:'Landmine Thruster',muscle:'quads',secondary:['front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'knee'}
+  {id:'x-landmine-thruster',name:'Landmine Thruster',muscle:'quads',secondary:['front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
+  // More versions of the popular lifts (picked from their group in the library)
+  {id:'v-single-arm-incline-db-press',name:'Single-Arm Incline DB Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'DUMBBELL',region:'upper'},
+  {id:'v-incline-cable-press',name:'Incline Cable Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'CABLE',region:'upper'},
+  {id:'v-rope-lat-pulldown',name:'Rope Lat Pulldown',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'CABLE',region:'width'},
+  {id:'v-single-arm-straight-arm-pulldown',name:'Single-Arm Straight-Arm Pulldown',muscle:'lats',type:'ISOLATION',equipment:'CABLE',region:'width'},
+  {id:'v-single-arm-machine-row',name:'Single-Arm Machine Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'MACHINE',region:'thickness'},
+  {id:'v-cable-shoulder-press',name:'Cable Shoulder Press',muscle:'front-delts',secondary:['triceps','side-delts'],type:'COMPOUND',equipment:'CABLE'},
+  {id:'v-single-arm-db-lateral-raise',name:'Single-Arm DB Lateral Raise',muscle:'side-delts',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'v-rope-front-raise',name:'Rope Front Raise',muscle:'front-delts',type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-single-arm-face-pull',name:'Single-Arm Face Pull',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-band-face-pull',name:'Band Face Pull',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'BAND'},
+  {id:'v-ez-bar-cable-curl',name:'EZ-Bar Cable Curl',muscle:'biceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-single-arm-cable-curl',name:'Single-Arm Cable Curl',muscle:'biceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-single-arm-cable-hammer-curl',name:'Single-Arm Cable Hammer Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-ez-bar-pushdown',name:'EZ-Bar Pushdown',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-single-arm-rope-pushdown',name:'Single-Arm Rope Pushdown',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-overhead-cable-ez-bar-extension',name:'Overhead Cable EZ-Bar Extension',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-single-arm-rope-overhead-extension',name:'Single-Arm Rope Overhead Extension',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-standing-ez-bar-overhead-extension',name:'Standing EZ-Bar Overhead Extension',muscle:'triceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'v-overhead-barbell-extension',name:'Overhead Barbell Extension',muscle:'triceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'v-overhead-band-extension',name:'Overhead Band Extension',muscle:'triceps',type:'ISOLATION',equipment:'BAND'},
+  {id:'v-single-arm-db-skull-crusher',name:'Single-Arm DB Skull Crusher',muscle:'triceps',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'v-rope-kickback',name:'Rope Kickback',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-reverse-cable-curl',name:'Reverse Cable Curl',muscle:'forearms',secondary:['biceps'],type:'ISOLATION',equipment:'CABLE'},
+  {id:'v-reverse-db-curl',name:'Reverse DB Curl',muscle:'forearms',secondary:['biceps'],type:'ISOLATION',equipment:'DUMBBELL'}
 ];
+// Popular lifts come in many versions. The library shows ONE row per group
+// (e.g. "Overhead Tricep Extension · 13 versions"); tapping it lists the exact
+// versions with plain labels. [libraryId, label]
+const FAMILIES=[
+  {name:'Bench Press',v:[['flat-bench','Barbell'],['flat-db','Dumbbells'],['x-single-arm-db-bench-press','Single-arm dumbbell'],['smith-bench','Smith machine'],['machine-press','Machine'],['mach-press','Seated machine'],['x-hammer-strength-chest-press','Plate-loaded machine'],['x-converging-chest-press','Converging machine'],['x-wide-chest-press-machine','Wide-grip machine'],['x-cable-chest-press','Cable'],['x-single-arm-cable-press','Single-arm cable'],['x-paused-bench-press','Barbell · paused'],['x-wide-grip-bench-press','Barbell · wide grip'],['x-spoto-press','Barbell · Spoto (stop above chest)'],['larsen-press','Barbell · feet up (Larsen)'],['x-floor-press','Barbell · floor'],['x-db-floor-press','Dumbbells · floor'],['x-neutral-grip-db-press','Dumbbells · palms facing'],['x-squeeze-press','Dumbbells · squeezed together']]},
+  {name:'Incline Press',v:[['inc-bench','Barbell'],['inc-db','Dumbbells'],['x-low-incline-db-press','Dumbbells · low incline'],['x-incline-db-squeeze-press','Dumbbells · squeezed together'],['v-single-arm-incline-db-press','Single-arm dumbbell'],['inc-smith','Smith machine'],['inc-machine-press','Machine'],['x-hammer-strength-incline-press','Plate-loaded machine'],['v-incline-cable-press','Cable'],['x-landmine-chest-press','Landmine'],['x-reverse-grip-bench-press','Barbell · underhand']]},
+  {name:'Decline Press',v:[['dec-bench','Barbell'],['decline-db-press','Dumbbells'],['x-smith-machine-decline-press','Smith machine'],['x-decline-machine-press','Machine']]},
+  {name:'Chest Fly',v:[['flat-fly','Dumbbells · flat'],['x-incline-dumbbell-fly','Dumbbells · incline'],['x-decline-dumbbell-fly','Dumbbells · decline'],['pec-deck','Pec deck machine'],['machine-fly','Fly machine'],['cable-crossover','Cable crossover'],['x-mid-cable-fly','Cable · chest height'],['cable-fly-high','Cable · high to low'],['low-high-fly','Cable · low to high'],['inc-cable-fly','Cable · on incline bench'],['x-decline-cable-fly','Cable · on decline bench'],['x-seated-cable-fly','Cable · seated'],['x-single-arm-cable-fly','Single-arm cable'],['x-band-chest-fly','Band']]},
+  {name:'Push-Up',v:[['push-up','Standard'],['x-wide-push-up','Wide hands'],['diamond-pushup','Diamond (hands close)'],['x-close-grip-push-up','Close grip'],['x-incline-push-up','Hands raised (easier)'],['x-decline-push-up','Feet raised (harder)'],['deficit-pushup','Deficit (on handles)'],['x-weighted-push-up','With plate on back'],['x-ring-push-up','On rings'],['x-band-push-up','With band']]},
+  {name:'Dips',v:[['dips','Chest (lean forward)'],['tricep-dip','Triceps (upright)'],['x-weighted-dip','With added weight'],['x-ring-dip','On rings'],['dips-assisted','Assisted machine'],['x-machine-dip','Seated dip machine'],['bench-dip','On a bench'],['x-bench-dip-weighted','On a bench · weighted']]},
+  {name:'Pull-Up',v:[['pullup','Standard (overhand)'],['x-wide-grip-pull-up','Wide grip'],['x-neutral-grip-pull-up','Palms facing'],['chin-up','Chin-up (underhand)'],['x-commando-pull-up','Commando'],['x-weighted-pull-up','Weighted pull-up'],['x-weighted-chin-up','Weighted chin-up'],['x-band-assisted-pull-up','With band (easier)'],['assisted-pullup','Assisted machine'],['x-negative-pull-up','Slow lowering only']]},
+  {name:'Lat Pulldown',v:[['lat-pulldown','Standard bar'],['wide-pulldown','Wide grip'],['close-pulldown','Close grip (V-handle)'],['neutral-pulldown','Palms facing'],['x-reverse-grip-lat-pulldown','Underhand'],['x-single-arm-lat-pulldown','Single-arm'],['x-kneeling-single-arm-pulldown','Single-arm · kneeling'],['x-machine-lat-pulldown','Machine'],['x-hammer-strength-pulldown','Plate-loaded machine'],['x-behind-the-neck-pulldown','Behind the neck'],['v-rope-lat-pulldown','Rope'],['x-band-lat-pulldown','Band']]},
+  {name:'Straight-Arm Pulldown',v:[['sa-pulldown','Cable · bar'],['x-rope-straight-arm-pulldown','Cable · rope'],['v-single-arm-straight-arm-pulldown','Single-arm cable'],['pullover','Cable pullover (lying)'],['x-lat-prayer','Lat prayer'],['db-pullover','Dumbbell pullover'],['x-barbell-pullover','Barbell pullover'],['x-machine-pullover','Pullover machine']]},
+  {name:'Seated Cable Row',v:[['cable-row','V-handle'],['x-close-grip-seated-row','Close grip'],['x-wide-grip-seated-row','Wide bar'],['x-rope-seated-row','Rope'],['sa-cable-row','Single-arm · seated'],['x-half-kneeling-cable-row','Single-arm · kneeling'],['x-cable-row-to-neck','High row to neck']]},
+  {name:'Barbell Row',v:[['row-bb','Bent-over (overhand)'],['x-underhand-barbell-row','Underhand'],['yates-row','Yates (more upright)'],['pendlay-row','Pendlay (from floor)'],['seal-row','Seal row (lying on bench)'],['x-smith-machine-row','Smith machine'],['t-bar','T-bar'],['meadows-row-bb','Landmine'],['meadows-row','Meadows (single-arm landmine)']]},
+  {name:'Dumbbell Row',v:[['row-db','Single-arm · on bench'],['x-two-arm-db-row','Both arms · bent over'],['x-incline-db-row','Chest on incline bench'],['x-helms-row','Helms (chest on bench)'],['kroc-row','Kroc (heavy, high reps)'],['renegade-row','Renegade (plank)'],['x-kettlebell-row','Kettlebell']]},
+  {name:'Machine Row',v:[['machine-row','Seated machine'],['x-seated-machine-row','Seated machine · chest pad'],['v-single-arm-machine-row','Single-arm machine'],['row-chest-supported','Chest-supported'],['x-chest-supported-t-bar-row','Chest-supported T-bar'],['x-hammer-strength-row','Plate-loaded'],['x-hammer-strength-high-row','High row'],['x-hammer-strength-low-row','Low row'],['x-iso-lateral-row','Iso-lateral']]},
+  {name:'Shrug',v:[['shrug-bb','Barbell'],['shrug-db','Dumbbells'],['cable-shrug','Cable'],['machine-shrug','Machine'],['x-smith-machine-shrug','Smith machine'],['x-trap-bar-shrug','Trap bar'],['x-behind-the-back-shrug','Barbell · behind back'],['x-kelso-shrug','Kelso (chest on bench)'],['x-overhead-shrug','Overhead']]},
+  {name:'Shoulder Press',v:[['ohp','Barbell · standing'],['x-seated-barbell-press','Barbell · seated'],['db-press','Dumbbells · seated'],['x-standing-db-press','Dumbbells · standing'],['x-single-arm-db-press','Single-arm dumbbell'],['arnold','Arnold press'],['machine-ohp','Machine'],['x-hammer-strength-shoulder-press','Plate-loaded machine'],['x-smith-machine-shoulder-press','Smith machine'],['v-cable-shoulder-press','Cable'],['push-press','Push press'],['z-press','Z press (seated on floor)'],['btn-press','Behind the neck'],['landmine-press','Landmine'],['x-kettlebell-press','Kettlebell'],['x-viking-press','Viking press'],['x-bradford-press','Bradford press'],['x-log-press','Log']]},
+  {name:'Lateral Raise',v:[['lat-raise','Dumbbells · standing'],['seated-lateral','Dumbbells · seated'],['v-single-arm-db-lateral-raise','Single-arm dumbbell'],['leaning-lat','Single-arm · leaning'],['x-incline-side-lying-lateral','Lying on incline bench'],['cable-lat','Cable · both arms'],['x-single-arm-cable-lateral','Single-arm cable'],['x-behind-the-back-cable-lateral','Cable · behind the back'],['egyptian-lat','Egyptian (leaning cable)'],['machine-lat-raise','Machine'],['lu-raise','Lu raise (to overhead)'],['x-partial-lateral-raise','Partials'],['x-lateral-raise-drop-set','Drop set'],['x-band-lateral-raise','Band'],['x-kettlebell-lateral-raise','Kettlebell'],['y-raise','Y-raise · dumbbells'],['cable-y-raise','Y-raise · cable']]},
+  {name:'Front Raise',v:[['front-raise','Dumbbells'],['x-barbell-front-raise','Barbell'],['plate-raise','Plate'],['cable-front-raise','Cable · both arms'],['x-single-arm-cable-front-raise','Single-arm cable'],['v-rope-front-raise','Cable · rope'],['x-incline-front-raise','Lying on incline bench'],['x-band-front-raise','Band']]},
+  {name:'Rear Delt Fly',v:[['rev-fly','Dumbbells · bent over'],['x-seated-bent-over-rear-delt-raise','Dumbbells · seated'],['x-chest-supported-rear-delt-raise','Dumbbells · chest on bench'],['x-lying-rear-delt-raise','Lying on bench'],['rev-pec-deck','Reverse pec deck'],['rear-cable','Cable · both arms'],['rope-face-pull','Cable · high'],['x-single-arm-cable-rear-delt-fly','Single-arm cable'],['x-cable-rear-delt-row','Cable rear delt row'],['x-rear-delt-machine-row','Machine row'],['x-band-pull-apart','Band pull-apart'],['prone-y','Prone Y-raise']]},
+  {name:'Face Pull',v:[['face-pull','Cable · rope'],['v-single-arm-face-pull','Single-arm cable'],['x-db-face-pull','Dumbbells'],['v-band-face-pull','Band']]},
+  {name:'Upright Row',v:[['upright-row','Barbell'],['x-wide-grip-upright-row','Barbell · wide grip'],['x-db-upright-row','Dumbbells'],['upright-row-cable','Cable'],['x-smith-machine-upright-row','Smith machine']]},
+  {name:'Bicep Curl',v:[['bb-curl','Barbell'],['x-wide-grip-barbell-curl','Barbell · wide grip'],['ez-curl','EZ-bar'],['x-close-grip-ez-curl','EZ-bar · close grip'],['x-standing-db-curl','Dumbbells · both arms'],['db-curl','Dumbbells · alternating'],['seated-db-curl','Dumbbells · seated'],['incline-curl','Dumbbells · incline bench'],['conc-curl','Concentration (single-arm)'],['spider-curl','Spider (chest on bench)'],['drag-curl','Drag curl'],['x-waiter-curl','Waiter curl'],['zottman-curl','Zottman curl'],['cable-curl','Cable · straight bar'],['v-ez-bar-cable-curl','Cable · EZ-bar'],['x-rope-cable-curl','Cable · rope'],['v-single-arm-cable-curl','Single-arm cable'],['bayesian-curl','Cable · behind body (Bayesian)'],['x-high-cable-curl','Cable · high (double biceps)'],['x-lying-cable-curl','Cable · lying'],['x-machine-bicep-curl','Machine'],['x-kettlebell-curl','Kettlebell'],['x-band-curl','Band'],['x-cheat-curl','Cheat curl'],['x-21s-curl','21s']]},
+  {name:'Preacher Curl',v:[['preacher','Barbell'],['x-ez-bar-preacher-curl','EZ-bar'],['x-db-preacher-curl','Single-arm dumbbell'],['machine-preacher','Machine'],['x-single-arm-cable-preacher-curl','Single-arm cable']]},
+  {name:'Hammer Curl',v:[['hammer','Dumbbells'],['cross-hammer','Cross-body'],['x-incline-hammer-curl','Incline bench'],['x-pinwheel-curl','Pinwheel'],['rope-hammer-curl','Cable · rope'],['v-single-arm-cable-hammer-curl','Single-arm cable']]},
+  {name:'Tricep Pushdown',v:[['pushdown','Straight bar'],['x-straight-bar-pushdown','Straight bar · wide'],['x-v-bar-pushdown','V-bar'],['rope-pd','Rope'],['v-ez-bar-pushdown','EZ-bar'],['reverse-pd','Underhand'],['sa-pushdown','Single-arm · handle'],['v-single-arm-rope-pushdown','Single-arm · rope'],['x-band-pushdown','Band']]},
+  {name:'Overhead Tricep Extension',v:[['overhead-ext','Dumbbell · two hands'],['db-oh-ext','Dumbbells · seated'],['x-single-arm-overhead-db-extension','Single-arm dumbbell'],['oh-cable-ext','Cable · straight bar'],['x-rope-overhead-extension','Cable · rope'],['v-overhead-cable-ez-bar-extension','Cable · EZ-bar'],['x-single-arm-overhead-cable-extension','Single-arm cable'],['v-single-arm-rope-overhead-extension','Single-arm cable · rope'],['x-seated-ez-bar-overhead-extension','EZ-bar · seated'],['v-standing-ez-bar-overhead-extension','EZ-bar · standing'],['v-overhead-barbell-extension','Straight barbell'],['v-overhead-band-extension','Band'],['machine-tri-ext','Machine']]},
+  {name:'Skull Crusher',v:[['skull','Barbell'],['x-ez-bar-skull-crusher','EZ-bar'],['x-db-skull-crusher','Dumbbells'],['v-single-arm-db-skull-crusher','Single-arm dumbbell'],['x-incline-skull-crusher','Incline bench'],['x-cable-skull-crusher','Cable'],['x-rolling-db-extension','Rolling dumbbell'],['jm-press','JM press'],['tate-press','Tate press']]},
+  {name:'Tricep Kickback',v:[['db-kickback','Dumbbell'],['cable-kickback','Single-arm cable'],['v-rope-kickback','Cable · rope'],['x-cross-body-cable-extension','Cable · cross-body']]},
+  {name:'Close-Grip Press',v:[['cgbp','Barbell'],['x-smith-machine-close-grip-press','Smith machine'],['x-close-grip-db-press','Dumbbells'],['x-board-press','Board press']]},
+  {name:'Squat',v:[['squat','Barbell · back'],['x-high-bar-squat','Barbell · high bar'],['x-low-bar-squat','Barbell · low bar'],['x-pause-squat','Barbell · paused'],['box-squat','Barbell · to a box'],['front-sq','Barbell · front'],['safety-bar-squat','Safety bar'],['zercher-squat','Zercher'],['x-heel-elevated-squat','Barbell · heels raised'],['smith-squat','Smith machine'],['x-smith-machine-front-squat','Smith machine · front'],['goblet-sq','Goblet · dumbbell'],['x-kettlebell-goblet-squat','Goblet · kettlebell'],['x-heel-elevated-goblet-squat','Goblet · heels raised'],['x-db-squat','Dumbbells at sides'],['sumo-squat','Sumo · dumbbell'],['x-sumo-squat','Sumo · barbell'],['x-landmine-squat','Landmine'],['belt-squat','Belt squat'],['x-bodyweight-squat','Bodyweight'],['x-jump-squat','Jump squat'],['pistol-sq','Pistol (single-leg)'],['cyclist-sq','Cyclist (narrow, heels up)']]},
+  {name:'Squat Machine',v:[['hack-sq','Hack squat'],['x-reverse-hack-squat','Reverse hack squat'],['pendulum-sq','Pendulum squat'],['x-v-squat-machine','V-squat']]},
+  {name:'Leg Press',v:[['leg-press','Standard'],['x-narrow-stance-leg-press','Feet close (quads)'],['x-wide-stance-leg-press','Feet wide (glutes)'],['sl-leg-press','Single-leg'],['x-horizontal-leg-press','Seated horizontal']]},
+  {name:'Lunge',v:[['lunges','Walking · dumbbells'],['x-barbell-lunge','Barbell'],['x-forward-lunge','Forward'],['reverse-lunge','Reverse'],['x-deficit-reverse-lunge','Reverse · from a step'],['x-lateral-lunge','Side lunge'],['curtsy-lunge','Curtsy'],['smith-lunge','Smith machine']]},
+  {name:'Split Squat',v:[['bulgarian','Bulgarian · barbell'],['x-db-bulgarian-split-squat','Bulgarian · dumbbells'],['x-smith-bulgarian-split-squat','Bulgarian · Smith machine'],['split-squat','Standard split squat'],['x-front-foot-elevated-split-squat','Front foot raised'],['x-smith-machine-split-squat','Smith machine']]},
+  {name:'Step-Up',v:[['step-up','Barbell'],['x-db-step-up','Dumbbells'],['x-petersen-step-up','Petersen (small step)'],['x-step-down','Step-down']]},
+  {name:'Leg Extension',v:[['leg-ext','Both legs'],['x-single-leg-extension','Single-leg'],['sissy-squat','Sissy squat'],['x-reverse-nordic','Reverse Nordic'],['x-spanish-squat','Spanish squat (band)']]},
+  {name:'Leg Curl',v:[['lying-curl','Lying machine'],['x-lying-single-leg-curl','Lying · single-leg'],['seated-curl','Seated machine'],['x-seated-single-leg-curl','Seated · single-leg'],['standing-leg-curl','Standing machine'],['x-cable-leg-curl','Cable'],['x-db-leg-curl','Dumbbell'],['x-swiss-ball-leg-curl','Swiss ball'],['x-slider-leg-curl','Sliders'],['x-band-leg-curl','Band'],['nordic','Nordic curl'],['ghr','Glute-ham raise']]},
+  {name:'Deadlift',v:[['dl','Conventional'],['sumo-dl','Sumo'],['trap-bar-dl','Trap bar'],['deficit-deadlift','Deficit'],['snatch-dl','Snatch grip'],['rack-pull','Rack pull (from knees)'],['x-dumbbell-deadlift','Dumbbells'],['x-kettlebell-sumo-deadlift','Kettlebell sumo'],['x-zercher-deadlift','Zercher'],['x-jefferson-deadlift','Jefferson']]},
+  {name:'Romanian Deadlift',v:[['rdl','Barbell'],['db-rdl','Dumbbells'],['x-smith-machine-rdl','Smith machine'],['x-kettlebell-rdl','Kettlebell'],['x-cable-rdl','Cable'],['snatch-rdl','Barbell · snatch grip'],['sl-rdl','Single-leg'],['x-single-leg-db-rdl','Single-leg · dumbbell'],['stiff-dl','Stiff-legged']]},
+  {name:'Good Morning',v:[['good-morning','Barbell · standing'],['x-seated-good-morning','Seated'],['x-banded-good-morning','Band']]},
+  {name:'Hip Thrust',v:[['hip-thrust','Barbell'],['x-hip-thrust-paused','Barbell · paused'],['bstance-thrust','B-stance'],['x-db-hip-thrust','Dumbbell'],['x-smith-machine-hip-thrust','Smith machine'],['hip-thrust-machine','Machine'],['x-single-leg-hip-thrust','Single-leg'],['glute-bridge','Bridge · bodyweight'],['x-barbell-glute-bridge','Bridge · barbell'],['x-kas-glute-bridge','Kas bridge'],['x-single-leg-glute-bridge','Bridge · single-leg'],['frog-pump','Frog pump']]},
+  {name:'Hip Abduction',v:[['hip-abduct','Seated machine'],['x-standing-hip-abduction-machine','Standing machine'],['x-cable-hip-abduction','Cable'],['x-banded-lateral-walk','Band walk'],['x-clamshell','Clamshell'],['x-fire-hydrant','Fire hydrant']]},
+  {name:'Glute Kickback',v:[['cable-kick','Cable'],['glute-kick-machine','Machine'],['x-donkey-kick','Bodyweight']]},
+  {name:'Back Extension',v:[['hyper','Bodyweight'],['x-weighted-back-extension','Weighted'],['x-hyperextension','Hyperextension'],['x-45-hip-extension','Glute focus'],['x-back-extension-machine','Machine'],['reverse-hyper','Reverse hyper']]},
+  {name:'Calf Raise',v:[['standing-calf','Standing machine'],['seated-calf','Seated machine'],['leg-press-calf','On leg press'],['x-hack-squat-calf-raise','On hack squat'],['smith-calf','Smith machine'],['x-calf-raise-machine','Calf machine'],['donkey-calf','Donkey'],['x-barbell-calf-raise','Barbell'],['x-standing-db-calf-raise','Dumbbells · standing'],['x-seated-db-calf-raise','Dumbbells · seated'],['sl-calf','Single-leg'],['x-bodyweight-calf-raise','Bodyweight']]},
+  {name:'Crunch',v:[['x-crunch','Floor crunch'],['weighted-crunch','Weighted'],['x-decline-crunch','Decline bench'],['cable-crunch','Cable'],['x-kneeling-cable-crunch','Cable · kneeling'],['machine-crunch','Machine'],['x-ab-crunch-machine','Ab crunch machine'],['x-reverse-crunch','Reverse'],['x-cable-reverse-crunch','Reverse · cable'],['bicycle-crunch','Bicycle'],['x-oblique-crunch','Oblique']]},
+  {name:'Sit-Up',v:[['x-sit-up','Bodyweight'],['x-weighted-sit-up','Weighted'],['decline-situp','Decline bench'],['x-jackknife-sit-up','Jackknife'],['v-up','V-up']]},
+  {name:'Leg Raise',v:[['hanging-raise','Hanging · straight legs'],['hanging-knee-raise','Hanging · knees'],['toes-to-bar','Toes to bar'],['x-hanging-oblique-raise','Hanging · twist'],['x-captain-s-chair-leg-raise','Captain\'s chair'],['x-lying-leg-raise','Lying on floor']]},
+  {name:'Plank',v:[['plank','Standard'],['x-weighted-plank','Weighted'],['side-plank','Side plank'],['x-copenhagen-plank','Copenhagen'],['x-plank-shoulder-tap','Shoulder taps']]},
+  {name:'Wrist Curl',v:[['wrist-curl','Barbell'],['x-db-wrist-curl','Dumbbell'],['cable-wrist-curl','Cable'],['behind-wrist','Behind the back'],['reverse-wrist-curl','Reverse · barbell'],['x-db-reverse-wrist-curl','Reverse · dumbbell']]},
+  {name:'Reverse Curl',v:[['reverse-curl','Barbell'],['x-reverse-ez-bar-curl','EZ-bar'],['v-reverse-cable-curl','Cable'],['v-reverse-db-curl','Dumbbells']]},
+  {name:'Farmer\'s Carry',v:[['farmer-carry','Dumbbells · walk'],['x-trap-bar-carry','Trap bar'],['x-suitcase-carry','Single-arm (suitcase)'],['x-farmer-s-hold','Hold in place'],['x-yoke-carry','Yoke']]}
+];
+const FAMILY_OF={};FAMILIES.forEach((f,fi)=>f.v.forEach(([id])=>{FAMILY_OF[id]=fi;}));
+
 
 const MUSCLE_NAMES={'chest':'Chest','lats':'Lats','traps':'Traps','front-delts':'Front Delts','side-delts':'Side Delts','rear-delts':'Rear Delts','biceps':'Biceps','triceps':'Triceps','forearms':'Forearms','abs':'Abs','quads':'Quads','hamstrings':'Hamstrings','glutes':'Glutes','lower-back':'Lower Back','calves':'Calves'};
 
@@ -4833,7 +4920,7 @@ function eeSuperset(){
   }
   libMode='superset';
   document.getElementById('lib-title').innerHTML='PAIR <span class="accent">WITH</span>';
-  document.getElementById('lib-search').value='';filterLib();
+  document.getElementById('lib-search').value='';libFamily=null;filterLib();
   document.getElementById('lib-modal').classList.add('open');
 }
 // Switch a superset between "just today" and "every week" from the Edit sheet.
@@ -5420,8 +5507,8 @@ function drawChart(id,points,opts){
 }
 
 let libMode='add'; // 'add' or 'swap'
-function openExLibrary(){libMode='add';document.getElementById('lib-title').innerHTML='ADD <span class="accent">EXERCISE</span>';document.getElementById('lib-search').value='';filterLib();document.getElementById('lib-modal').classList.add('open');}
-function openSwap(){libMode='swap';document.getElementById('lib-title').innerHTML='SWAP <span class="accent">EXERCISE</span>';document.getElementById('lib-search').value='';filterLib();document.getElementById('lib-modal').classList.add('open');}
+function openExLibrary(){libMode='add';document.getElementById('lib-title').innerHTML='ADD <span class="accent">EXERCISE</span>';document.getElementById('lib-search').value='';libFamily=null;filterLib();document.getElementById('lib-modal').classList.add('open');}
+function openSwap(){libMode='swap';document.getElementById('lib-title').innerHTML='SWAP <span class="accent">EXERCISE</span>';document.getElementById('lib-search').value='';libFamily=null;filterLib();document.getElementById('lib-modal').classList.add('open');}
 function closeModalBg(e){if(e.target.classList.contains('modal-bg')){e.target.classList.remove('open');if(e.target.id==='setsreps-modal')pendingEx=null;}}
 function openCustomExForm(){
   const sel=document.getElementById('cx-muscle');
@@ -5581,20 +5668,55 @@ function deleteCustomExercise(id){
 // Your own exercises first, then every lift grouped by muscle. Duplicate names
 // (a couple of old ids share one) show once.
 const MUSCLE_ORDER=Object.keys(MUSCLE_NAMES);
+let libFamily=null;   // index into FAMILIES while picking the exact version
+function libOpenFamily(fi){libFamily=fi;filterLib();const r=document.getElementById('lib-results');if(r)r.scrollIntoView({block:'start'});}
+function libBack(){libFamily=null;filterLib();}
+function _libRow(e,title,meta,sym){
+  const cm=e.custom?' <span class="cm-badge">Added by you</span>':'';
+  const row=`<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(title)}${cm}</div><div class="meta">${meta}</div></div><div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div>`;
+  return e.custom?swWrap(row,`deleteCustomExercise('${e.id}')`,`editCustomExercise('${e.id}')`):row;
+}
 function filterLib(){
   const q=document.getElementById('lib-search').value.toLowerCase().trim();
-  const seen=new Set();
-  const filtered=getLibrary().filter(e=>{
-    const k=e.name.toLowerCase();if(seen.has(k))return false;seen.add(k);
-    return !q||k.includes(q)||e.muscle.includes(q)||(MUSCLE_NAMES[e.muscle]||'').toLowerCase().includes(q)||e.equipment.toLowerCase().includes(q);
-  }).map((e,i)=>({e,i})).sort((a,b)=>((b.e.custom?1:0)-(a.e.custom?1:0))||(MUSCLE_ORDER.indexOf(a.e.muscle)-MUSCLE_ORDER.indexOf(b.e.muscle))||(a.i-b.i)).map(x=>x.e);
   const sym=libMode==='swap'?'⇄':'+';
-  document.getElementById('lib-results').innerHTML=filtered.map(e=>{
-    const cm=e.custom?' <span class="cm-badge">Added by you</span>':'';
-    const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';
-    const row=`<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(e.name)}${cm}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;
-    return e.custom?swWrap(row,`deleteCustomExercise('${e.id}')`,`editCustomExercise('${e.id}')`):row;
-  }).join('')||'<div class="empty-state">Not in the library yet — add it with the button above</div>';
+  const lib=getLibrary(),byId={};lib.forEach(e=>{if(!byId[e.id])byId[e.id]=e;});
+  const out=document.getElementById('lib-results');
+  const eqName=e=>(e.equipment||'').toLowerCase().replace(/^\w/,c=>c.toUpperCase());
+  // Step 2: the exact versions of one lift.
+  if(libFamily!=null&&FAMILIES[libFamily]){
+    const f=FAMILIES[libFamily];
+    out.innerHTML=`<button class="lib-back" onclick="libBack()">‹ All exercises</button>
+      <div class="lib-fam-title">${esc(f.name)}</div><div class="lib-fam-sub">Pick your version</div>`+
+      f.v.map(([id,label])=>{const e=byId[id];return e?_libRow(e,label,esc(e.name),sym):'';}).join('');
+    return;
+  }
+  // Step 1: one row per lift group, plus every lift that has no group.
+  // Everyday words work too: "shoulders", "back", "arms", "legs".
+  const musHit=m=>m.includes(q)||(MUSCLE_NAMES[m]||'').toLowerCase().includes(q)||(q.length>2&&(muscleCategory(m)||'').toLowerCase().startsWith(q.replace(/s$/,'')));
+  const muscleWord=!!q&&Object.keys(MUSCLE_NAMES).some(musHit);   // "back", "arms"… → match by muscle only
+  const match=e=>!q||musHit(e.muscle)||(!muscleWord&&(e.name.toLowerCase().includes(q)||e.equipment.toLowerCase().includes(q)));
+  const famNames=new Set();FAMILIES.forEach(f=>f.v.forEach(([id])=>{const e=byId[id];if(e)famNames.add(e.name.toLowerCase());}));
+  const rows=[];
+  FAMILIES.forEach((f,fi)=>{
+    const vs=f.v.map(([id,label])=>({e:byId[id],label})).filter(x=>x.e);if(!vs.length)return;
+    const first=vs[0].e;
+    const famHit=!q||f.name.toLowerCase().includes(q)||musHit(first.muscle);
+    if(famHit){rows.push({muscle:first.muscle,html:`<div class="modal-row lib-fam" onclick="libOpenFamily(${fi})"><div><div class="name">${esc(f.name)}</div><div class="meta">${MUSCLE_NAMES[first.muscle]||first.muscle} · ${vs.length} versions</div></div><div class="lib-fam-go">›</div></div>`});return;}
+    // Searching for a specific version: show just the ones that match.
+    if(muscleWord)return;
+    vs.forEach(({e,label})=>{if(e.name.toLowerCase().includes(q)||label.toLowerCase().includes(q))rows.push({muscle:e.muscle,html:_libRow(e,e.name,`${MUSCLE_NAMES[e.muscle]||e.muscle} · ${eqName(e)}`,sym)});});
+  });
+  const seen=new Set(famNames);
+  lib.forEach(e=>{
+    if(FAMILY_OF[e.id]!=null)return;
+    const k=e.name.toLowerCase();if(seen.has(k))return;seen.add(k);
+    if(!match(e))return;
+    rows.push({muscle:e.muscle,custom:!!e.custom,html:_libRow(e,e.name,`${MUSCLE_NAMES[e.muscle]||e.muscle} · ${eqName(e)}`,sym)});
+  });
+  // Your own lifts first, then grouped by muscle; groups before single lifts.
+  rows.forEach((r,i)=>r.i=i);
+  rows.sort((a,b)=>((b.custom?1:0)-(a.custom?1:0))||(MUSCLE_ORDER.indexOf(a.muscle)-MUSCLE_ORDER.indexOf(b.muscle))||(a.i-b.i));
+  out.innerHTML=rows.map(r=>r.html).join('')||'<div class="empty-state">Not in the library yet — add it with the button above</div>';
 }
 // Look at a split without switching to it: every day, every exercise.
 function openSplitOverview(id){
@@ -5692,7 +5814,7 @@ let builderDayIdx=null;
 function openBuilderLib(i){
   builderDayIdx=i;libMode='builder';
   document.getElementById('lib-title').innerHTML=`ADD TO <span class="accent">DAY ${i+1}</span>`;
-  document.getElementById('lib-search').value='';filterLib();
+  document.getElementById('lib-search').value='';libFamily=null;filterLib();
   document.getElementById('lib-modal').classList.add('open');
 }
 function editBuilderEx(i,k){
