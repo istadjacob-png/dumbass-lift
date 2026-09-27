@@ -1106,10 +1106,10 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .ss-block{border-left:4px solid #FF3300;padding-left:8px;margin:4px 0 12px}
 .ss-block .exercise{margin-bottom:4px}
 .ss-block .exercise.ss{border-left:1px solid #000!important}
+.ss-block .exercise::before{display:none}
 .ss-block .inline-log.show{margin:2px 0 8px}
 .ss-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 0 6px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;font-weight:700;text-transform:uppercase}
 .ss-tag{color:#FF3300}
-.ss-round{color:#7A7A7A}
 .ss-block.all-done{opacity:.55}
 .exercise.ss-picking{outline:3px solid #FF3300;outline-offset:-3px;background:#FFF1EB!important;animation:ssPick 1.1s ease-in-out infinite}
 .exercise.ss-picking.current{background:#FF3300!important;border-color:#FF3300!important}
@@ -1658,7 +1658,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.5';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.6';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3967,8 +3967,7 @@ function ssState(idxs){
   return {total,doneR:Math.min(doneR,total),allDone,up};
 }
 function ssHeadHtml(id,idxs){
-  const st=ssState(idxs);
-  return `<span class="ss-tag">Superset</span><span class="ss-round">${st.allDone?'Done':`Round ${Math.min(st.doneR+1,st.total)} of ${st.total}`}</span>`;
+  return `<span class="ss-tag">Superset</span>`;
 }
 function ssBlockHtml(id,idxs,letter,cardHtml){
   const st=ssState(idxs);
