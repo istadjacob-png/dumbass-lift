@@ -1472,6 +1472,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
       <div class="ds-eyebrow">Data Safety · Policy</div>
       <p class="ds-policy">Your lift data is the product of months of work. We treat it as sacred. Every workout auto-backs up to your device, and nothing is ever silently wiped — even "reset" moves your data to a recovery slot first.</p>
       <div class="ds-status" id="ds-status">No auto-backups yet</div>
+      <button class="btn-secondary" onclick="findMissingWorkouts()" style="width:100%;margin:10px 0">↺ FIND MISSING WORKOUTS</button>
       <div class="ds-actions">
         <button class="btn-secondary" onclick="exportData()" style="flex:1">⇩ EXPORT BACKUP</button>
         <label class="btn-secondary" style="flex:1;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center">
@@ -1708,7 +1709,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.14';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.15';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3535,11 +3536,18 @@ async function submitLogin(){
     }else{
       try{ await _withTimeout(window.__cloud.signIn(email,pw),20000); }
       catch(e){
-        if(!/invalid-credential|user-not-found|wrong-password|invalid-login/.test(e&&e.code))throw e;
+        // Always look in the old account store too — even when the new login
+        // system is unavailable — so workouts from before September come back.
         const legacy=await _tryLegacyLogin(email,pw);
-        if(legacy==='ok'){ await _withTimeout(window.__cloud.signUp(email,pw),20000); closeLogin(); toast('Logged in · your account was moved to the new secure login'); return; }
+        if(legacy==='ok'){
+          try{ await _withTimeout(window.__cloud.signUp(email,pw),20000); closeLogin(); toast('Logged in · your old workouts are back'); }
+          catch(e2){ closeLogin(); renderToday(); toast('Your old workouts are back on this device'); }
+          return;
+        }
+        if(legacy==='wrong'){ _setLoginBusy(false); if(err)err.textContent='Wrong password.'; return; }
+        if(!/invalid-credential|user-not-found|wrong-password|invalid-login/.test(e&&e.code))throw e;
         _setLoginBusy(false);
-        if(err)err.textContent=legacy==='wrong'?'Wrong password.':'Wrong email or password. New here? Tap Create an account below.';
+        if(err)err.textContent='Wrong email or password. New here? Tap Create an account below.';
         return;
       }
       closeLogin(); toast('Logged in');
@@ -3649,6 +3657,22 @@ function safelyWipeState(reason){
   }catch(e){}
 }
 
+// Look through every backup kept on this device and bring back any workout
+// that isn't in your history any more. Nothing is overwritten or removed.
+function findMissingWorkouts(){
+  const have=new Set((state.history||[]).filter(h=>h&&h.date).map(h=>h.date));
+  const found=new Map();
+  _listKeys(BACKUP_PREFIX).concat(_listKeys(RECOVERY_PREFIX)).forEach(k=>{
+    let st=null;try{st=JSON.parse(localStorage.getItem(k)||'null');}catch(e){}
+    ((st&&st.history)||[]).forEach(h=>{if(h&&h.date&&!h.partial&&!have.has(h.date)&&!found.has(h.date))found.set(h.date,h);});
+  });
+  if(!found.size){toast('Nothing missing in this device\'s backups');return;}
+  const list=[...found.values()].sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
+  state.history=(state.history||[]).concat(list).sort((a,b)=>(Date.parse(a.date)||0)-(Date.parse(b.date)||0));
+  save();renderProfile();
+  const from=new Date(list[0].date).toLocaleDateString('en',{month:'short',year:'numeric'});
+  toast(`Brought back ${list.length} workout${list.length===1?'':'s'} (from ${from})`);
+}
 function exportData(){
   try{
     const payload={
