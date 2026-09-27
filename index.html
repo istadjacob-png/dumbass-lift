@@ -1104,6 +1104,9 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .exercise.ss{border-left:4px solid #FF3300!important}
 
 /* ===== SUPERSET BLOCK — lifts done back to back, drawn as one unit ===== */
+.cx-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
+.cx-tools button{border:1px solid #000;background:#FFF;color:#000;padding:10px 4px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:0}
+.cx-tools button.on{background:#000;color:#FFF}
 .cm-badge{display:inline-block;vertical-align:middle;margin-left:6px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;font-weight:700;line-height:1;padding:2px 4px 2px 5px;border:1px solid currentColor;color:#FF3300;text-decoration:none}
 .exercise.current .cm-badge{color:#FFF}
 .ss-block{border-left:4px solid #FF3300;padding-left:8px;margin:4px 0 12px}
@@ -1575,17 +1578,18 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
     <label class="sb-label" style="margin-top:6px">Main muscle</label>
     <select class="modal-input" id="cx-muscle"></select>
     <label class="sb-label" style="margin-top:6px">Tool</label>
-    <select class="modal-input" id="cx-equip">
-      <option value="BARBELL">Barbell</option>
-      <option value="DUMBBELL">Dumbbell</option>
-      <option value="MACHINE">Machine</option>
-      <option value="CABLE">Cable</option>
-      <option value="BODYWEIGHT">Bodyweight</option>
-      <option value="KETTLEBELL">Kettlebell</option>
-      <option value="BAND">Band</option>
-      <option value="SMITH">Smith Machine</option>
-      <option value="OTHER">Other</option>
-    </select>
+    <input type="hidden" id="cx-equip" value="BARBELL">
+    <div class="cx-tools" id="cx-tools">
+      <button type="button" data-v="BODYWEIGHT" onclick="cxPickTool('BODYWEIGHT')">Bodyweight</button>
+      <button type="button" data-v="BARBELL" onclick="cxPickTool('BARBELL')">Barbell</button>
+      <button type="button" data-v="DUMBBELL" onclick="cxPickTool('DUMBBELL')">Dumbbell</button>
+      <button type="button" data-v="MACHINE" onclick="cxPickTool('MACHINE')">Machine</button>
+      <button type="button" data-v="CABLE" onclick="cxPickTool('CABLE')">Cable</button>
+      <button type="button" data-v="SMITH" onclick="cxPickTool('SMITH')">Smith</button>
+      <button type="button" data-v="KETTLEBELL" onclick="cxPickTool('KETTLEBELL')">Kettlebell</button>
+      <button type="button" data-v="BAND" onclick="cxPickTool('BAND')">Band</button>
+      <button type="button" data-v="OTHER" onclick="cxPickTool('OTHER')">Other</button>
+    </div>
     <div class="sb-footer">
       <button class="btn-ghost" onclick="closeCustomExForm()" style="color:var(--text-dim)">CANCEL</button>
       <button class="btn-primary" onclick="saveCustomExercise()" style="flex:1">SAVE</button>
@@ -1661,7 +1665,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.8';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.9';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -5362,10 +5366,11 @@ function openCustomExForm(){
   const sel=document.getElementById('cx-muscle');
   sel.innerHTML=Object.keys(MUSCLE_NAMES).map(k=>`<option value="${k}">${MUSCLE_NAMES[k]}</option>`).join('');
   document.getElementById('cx-name').value='';
-  document.getElementById('cx-equip').value='BARBELL';
+  cxPickTool('BARBELL');
   document.getElementById('custom-ex-modal').classList.add('open');
   setTimeout(()=>document.getElementById('cx-name').focus(),50);
 }
+function cxPickTool(v){document.getElementById('cx-equip').value=v;document.querySelectorAll('#cx-tools button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));}
 function closeCustomExForm(){document.getElementById('custom-ex-modal').classList.remove('open');}
 function saveCustomExercise(){
   const name=(document.getElementById('cx-name').value||'').trim();
