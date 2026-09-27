@@ -1102,6 +1102,43 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .ex-ss{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;font-weight:700;color:#FFF;background:#FF3300;padding:2px 6px;border-radius:2px}
 .exercise.ss{border-left:4px solid #FF3300!important}
 
+/* ===== SUPERSET BLOCK — lifts done back to back, drawn as one unit ===== */
+.ss-block{position:relative;border:2px solid #000;background:#FFF;margin:4px 0 12px;padding:0 10px 10px 30px}
+.ss-block.temp{border-style:dashed}
+.ss-block::before{content:'';position:absolute;left:14px;top:46px;bottom:34px;width:2px;background:#FF3300}
+.ss-block .exercise{margin-bottom:0}
+.ss-block .exercise.ss{border-left:1px solid #000!important}
+.ss-block .inline-log.show{margin:6px 0 0}
+.ss-head{display:flex;align-items:center;gap:8px;padding:10px 0 10px;margin-left:-20px;flex-wrap:wrap}
+.ss-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;font-weight:700;color:#FFF;background:#FF3300;padding:3px 7px}
+.ss-when{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;font-weight:700;color:#000;border:1px solid #000;padding:2px 6px;text-transform:uppercase}
+.ss-block.temp .ss-when{border-style:dashed;color:#7A7A7A;border-color:#7A7A7A}
+.ss-round{margin-left:auto;display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;font-weight:700;color:#000;text-transform:uppercase}
+.ss-pips{display:flex;gap:3px}
+.ss-pips i{display:block;width:14px;height:6px;border:1px solid #000;background:#FFF}
+.ss-pips i.on{background:#FF3300;border-color:#FF3300}
+.ss-pips i.now{background:#000}
+.ss-item{position:relative}
+.ss-letter{position:absolute;left:-28px;top:14px;width:26px;height:22px;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:900;letter-spacing:-.02em;font-size:12px;line-height:1;color:#FFF;background:#000;z-index:1}
+.ss-item.up .ss-letter{background:#FF3300}
+.ss-item.fin .ss-letter{background:#FFF;color:#000;border:1px solid #000}
+.ss-link{position:relative;display:flex;align-items:center;gap:6px;height:24px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;font-weight:700;color:#FF3300;text-transform:uppercase}
+.ss-link::before{content:'';position:absolute;left:-19px;top:50%;width:8px;height:8px;margin-top:-4px;background:#FF3300;transform:rotate(45deg)}
+.ss-foot{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#7A7A7A;text-transform:uppercase;padding-top:9px;margin-left:-20px}
+.ss-foot b{color:#000}
+.ss-block.all-done{opacity:.55}
+.ss-block.all-done .ss-tag{background:#000}
+.ss-block.flash{animation:ssFlash .5s ease}
+@keyframes ssFlash{0%{box-shadow:0 0 0 0 rgba(255,51,0,.6)}100%{box-shadow:0 0 0 10px rgba(255,51,0,0)}}
+/* Just today / Every week picker (superset sheets) */
+.ss-pick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 16px}
+.ss-pick button{border:1px solid #000;background:#FFF;color:#000;padding:10px 8px;cursor:pointer;text-align:left;border-radius:0}
+.ss-pick button b{display:block;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.ss-pick button span{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;color:#7A7A7A;margin-top:3px}
+.ss-pick button.on{background:#000;color:#FFF}
+.ss-pick button.on span{color:#BDBDBD}
+.ss-pick-label{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.25em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin-bottom:7px}
+
 /* ===== EDITABLE TARGET ON EXERCISE DETAIL ===== */
 .target-edit{
   background:#FFF;border:1px solid #000;border-left:3px solid #FF3300;
@@ -1449,6 +1486,13 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
         <input id="sr-reps" class="sr-reps-input" type="text" value="" placeholder="e.g. 10">
       </div>
     </div>
+    <div id="sr-ss-wrap" style="display:none">
+      <div class="ss-pick-label">Keep this superset</div>
+      <div class="ss-pick" id="sr-ss-pick">
+        <button type="button" data-v="temp" onclick="srPickSs('temp')"><b>Just today</b><span>Gone tomorrow</span></button>
+        <button type="button" data-v="perm" onclick="srPickSs('perm')"><b>Every week</b><span>Saved to your plan</span></button>
+      </div>
+    </div>
     <button class="log-btn" id="sr-confirm" onclick="confirmSetsReps()">Add to today →</button>
   </div>
 </div>
@@ -1472,6 +1516,13 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
       <div class="sr-field">
         <div class="sr-flabel">Reps</div>
         <input id="ee-reps" class="sr-reps-input" type="text" placeholder="e.g. 10" oninput="eeUpdateReps(this.value)">
+      </div>
+    </div>
+    <div id="ee-ss-wrap" style="display:none">
+      <div class="ss-pick-label">Superset</div>
+      <div class="ss-pick" id="ee-ss-pick">
+        <button type="button" data-v="temp" onclick="eeSetSsKind('temp')"><b>Just today</b><span>Gone tomorrow</span></button>
+        <button type="button" data-v="perm" onclick="eeSetSsKind('perm')"><b>Every week</b><span>Saved to your plan</span></button>
       </div>
     </div>
     <div class="sb-footer">
@@ -1619,7 +1670,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-23.7';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2794,7 +2845,11 @@ function syncTodayToSchedule(){
   const sched=getActiveSchedule();
   const day=sched[state.currentDayIdx];
   if(!day)return;
-  day.exercises=state.today.exercises.map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,ss:ex.ss||null}));
+  // "Just today" supersets stay out of the plan: a lift added only for the
+  // superset is left out, and a temporary link isn't saved.
+  const out=state.today.exercises.filter(ex=>!ex.tempAdd).map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,ss:(ex.ss&&!ex.ssTemp)?ex.ss:null}));
+  out.forEach(ex=>{if(ex.ss&&out.filter(e=>e.ss===ex.ss).length<2)ex.ss=null;});
+  day.exercises=out;
 }
 function save(){
   if(!_suppressCloudPush)state._lastModified=Date.now();
@@ -3763,7 +3818,7 @@ function renderToday(){
     const _openNameEl=document.querySelector(`.exercise[data-ex-idx="${_openIdx}"] .ex-name`);
     if(_openNameEl)_openExName=_openNameEl.textContent;
   }
-  document.getElementById('exercise-list').innerHTML=exs.map((ex,i)=>{
+  const cardHtml=(ex,i)=>{
     let cls='exercise';
     if(ex.skipped)cls+=(ex.completedSets>0?' skipped partial':' skipped');
     else if(ex.done)cls+=' done';
@@ -3796,7 +3851,19 @@ function renderToday(){
       </div>
       ${rightSets}
     </div>${inlineHtml}`;
-  }).join('');
+  };
+  // Supersets render as one joined block; everything else as a plain card.
+  const ssL=ssLetters(exs);
+  let listHtml='';
+  for(let i=0;i<exs.length;){
+    const ex=exs[i];
+    if(ex.ss&&exs[i+1]&&exs[i+1].ss===ex.ss){
+      const idxs=[];while(i<exs.length&&exs[i].ss===ex.ss){idxs.push(i);i++;}
+      listHtml+=ssBlockHtml(ex.ss,idxs,ssL[ex.ss],cardHtml);
+    }else{listHtml+=cardHtml(ex,i);i++;}
+  }
+  document.getElementById('exercise-list').innerHTML=listHtml;
+  if(ssFlashId){const b=document.querySelector(`.ss-block[data-ss="${ssFlashId}"]`);if(b){b.classList.add('flash');try{b.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}}ssFlashId=null;}
   if(_openExName){const _newIdx=exs.findIndex(e=>e.name===_openExName);if(_newIdx>=0){const _op=document.getElementById('inline-'+_newIdx);if(_op)_op.classList.add('show');}}
   const btn=document.getElementById('complete-btn');
   const addBtn=document.getElementById('add-ex-btn');
@@ -3813,6 +3880,85 @@ function renderToday(){
   btn.disabled=exs.length===0;
   if(exs.length>0&&exs.every(e=>e.done)){btn.textContent='Complete Workout →';btn.classList.remove('partial');}
   else{btn.textContent='Finish Workout';btn.classList.add('partial');}
+}
+
+// === SUPERSET BLOCK ===
+// Back-to-back lifts drawn as one unit: A1 → A2 on a rail, a round tracker in
+// the header, and logging a set hops you straight to the next lift in the round.
+let ssFlashId=null;
+function ssLetters(exs){
+  const m={};let n=0;
+  exs.forEach((e,i)=>{if(e.ss&&!(e.ss in m)&&exs[i+1]&&exs[i+1].ss===e.ss)m[e.ss]=String.fromCharCode(65+(n++%26));});
+  return m;
+}
+// Where the group is: rounds total, rounds finished, and which lift is up next.
+function ssState(idxs){
+  const exs=state.today.exercises;
+  const live=idxs.filter(k=>!exs[k].skipped);
+  const total=Math.max(1,...idxs.map(k=>parseInt(exs[k].targetSets)||1));
+  const doneR=live.length?Math.min(...live.map(k=>exs[k].completedSets||0)):total;
+  const allDone=live.every(k=>exs[k].done);
+  let up=-1;
+  if(!allDone){
+    up=live.find(k=>!exs[k].done&&(exs[k].completedSets||0)<=doneR);
+    if(up===undefined)up=live.find(k=>!exs[k].done);
+    if(up===undefined)up=-1;
+  }
+  return {total,doneR:Math.min(doneR,total),allDone,up};
+}
+function ssHeadHtml(id,idxs){
+  const exs=state.today.exercises,st=ssState(idxs);
+  const temp=idxs.every(k=>exs[k].ssTemp);
+  let pips='';for(let r=0;r<st.total;r++)pips+=`<i class="${r<st.doneR?'on':(r===st.doneR&&!st.allDone?'now':'')}"></i>`;
+  const label=st.allDone?'Done':`Round ${Math.min(st.doneR+1,st.total)}/${st.total}`;
+  return `<span class="ss-tag">${idxs.length>2?'GIANT SET':'SUPERSET'}</span><span class="ss-when">${temp?'Just today':'Every week'}</span><span class="ss-round">${label}<span class="ss-pips">${pips}</span></span>`;
+}
+function ssBlockHtml(id,idxs,letter,cardHtml){
+  const exs=state.today.exercises,st=ssState(idxs);
+  const temp=idxs.every(k=>exs[k].ssTemp);
+  const last=letter+idxs.length;
+  const items=idxs.map((k,n)=>{
+    const e=exs[k];
+    const cls='ss-item'+(k===st.up?' up':'')+((e.done||e.skipped)?' fin':'');
+    const link=n<idxs.length-1?`<div class="ss-link">Straight into ${letter}${n+2} · no rest</div>`:'';
+    return `<div class="${cls}" data-ss-item="${k}"><span class="ss-letter">${letter}${n+1}</span>${cardHtml(e,k)}</div>${link}`;
+  }).join('');
+  return `<div class="ss-block${temp?' temp':''}${st.allDone?' all-done':''}" data-ss="${esc(id)}">
+    <div class="ss-head" id="ss-head-${esc(id)}">${ssHeadHtml(id,idxs)}</div>
+    ${items}
+    <div class="ss-foot">Rest after <b>${last}</b>, then go again from <b>${letter}1</b></div>
+  </div>`;
+}
+function ssIdxs(id){const r=[];(state.today.exercises||[]).forEach((e,k)=>{if(e.ss===id)r.push(k);});return r;}
+// Patch the block after a set is logged (header, A1/A2 highlight) without a full re-render.
+function ssRefresh(id){
+  const block=document.querySelector(`.ss-block[data-ss="${id}"]`);if(!block)return;
+  const idxs=ssIdxs(id),exs=state.today.exercises,st=ssState(idxs);
+  const head=block.querySelector('.ss-head');if(head)head.innerHTML=ssHeadHtml(id,idxs);
+  block.classList.toggle('all-done',st.allDone);
+  block.querySelectorAll('.ss-item').forEach(el=>{
+    const k=parseInt(el.dataset.ssItem,10),e=exs[k];
+    el.classList.toggle('up',k===st.up);
+    el.classList.toggle('fin',!!(e&&(e.done||e.skipped)));
+  });
+}
+// After a set in a superset: close this lift, open the next one in the round.
+function ssHop(i){
+  const ex=state.today.exercises[i];if(!ex||!ex.ss)return;
+  const idxs=ssIdxs(ex.ss),st=ssState(idxs);
+  if(st.allDone){toast('Superset done');return;}
+  const nxt=st.up;if(nxt<0||nxt===i)return;
+  const letter=ssLetters(state.today.exercises)[ex.ss]||'';
+  const pos=idxs.indexOf(nxt)+1;
+  setTimeout(()=>{
+    const panel=document.getElementById('inline-'+nxt);if(!panel)return;
+    document.querySelectorAll('.inline-log.show').forEach(p=>{if(p!==panel)p.classList.remove('show');});
+    panel.classList.add('show');
+    const card=document.querySelector(`.exercise[data-ex-idx="${nxt}"]`);
+    try{(card||panel).scrollIntoView({block:'start',behavior:'smooth'});}catch(e){}
+  },260);
+  const n=state.today.exercises[nxt];
+  toast(pos===1?`Round done · rest, then ${letter}1 ${n.name}`:`Now ${letter}${pos} · ${n.name}`);
 }
 
 // Small tap feedback when a set is logged: native haptics in the iPhone app,
@@ -3898,10 +4044,12 @@ function logSet(i,s){
     r.kg=kg;r.reps=reps;r.done=true;
     buzz();
   }
+  const justLogged=r.done;
   deriveFromSets(ex);
   if(ex.completedSets>0)upsertLiveExercise(ex);else removeLiveExercise(ex);
   save();
   refreshSetLog(i);
+  if(ex.ss&&justLogged)ssHop(i);
 }
 // Patch one exercise's rows + card instead of re-rendering the list (keeps the
 // panel open and doesn't replay the list's entrance animation).
@@ -3919,6 +4067,7 @@ function refreshSetLog(i){
   const currentIdx=exs.findIndex(e=>!e.done);
   document.querySelectorAll('.exercise.current').forEach(el=>{if(parseInt(el.dataset.exIdx,10)!==currentIdx)el.classList.remove('current');});
   if(currentIdx>=0){const c=document.querySelector(`.exercise[data-ex-idx="${currentIdx}"]`);if(c&&!c.classList.contains('skipped'))c.classList.add('current');}
+  if(ex.ss)ssRefresh(ex.ss);
   _updateTodayFooter(exs);
 }
 
@@ -4239,7 +4388,7 @@ function unskipExerciseAt(i){
 // "3 × 10" when reps were set, just "3 sets" when the user left reps blank.
 function sxr(ex,sep){const r=(ex.targetReps||'').toString().trim();return (r&&r!=='—')?`${ex.targetSets}${sep}${r}`:`${ex.targetSets} sets`;}
 
-function removeExAt(i){const ex=state.today.exercises[i];if(!ex)return;if(!confirm(`Remove ${ex.name}?`))return;state.today.exercises.splice(i,1);if(ex.ss){const left=state.today.exercises.filter(e=>e.ss===ex.ss);if(left.length<2)left.forEach(e=>e.ss=null);}syncTodayToSchedule();save();renderToday();}
+function removeExAt(i){const ex=state.today.exercises[i];if(!ex)return;if(!confirm(`Remove ${ex.name}?`))return;state.today.exercises.splice(i,1);if(ex.ss){const left=state.today.exercises.filter(e=>e.ss===ex.ss);if(left.length<2)left.forEach(e=>{e.ss=null;e.ssTemp=false;});}syncTodayToSchedule();save();renderToday();}
 
 // EDIT sheet — one place to change sets, swap, or delete a logged exercise.
 function openExerciseEdit(i){
@@ -4250,6 +4399,8 @@ function openExerciseEdit(i){
   document.getElementById('ee-sets').value=ex.targetSets||3;
   document.getElementById('ee-reps').value=ex.targetReps||'';
   document.getElementById('ee-ss-btn').textContent=ex.ss?'Unlink superset':'+ Superset';
+  document.getElementById('ee-ss-wrap').style.display=ex.ss?'':'none';
+  if(ex.ss)ssMarkPick('ee-ss-pick',ssGroupIsTemp(ex.ss)?'temp':'perm');
   document.getElementById('edit-ex-modal').classList.add('open');
 }
 function closeExerciseEdit(){
@@ -4283,9 +4434,9 @@ function eeSuperset(){
   const exs=state.today.exercises,ex=exs[state.currentExerciseIdx];if(!ex)return;
   document.getElementById('edit-ex-modal').classList.remove('open');
   if(ex.ss){
-    const id=ex.ss;ex.ss=null;
+    const id=ex.ss;ex.ss=null;ex.ssTemp=false;
     // A superset of one isn't a superset — unlink the partner too.
-    const left=exs.filter(e=>e.ss===id);if(left.length<2)left.forEach(e=>e.ss=null);
+    const left=exs.filter(e=>e.ss===id);if(left.length<2)left.forEach(e=>{e.ss=null;e.ssTemp=false;});
     syncTodayToSchedule();save();renderToday();toast('Superset unlinked');
     return;
   }
@@ -4293,6 +4444,15 @@ function eeSuperset(){
   document.getElementById('lib-title').innerHTML='PAIR <span class="accent">WITH</span>';
   document.getElementById('lib-search').value='';filterLib();
   document.getElementById('lib-modal').classList.add('open');
+}
+// Switch a superset between "just today" and "every week" from the Edit sheet.
+function eeSetSsKind(kind){
+  const exs=state.today.exercises,ex=exs[state.currentExerciseIdx];if(!ex||!ex.ss)return;
+  const temp=kind==='temp';
+  exs.forEach(e=>{if(e.ss!==ex.ss)return;e.ssTemp=temp;e.tempAdd=temp&&!!e.ssAdded;});
+  ssMarkPick('ee-ss-pick',kind);
+  syncTodayToSchedule();save();
+  toast(temp?'Superset just for today':'Superset saved to your plan');
 }
 function eeDelete(){
   document.getElementById('edit-ex-modal').classList.remove('open');
@@ -5523,9 +5683,15 @@ function openSetsReps(libId,mode){
   document.getElementById('sr-exname').textContent=libEx.name;
   document.getElementById('sr-sets').value=sets;
   document.getElementById('sr-reps').value=reps;
+  document.getElementById('sr-ss-wrap').style.display=mode==='superset'?'':'none';
+  if(mode==='superset'){const cur=state.today.exercises[state.currentExerciseIdx];srSsKind=(cur&&cur.ss)?(ssGroupIsTemp(cur.ss)?'temp':'perm'):'temp';ssMarkPick('sr-ss-pick',srSsKind);}
   document.getElementById('sr-confirm').textContent=(mode==='swap'?'Swap it in →':mode==='superset'?'Pair them up →':mode==='builder'?'Add to day →':'Add to today →');
   document.getElementById('setsreps-modal').classList.add('open');
 }
+let srSsKind='temp';
+function srPickSs(kind){srSsKind=kind;ssMarkPick('sr-ss-pick',kind);}
+function ssMarkPick(id,kind){document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===kind));}
+function ssGroupIsTemp(id){const g=((state.today&&state.today.exercises)||[]).filter(e=>e.ss===id);return g.length>0&&g.every(e=>e.ssTemp);}
 function srBump(d){const el=document.getElementById('sr-sets');let v=(parseInt(el.value)||3)+d;v=Math.max(1,Math.min(12,v));el.value=v;}
 function confirmSetsReps(){
   if(!pendingEx)return;
@@ -5543,15 +5709,20 @@ function confirmSetsReps(){
   if(pendingEx.mode==='swap'){
     const idx=state.currentExerciseIdx;const cur=state.today.exercises[idx];if(!cur){pendingEx=null;return;}
     if(typeof removeLiveExercise==='function')removeLiveExercise(cur);
-    state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:cur.primary||false,tag:cur.tag||null,ss:cur.ss||null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};
+    state.today.exercises[idx]={libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:cur.primary||false,tag:cur.tag||null,ss:cur.ss||null,ssTemp:!!cur.ssTemp,tempAdd:!!cur.tempAdd,ssAdded:!!cur.ssAdded,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''};
     toast(`Swapped to ${libEx.name}`);
   }else if(pendingEx.mode==='superset'){
     // Pair with the lift being edited: both share a superset id and sit next to each other.
     const exs=state.today.exercises,idx=state.currentExerciseIdx,cur=exs[idx];if(!cur){pendingEx=null;return;}
+    const temp=srSsKind==='temp';
     if(!cur.ss)cur.ss='ss-'+Date.now().toString(36);
+    // The whole group follows the choice: "every week" saves it to the plan,
+    // "just today" keeps the new lift and the link out of the plan.
+    exs.forEach(e=>{if(e.ss===cur.ss){e.ssTemp=temp;e.tempAdd=temp&&!!e.ssAdded;}});
     let at=idx+1;while(at<exs.length&&exs[at].ss===cur.ss)at++;
-    exs.splice(at,0,{libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:false,tag:null,ss:cur.ss,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});
-    toast(`Superset: ${cur.name} + ${libEx.name}`);
+    exs.splice(at,0,{libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:false,tag:null,ss:cur.ss,ssTemp:temp,tempAdd:temp,ssAdded:true,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});
+    ssFlashId=cur.ss;
+    toast(temp?'Superset added · just today':'Superset added · every week');
   }else{
     if(state.today.type==='rest'){toast('Not a training day');pendingEx=null;return;}
     state.today.exercises.push({libId:libEx.id,name:libEx.name,targetSets:sets,targetReps:reps,primary:false,tag:null,topSet:{kg:'',reps:''},completedSets:0,done:false,note:''});
