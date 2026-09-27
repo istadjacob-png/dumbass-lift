@@ -1419,11 +1419,6 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
     <div class="eyebrow">Progressive Overload</div>
     <div class="title"><span class="accent">PROGRESS</span></div>
 
-    <div class="progress-tabs">
-      <button class="progress-tab" onclick="setProgTab('lifts')" id="pt-lifts">LIFTS</button>
-      <button class="progress-tab active" onclick="setProgTab('history')" id="pt-history">HISTORY</button>
-    </div>
-
     <div id="prog-tab-lifts" style="display:none"></div>
     <div id="prog-tab-history"></div>
   </div>
@@ -1709,7 +1704,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.15';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.16';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -5080,7 +5075,7 @@ function updateHistorySearch(val){
 }
 function renderHistory(){renderProgHistory();}
 
-function setProgTab(tab){document.querySelectorAll('.progress-tab').forEach(b=>b.classList.remove('active'));document.getElementById('pt-'+tab).classList.add('active');['lifts','history'].forEach(t=>{document.getElementById('prog-tab-'+t).style.display=t===tab?'':'none';});if(tab==='lifts')renderProgLifts();if(tab==='history')renderProgHistory();}
+function setProgTab(tab){['lifts','history'].forEach(t=>{document.getElementById('prog-tab-'+t).style.display=t===tab?'':'none';});if(tab==='lifts')renderProgLifts();if(tab==='history')renderProgHistory();}
 function renderProgress(){renderProgLifts();renderProgHistory();}
 
 // All lifts you've ever logged, MOST RECENTLY TRAINED FIRST so your current
