@@ -812,6 +812,7 @@ input,textarea{user-select:text}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:100;display:none;align-items:flex-end;justify-content:center}
 .modal-bg.open{display:flex}
 #lib-modal,#setsreps-modal{z-index:110}
+#custom-ex-modal{z-index:120}
 .modal{background:var(--steel);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px;max-height:85vh;overflow-y:auto;border-top:3px solid var(--cobalt);animation:slideup .25s}
 @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:-.005em;margin-bottom:16px}
@@ -1103,6 +1104,8 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 .exercise.ss{border-left:4px solid #FF3300!important}
 
 /* ===== SUPERSET BLOCK — lifts done back to back, drawn as one unit ===== */
+.cm-badge{display:inline-block;vertical-align:middle;margin-left:6px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;font-weight:700;line-height:1;padding:2px 4px 2px 5px;border:1px solid currentColor;color:#FF3300;text-decoration:none}
+.exercise.current .cm-badge{color:#FFF}
 .ss-block{border-left:4px solid #FF3300;padding-left:8px;margin:4px 0 12px}
 .ss-block .exercise{margin-bottom:4px}
 .ss-block .exercise.ss{border-left:1px solid #000!important}
@@ -1448,7 +1451,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
   <div class="modal">
     <h2 id="lib-title">ADD <span class="accent">EXERCISE</span></h2>
     <input class="modal-input" id="lib-search" placeholder="Search..." oninput="filterLib()">
-    <button class="add-ex-btn" style="margin-top:0;margin-bottom:12px" onclick="openCustomExForm()">+ CREATE CUSTOM EXERCISE</button>
+    <button class="add-ex-btn" style="margin-top:0;margin-bottom:12px" onclick="openCustomExForm()">+ MAKE YOUR OWN EXERCISE</button>
     <div id="lib-results"></div>
   </div>
 </div>
@@ -1658,7 +1661,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.6';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.7';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -1900,7 +1903,287 @@ const LIBRARY=[
   {id:'farmers-carry',name:"Farmer's Carry",muscle:'forearms',secondary:["traps", "abs"],type:'COMPOUND',equipment:'DUMBBELL',form:{primary:'Heavy DBs, walk. Log metres or seconds as reps.',cues:["Stand tall", "Shoulders down", "Short quick steps", "Don't let them swing"]}},
   {id:'dead-hang',name:'Dead Hang',muscle:'forearms',secondary:["lats"],type:'ISOLATION',equipment:'BODYWEIGHT',form:{primary:'Hang from a bar. Log seconds as reps.',cues:["Full grip", "Shoulders slightly engaged", "Breathe", "Add weight when easy"]}},
   {id:'power-clean',name:'Power Clean',muscle:'traps',secondary:["glutes", "quads", "hamstrings"],type:'COMPOUND',equipment:'BARBELL',form:{primary:'Explosive pull from floor to front rack.',cues:["Bar close to body", "Explode through hips", "Pull under fast", "Catch in quarter squat"]}},
-  {id:'sled-push',name:'Sled Push',muscle:'quads',secondary:["glutes", "calves"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Log metres as reps.',cues:["Low body angle", "Arms locked", "Drive with the legs", "Short powerful steps"]}}
+  {id:'sled-push',name:'Sled Push',muscle:'quads',secondary:["glutes", "calves"],type:'COMPOUND',equipment:'MACHINE',form:{primary:'Log metres as reps.',cues:["Low body angle", "Arms locked", "Drive with the legs", "Short powerful steps"]}},
+  // More lifts — the long tail people actually do in the gym
+  {id:'x-incline-dumbbell-fly',name:'Incline Dumbbell Fly',muscle:'chest',type:'ISOLATION',equipment:'DUMBBELL',region:'upper'},
+  {id:'x-decline-dumbbell-fly',name:'Decline Dumbbell Fly',muscle:'chest',type:'ISOLATION',equipment:'DUMBBELL',region:'lower'},
+  {id:'x-decline-cable-fly',name:'Decline Cable Fly',muscle:'chest',type:'ISOLATION',equipment:'CABLE',region:'lower'},
+  {id:'x-mid-cable-fly',name:'Mid Cable Fly',muscle:'chest',type:'ISOLATION',equipment:'CABLE',region:'middle'},
+  {id:'x-single-arm-cable-fly',name:'Single-Arm Cable Fly',muscle:'chest',type:'ISOLATION',equipment:'CABLE',region:'middle'},
+  {id:'x-seated-cable-fly',name:'Seated Cable Fly',muscle:'chest',type:'ISOLATION',equipment:'CABLE',region:'middle'},
+  {id:'x-cable-chest-press',name:'Cable Chest Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'CABLE',region:'middle'},
+  {id:'x-single-arm-cable-press',name:'Single-Arm Cable Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'CABLE',region:'middle'},
+  {id:'x-smith-machine-decline-press',name:'Smith Machine Decline Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'SMITH',region:'lower'},
+  {id:'x-decline-machine-press',name:'Decline Machine Press',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'MACHINE',region:'lower'},
+  {id:'x-hammer-strength-chest-press',name:'Hammer Strength Chest Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'MACHINE',region:'middle'},
+  {id:'x-hammer-strength-incline-press',name:'Hammer Strength Incline Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'MACHINE',region:'upper'},
+  {id:'x-wide-chest-press-machine',name:'Wide Chest Press Machine',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'MACHINE',region:'middle'},
+  {id:'x-converging-chest-press',name:'Converging Chest Press',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'MACHINE',region:'middle'},
+  {id:'x-floor-press',name:'Floor Press',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'BARBELL',region:'middle'},
+  {id:'x-db-floor-press',name:'DB Floor Press',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'DUMBBELL',region:'middle'},
+  {id:'x-paused-bench-press',name:'Paused Bench Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'middle'},
+  {id:'x-spoto-press',name:'Spoto Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'middle'},
+  {id:'x-wide-grip-bench-press',name:'Wide-Grip Bench Press',muscle:'chest',secondary:['front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'middle'},
+  {id:'x-reverse-grip-bench-press',name:'Reverse-Grip Bench Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'upper'},
+  {id:'x-guillotine-press',name:'Guillotine Press',muscle:'chest',secondary:['front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'upper'},
+  {id:'x-neutral-grip-db-press',name:'Neutral-Grip DB Press',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'DUMBBELL',region:'middle'},
+  {id:'x-squeeze-press',name:'Squeeze Press',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'DUMBBELL',region:'middle'},
+  {id:'x-low-incline-db-press',name:'Low-Incline DB Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'DUMBBELL',region:'upper'},
+  {id:'x-incline-db-squeeze-press',name:'Incline DB Squeeze Press',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'DUMBBELL',region:'upper'},
+  {id:'x-single-arm-db-bench-press',name:'Single-Arm DB Bench Press',muscle:'chest',secondary:['triceps','abs'],type:'COMPOUND',equipment:'DUMBBELL',region:'middle'},
+  {id:'x-landmine-chest-press',name:'Landmine Chest Press',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'upper'},
+  {id:'x-plate-press',name:'Plate Press',muscle:'chest',secondary:['front-delts'],type:'ISOLATION',equipment:'PLATE',region:'middle'},
+  {id:'x-incline-push-up',name:'Incline Push-Up',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'lower'},
+  {id:'x-decline-push-up',name:'Decline Push-Up',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'upper'},
+  {id:'x-wide-push-up',name:'Wide Push-Up',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'middle'},
+  {id:'x-weighted-push-up',name:'Weighted Push-Up',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'PLATE',region:'middle'},
+  {id:'x-ring-push-up',name:'Ring Push-Up',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'middle'},
+  {id:'x-weighted-dip',name:'Weighted Dip',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'PLATE',region:'lower'},
+  {id:'x-ring-dip',name:'Ring Dip',muscle:'chest',secondary:['triceps','front-delts'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'lower'},
+  {id:'x-band-chest-fly',name:'Band Chest Fly',muscle:'chest',type:'ISOLATION',equipment:'BAND',region:'middle'},
+  {id:'x-band-push-up',name:'Band Push-Up',muscle:'chest',secondary:['triceps'],type:'COMPOUND',equipment:'BAND',region:'middle'},
+  {id:'x-weighted-pull-up',name:'Weighted Pull-Up',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'PLATE',region:'width'},
+  {id:'x-weighted-chin-up',name:'Weighted Chin-Up',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'PLATE',region:'width'},
+  {id:'x-neutral-grip-pull-up',name:'Neutral-Grip Pull-Up',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'width'},
+  {id:'x-wide-grip-pull-up',name:'Wide-Grip Pull-Up',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'width'},
+  {id:'x-commando-pull-up',name:'Commando Pull-Up',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'width'},
+  {id:'x-band-assisted-pull-up',name:'Band-Assisted Pull-Up',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'BAND',region:'width'},
+  {id:'x-negative-pull-up',name:'Negative Pull-Up',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'width'},
+  {id:'x-reverse-grip-lat-pulldown',name:'Reverse-Grip Lat Pulldown',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'CABLE',region:'width'},
+  {id:'x-single-arm-lat-pulldown',name:'Single-Arm Lat Pulldown',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'CABLE',region:'width'},
+  {id:'x-kneeling-single-arm-pulldown',name:'Kneeling Single-Arm Pulldown',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'CABLE',region:'width'},
+  {id:'x-machine-lat-pulldown',name:'Machine Lat Pulldown',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'MACHINE',region:'width'},
+  {id:'x-hammer-strength-pulldown',name:'Hammer Strength Pulldown',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'MACHINE',region:'width'},
+  {id:'x-behind-the-neck-pulldown',name:'Behind-the-Neck Pulldown',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'CABLE',region:'width'},
+  {id:'x-rope-straight-arm-pulldown',name:'Rope Straight-Arm Pulldown',muscle:'lats',type:'ISOLATION',equipment:'CABLE',region:'width'},
+  {id:'x-lat-prayer',name:'Lat Prayer',muscle:'lats',type:'ISOLATION',equipment:'CABLE',region:'width'},
+  {id:'x-machine-pullover',name:'Machine Pullover',muscle:'lats',type:'ISOLATION',equipment:'MACHINE',region:'width'},
+  {id:'x-barbell-pullover',name:'Barbell Pullover',muscle:'lats',secondary:['chest'],type:'ISOLATION',equipment:'BARBELL',region:'width'},
+  {id:'x-wide-grip-seated-row',name:'Wide-Grip Seated Row',muscle:'lats',secondary:['rear-delts','biceps'],type:'COMPOUND',equipment:'CABLE',region:'thickness'},
+  {id:'x-close-grip-seated-row',name:'Close-Grip Seated Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'CABLE',region:'thickness'},
+  {id:'x-rope-seated-row',name:'Rope Seated Row',muscle:'lats',secondary:['rear-delts','biceps'],type:'COMPOUND',equipment:'CABLE',region:'thickness'},
+  {id:'x-underhand-barbell-row',name:'Underhand Barbell Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'BARBELL',region:'thickness'},
+  {id:'x-seated-machine-row',name:'Seated Machine Row',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'MACHINE',region:'thickness'},
+  {id:'x-hammer-strength-row',name:'Hammer Strength Row',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'MACHINE',region:'thickness'},
+  {id:'x-hammer-strength-high-row',name:'Hammer Strength High Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'MACHINE',region:'width'},
+  {id:'x-hammer-strength-low-row',name:'Hammer Strength Low Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'MACHINE',region:'thickness'},
+  {id:'x-iso-lateral-row',name:'Iso-Lateral Row',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'MACHINE',region:'thickness'},
+  {id:'x-chest-supported-t-bar-row',name:'Chest-Supported T-Bar Row',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'MACHINE',region:'thickness'},
+  {id:'x-incline-db-row',name:'Incline DB Row',muscle:'lats',secondary:['rear-delts','biceps'],type:'COMPOUND',equipment:'DUMBBELL',region:'thickness'},
+  {id:'x-two-arm-db-row',name:'Two-Arm DB Row',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'DUMBBELL',region:'thickness'},
+  {id:'x-helms-row',name:'Helms Row',muscle:'lats',secondary:['rear-delts','biceps'],type:'COMPOUND',equipment:'DUMBBELL',region:'thickness'},
+  {id:'x-smith-machine-row',name:'Smith Machine Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'SMITH',region:'thickness'},
+  {id:'x-cable-row-to-neck',name:'Cable Row to Neck',muscle:'lats',secondary:['rear-delts','traps'],type:'COMPOUND',equipment:'CABLE',region:'thickness'},
+  {id:'x-half-kneeling-cable-row',name:'Half-Kneeling Cable Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'CABLE',region:'thickness'},
+  {id:'x-kettlebell-row',name:'Kettlebell Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'KETTLEBELL',region:'thickness'},
+  {id:'x-band-row',name:'Band Row',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'BAND',region:'thickness'},
+  {id:'x-band-lat-pulldown',name:'Band Lat Pulldown',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'BAND',region:'width'},
+  {id:'x-ring-row',name:'Ring Row',muscle:'lats',secondary:['biceps','rear-delts'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'thickness'},
+  {id:'x-rack-chin',name:'Rack Chin',muscle:'lats',secondary:['biceps'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'width'},
+  {id:'x-dumbbell-deadlift',name:'Dumbbell Deadlift',muscle:'hamstrings',secondary:['glutes','lower-back'],type:'COMPOUND',equipment:'DUMBBELL',region:'hip'},
+  {id:'x-smith-machine-shrug',name:'Smith Machine Shrug',muscle:'traps',type:'ISOLATION',equipment:'SMITH'},
+  {id:'x-trap-bar-shrug',name:'Trap Bar Shrug',muscle:'traps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-behind-the-back-shrug',name:'Behind-the-Back Shrug',muscle:'traps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-kelso-shrug',name:'Kelso Shrug',muscle:'traps',secondary:['rear-delts'],type:'ISOLATION',equipment:'DUMBBELL'},
+    {id:'x-trap-bar-carry',name:'Trap Bar Carry',muscle:'traps',secondary:['forearms'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-overhead-shrug',name:'Overhead Shrug',muscle:'traps',secondary:['side-delts'],type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-seated-barbell-press',name:'Seated Barbell Press',muscle:'front-delts',secondary:['triceps','side-delts'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-standing-db-press',name:'Standing DB Press',muscle:'front-delts',secondary:['triceps','side-delts'],type:'COMPOUND',equipment:'DUMBBELL'},
+  {id:'x-single-arm-db-press',name:'Single-Arm DB Press',muscle:'front-delts',secondary:['triceps','abs'],type:'COMPOUND',equipment:'DUMBBELL'},
+  {id:'x-smith-machine-shoulder-press',name:'Smith Machine Shoulder Press',muscle:'front-delts',secondary:['triceps'],type:'COMPOUND',equipment:'SMITH'},
+  {id:'x-hammer-strength-shoulder-press',name:'Hammer Strength Shoulder Press',muscle:'front-delts',secondary:['triceps'],type:'COMPOUND',equipment:'MACHINE'},
+  {id:'x-viking-press',name:'Viking Press',muscle:'front-delts',secondary:['triceps','traps'],type:'COMPOUND',equipment:'MACHINE'},
+  {id:'x-kettlebell-press',name:'Kettlebell Press',muscle:'front-delts',secondary:['triceps'],type:'COMPOUND',equipment:'KETTLEBELL'},
+  {id:'x-bradford-press',name:'Bradford Press',muscle:'front-delts',secondary:['side-delts','triceps'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-pike-push-up',name:'Pike Push-Up',muscle:'front-delts',secondary:['triceps'],type:'COMPOUND',equipment:'BODYWEIGHT'},
+  {id:'x-handstand-push-up',name:'Handstand Push-Up',muscle:'front-delts',secondary:['triceps'],type:'COMPOUND',equipment:'BODYWEIGHT'},
+  {id:'x-barbell-front-raise',name:'Barbell Front Raise',muscle:'front-delts',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-incline-front-raise',name:'Incline Front Raise',muscle:'front-delts',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-single-arm-cable-front-raise',name:'Single-Arm Cable Front Raise',muscle:'front-delts',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-band-front-raise',name:'Band Front Raise',muscle:'front-delts',type:'ISOLATION',equipment:'BAND'},
+  {id:'x-cuban-press',name:'Cuban Press',muscle:'side-delts',secondary:['rear-delts'],type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-single-arm-cable-lateral',name:'Single-Arm Cable Lateral',muscle:'side-delts',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-behind-the-back-cable-lateral',name:'Behind-the-Back Cable Lateral',muscle:'side-delts',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-incline-side-lying-lateral',name:'Incline Side-Lying Lateral',muscle:'side-delts',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-partial-lateral-raise',name:'Partial Lateral Raise',muscle:'side-delts',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-lateral-raise-drop-set',name:'Lateral Raise Drop Set',muscle:'side-delts',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-band-lateral-raise',name:'Band Lateral Raise',muscle:'side-delts',type:'ISOLATION',equipment:'BAND'},
+  {id:'x-kettlebell-lateral-raise',name:'Kettlebell Lateral Raise',muscle:'side-delts',type:'ISOLATION',equipment:'KETTLEBELL'},
+  {id:'x-db-upright-row',name:'DB Upright Row',muscle:'side-delts',secondary:['traps'],type:'COMPOUND',equipment:'DUMBBELL'},
+  {id:'x-smith-machine-upright-row',name:'Smith Machine Upright Row',muscle:'side-delts',secondary:['traps'],type:'COMPOUND',equipment:'SMITH'},
+  {id:'x-wide-grip-upright-row',name:'Wide-Grip Upright Row',muscle:'side-delts',secondary:['traps'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-chest-supported-rear-delt-raise',name:'Chest-Supported Rear Delt Raise',muscle:'rear-delts',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-seated-bent-over-rear-delt-raise',name:'Seated Bent-Over Rear Delt Raise',muscle:'rear-delts',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-cable-rear-delt-row',name:'Cable Rear Delt Row',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-single-arm-cable-rear-delt-fly',name:'Single-Arm Cable Rear Delt Fly',muscle:'rear-delts',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-band-pull-apart',name:'Band Pull-Apart',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'BAND'},
+  {id:'x-rear-delt-machine-row',name:'Rear Delt Machine Row',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'MACHINE'},
+  {id:'x-db-face-pull',name:'DB Face Pull',muscle:'rear-delts',secondary:['traps'],type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-lying-rear-delt-raise',name:'Lying Rear Delt Raise',muscle:'rear-delts',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-close-grip-ez-curl',name:'Close-Grip EZ Curl',muscle:'biceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-wide-grip-barbell-curl',name:'Wide-Grip Barbell Curl',muscle:'biceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-cheat-curl',name:'Cheat Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-21s-curl',name:'21s Curl',muscle:'biceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-ez-bar-preacher-curl',name:'EZ-Bar Preacher Curl',muscle:'biceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-db-preacher-curl',name:'DB Preacher Curl',muscle:'biceps',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-single-arm-cable-preacher-curl',name:'Single-Arm Cable Preacher Curl',muscle:'biceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-standing-db-curl',name:'Standing DB Curl',muscle:'biceps',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-incline-hammer-curl',name:'Incline Hammer Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-waiter-curl',name:'Waiter Curl',muscle:'biceps',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-pinwheel-curl',name:'Pinwheel Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-kettlebell-curl',name:'Kettlebell Curl',muscle:'biceps',type:'ISOLATION',equipment:'KETTLEBELL'},
+  {id:'x-high-cable-curl',name:'High Cable Curl',muscle:'biceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-rope-cable-curl',name:'Rope Cable Curl',muscle:'biceps',secondary:['forearms'],type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-lying-cable-curl',name:'Lying Cable Curl',muscle:'biceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-machine-bicep-curl',name:'Machine Bicep Curl',muscle:'biceps',type:'ISOLATION',equipment:'MACHINE'},
+  {id:'x-band-curl',name:'Band Curl',muscle:'biceps',type:'ISOLATION',equipment:'BAND'},
+  {id:'x-chin-up-hold',name:'Chin-Up Hold',muscle:'biceps',secondary:['lats'],type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-ez-bar-skull-crusher',name:'EZ-Bar Skull Crusher',muscle:'triceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-db-skull-crusher',name:'DB Skull Crusher',muscle:'triceps',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-incline-skull-crusher',name:'Incline Skull Crusher',muscle:'triceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-cable-skull-crusher',name:'Cable Skull Crusher',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-rolling-db-extension',name:'Rolling DB Extension',muscle:'triceps',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-single-arm-overhead-db-extension',name:'Single-Arm Overhead DB Extension',muscle:'triceps',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-seated-ez-bar-overhead-extension',name:'Seated EZ-Bar Overhead Extension',muscle:'triceps',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-rope-overhead-extension',name:'Rope Overhead Extension',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-single-arm-overhead-cable-extension',name:'Single-Arm Overhead Cable Extension',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-cross-body-cable-extension',name:'Cross-Body Cable Extension',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-v-bar-pushdown',name:'V-Bar Pushdown',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-straight-bar-pushdown',name:'Straight-Bar Pushdown',muscle:'triceps',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-machine-dip',name:'Machine Dip',muscle:'triceps',secondary:['chest'],type:'COMPOUND',equipment:'MACHINE'},
+  {id:'x-smith-machine-close-grip-press',name:'Smith Machine Close-Grip Press',muscle:'triceps',secondary:['chest'],type:'COMPOUND',equipment:'SMITH'},
+  {id:'x-close-grip-db-press',name:'Close-Grip DB Press',muscle:'triceps',secondary:['chest'],type:'COMPOUND',equipment:'DUMBBELL'},
+  {id:'x-close-grip-push-up',name:'Close-Grip Push-Up',muscle:'triceps',secondary:['chest'],type:'COMPOUND',equipment:'BODYWEIGHT'},
+  {id:'x-bench-dip-weighted',name:'Bench Dip (Weighted)',muscle:'triceps',secondary:['chest'],type:'COMPOUND',equipment:'PLATE'},
+  {id:'x-board-press',name:'Board Press',muscle:'triceps',secondary:['chest'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-band-pushdown',name:'Band Pushdown',muscle:'triceps',type:'ISOLATION',equipment:'BAND'},
+  {id:'x-farmer-s-hold',name:"Farmer's Hold",muscle:'forearms',secondary:['traps'],type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-wrist-roller',name:'Wrist Roller',muscle:'forearms',type:'ISOLATION',equipment:'OTHER'},
+  {id:'x-db-wrist-curl',name:'DB Wrist Curl',muscle:'forearms',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-db-reverse-wrist-curl',name:'DB Reverse Wrist Curl',muscle:'forearms',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-reverse-ez-bar-curl',name:'Reverse EZ-Bar Curl',muscle:'forearms',secondary:['biceps'],type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-fat-grip-hold',name:'Fat Grip Hold',muscle:'forearms',type:'ISOLATION',equipment:'OTHER'},
+  {id:'x-towel-hang',name:'Towel Hang',muscle:'forearms',secondary:['lats'],type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-gripper-squeeze',name:'Gripper Squeeze',muscle:'forearms',type:'ISOLATION',equipment:'OTHER'},
+  {id:'x-crunch',name:'Crunch',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-reverse-crunch',name:'Reverse Crunch',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-sit-up',name:'Sit-Up',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-weighted-sit-up',name:'Weighted Sit-Up',muscle:'abs',type:'ISOLATION',equipment:'PLATE'},
+  {id:'x-cable-reverse-crunch',name:'Cable Reverse Crunch',muscle:'abs',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-kneeling-cable-crunch',name:'Kneeling Cable Crunch',muscle:'abs',type:'ISOLATION',equipment:'CABLE'},
+  {id:'x-captain-s-chair-leg-raise',name:"Captain's Chair Leg Raise",muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-lying-leg-raise',name:'Lying Leg Raise',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-flutter-kicks',name:'Flutter Kicks',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-mountain-climbers',name:'Mountain Climbers',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-weighted-plank',name:'Weighted Plank',muscle:'abs',type:'ISOLATION',equipment:'PLATE'},
+  {id:'x-plank-shoulder-tap',name:'Plank Shoulder Tap',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-copenhagen-plank',name:'Copenhagen Plank',muscle:'abs',secondary:['glutes'],type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-oblique-crunch',name:'Oblique Crunch',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-side-bend',name:'Side Bend',muscle:'abs',type:'ISOLATION',equipment:'DUMBBELL'},
+  {id:'x-hanging-oblique-raise',name:'Hanging Oblique Raise',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-landmine-rotation',name:'Landmine Rotation',muscle:'abs',type:'ISOLATION',equipment:'BARBELL'},
+  {id:'x-suitcase-carry',name:'Suitcase Carry',muscle:'abs',secondary:['forearms','traps'],type:'COMPOUND',equipment:'DUMBBELL'},
+  {id:'x-stir-the-pot',name:'Stir the Pot',muscle:'abs',type:'ISOLATION',equipment:'OTHER'},
+  {id:'x-ab-crunch-machine',name:'Ab Crunch Machine',muscle:'abs',type:'ISOLATION',equipment:'MACHINE'},
+  {id:'x-decline-crunch',name:'Decline Crunch',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-windshield-wipers',name:'Windshield Wipers',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-jackknife-sit-up',name:'Jackknife Sit-Up',muscle:'abs',type:'ISOLATION',equipment:'BODYWEIGHT'},
+  {id:'x-band-pallof-press',name:'Band Pallof Press',muscle:'abs',type:'ISOLATION',equipment:'BAND'},
+  {id:'x-high-bar-squat',name:'High-Bar Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
+  {id:'x-low-bar-squat',name:'Low-Bar Squat',muscle:'quads',secondary:['glutes','hamstrings'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
+  {id:'x-pause-squat',name:'Pause Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
+  {id:'x-heel-elevated-squat',name:'Heel-Elevated Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
+  {id:'x-heel-elevated-goblet-squat',name:'Heel-Elevated Goblet Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-db-squat',name:'DB Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-kettlebell-goblet-squat',name:'Kettlebell Goblet Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'KETTLEBELL',region:'knee'},
+  {id:'x-smith-machine-front-squat',name:'Smith Machine Front Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'SMITH',region:'knee'},
+  {id:'x-smith-machine-split-squat',name:'Smith Machine Split Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'SMITH',region:'knee'},
+  {id:'x-reverse-hack-squat',name:'Reverse Hack Squat',muscle:'glutes',secondary:['hamstrings'],type:'COMPOUND',equipment:'MACHINE',region:'hip'},
+  {id:'x-v-squat-machine',name:'V-Squat Machine',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'MACHINE',region:'knee'},
+  {id:'x-narrow-stance-leg-press',name:'Narrow-Stance Leg Press',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'MACHINE',region:'knee'},
+  {id:'x-wide-stance-leg-press',name:'Wide-Stance Leg Press',muscle:'glutes',secondary:['quads'],type:'COMPOUND',equipment:'MACHINE',region:'hip'},
+  {id:'x-horizontal-leg-press',name:'Horizontal Leg Press',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'MACHINE',region:'knee'},
+  {id:'x-single-leg-extension',name:'Single-Leg Extension',muscle:'quads',type:'ISOLATION',equipment:'MACHINE',region:'knee'},
+  {id:'x-spanish-squat',name:'Spanish Squat',muscle:'quads',type:'COMPOUND',equipment:'BAND',region:'knee'},
+  {id:'x-wall-sit',name:'Wall Sit',muscle:'quads',type:'ISOLATION',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-bodyweight-squat',name:'Bodyweight Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-jump-squat',name:'Jump Squat',muscle:'quads',secondary:['glutes','calves'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-box-jump',name:'Box Jump',muscle:'quads',secondary:['glutes','calves'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-db-walking-lunge',name:'DB Walking Lunge',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-barbell-lunge',name:'Barbell Lunge',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
+  {id:'x-forward-lunge',name:'Forward Lunge',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-lateral-lunge',name:'Lateral Lunge',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-deficit-reverse-lunge',name:'Deficit Reverse Lunge',muscle:'glutes',secondary:['quads'],type:'COMPOUND',equipment:'DUMBBELL',region:'hip'},
+  {id:'x-front-foot-elevated-split-squat',name:'Front-Foot Elevated Split Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-db-bulgarian-split-squat',name:'DB Bulgarian Split Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-smith-bulgarian-split-squat',name:'Smith Bulgarian Split Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'SMITH',region:'knee'},
+  {id:'x-db-step-up',name:'DB Step-Up',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-petersen-step-up',name:'Petersen Step-Up',muscle:'quads',type:'ISOLATION',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-sled-drag',name:'Sled Drag',muscle:'quads',secondary:['glutes','calves'],type:'COMPOUND',equipment:'OTHER',region:'knee'},
+  {id:'x-thruster',name:'Thruster',muscle:'quads',secondary:['front-delts','glutes'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
+  {id:'x-seated-single-leg-curl',name:'Seated Single-Leg Curl',muscle:'hamstrings',type:'ISOLATION',equipment:'MACHINE',region:'knee'},
+  {id:'x-lying-single-leg-curl',name:'Lying Single-Leg Curl',muscle:'hamstrings',type:'ISOLATION',equipment:'MACHINE',region:'knee'},
+  {id:'x-db-leg-curl',name:'DB Leg Curl',muscle:'hamstrings',type:'ISOLATION',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-swiss-ball-leg-curl',name:'Swiss Ball Leg Curl',muscle:'hamstrings',secondary:['glutes'],type:'ISOLATION',equipment:'OTHER',region:'knee'},
+  {id:'x-slider-leg-curl',name:'Slider Leg Curl',muscle:'hamstrings',secondary:['glutes'],type:'ISOLATION',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-cable-leg-curl',name:'Cable Leg Curl',muscle:'hamstrings',type:'ISOLATION',equipment:'CABLE',region:'knee'},
+  {id:'x-band-leg-curl',name:'Band Leg Curl',muscle:'hamstrings',type:'ISOLATION',equipment:'BAND',region:'knee'},
+  {id:'x-smith-machine-rdl',name:'Smith Machine RDL',muscle:'hamstrings',secondary:['glutes','lower-back'],type:'COMPOUND',equipment:'SMITH',region:'hip'},
+  {id:'x-single-leg-db-rdl',name:'Single-Leg DB RDL',muscle:'hamstrings',secondary:['glutes'],type:'COMPOUND',equipment:'DUMBBELL',region:'hip'},
+  {id:'x-kettlebell-rdl',name:'Kettlebell RDL',muscle:'hamstrings',secondary:['glutes'],type:'COMPOUND',equipment:'KETTLEBELL',region:'hip'},
+  {id:'x-cable-rdl',name:'Cable RDL',muscle:'hamstrings',secondary:['glutes'],type:'COMPOUND',equipment:'CABLE',region:'hip'},
+  {id:'x-seated-good-morning',name:'Seated Good Morning',muscle:'hamstrings',secondary:['lower-back'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
+  {id:'x-banded-good-morning',name:'Banded Good Morning',muscle:'hamstrings',secondary:['glutes'],type:'COMPOUND',equipment:'BAND',region:'hip'},
+  {id:'x-reverse-nordic',name:'Reverse Nordic',muscle:'quads',type:'ISOLATION',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-db-hip-thrust',name:'DB Hip Thrust',muscle:'glutes',secondary:['hamstrings'],type:'COMPOUND',equipment:'DUMBBELL',region:'hip'},
+  {id:'x-smith-machine-hip-thrust',name:'Smith Machine Hip Thrust',muscle:'glutes',secondary:['hamstrings'],type:'COMPOUND',equipment:'SMITH',region:'hip'},
+  {id:'x-single-leg-hip-thrust',name:'Single-Leg Hip Thrust',muscle:'glutes',secondary:['hamstrings'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'hip'},
+  {id:'x-barbell-glute-bridge',name:'Barbell Glute Bridge',muscle:'glutes',secondary:['hamstrings'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
+  {id:'x-single-leg-glute-bridge',name:'Single-Leg Glute Bridge',muscle:'glutes',secondary:['hamstrings'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'hip'},
+  {id:'x-kas-glute-bridge',name:'Kas Glute Bridge',muscle:'glutes',secondary:['hamstrings'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
+  {id:'x-cable-hip-abduction',name:'Cable Hip Abduction',muscle:'glutes',type:'ISOLATION',equipment:'CABLE',region:'hip'},
+  {id:'x-banded-lateral-walk',name:'Banded Lateral Walk',muscle:'glutes',type:'ISOLATION',equipment:'BAND',region:'hip'},
+  {id:'x-clamshell',name:'Clamshell',muscle:'glutes',type:'ISOLATION',equipment:'BAND',region:'hip'},
+  {id:'x-fire-hydrant',name:'Fire Hydrant',muscle:'glutes',type:'ISOLATION',equipment:'BODYWEIGHT',region:'hip'},
+  {id:'x-donkey-kick',name:'Donkey Kick',muscle:'glutes',type:'ISOLATION',equipment:'BODYWEIGHT',region:'hip'},
+  {id:'x-standing-hip-abduction-machine',name:'Standing Hip Abduction Machine',muscle:'glutes',type:'ISOLATION',equipment:'MACHINE',region:'hip'},
+  {id:'x-45-hip-extension',name:'45° Hip Extension',muscle:'glutes',secondary:['hamstrings'],type:'ISOLATION',equipment:'BODYWEIGHT',region:'hip'},
+  {id:'x-kettlebell-sumo-deadlift',name:'Kettlebell Sumo Deadlift',muscle:'glutes',secondary:['hamstrings','quads'],type:'COMPOUND',equipment:'KETTLEBELL',region:'hip'},
+  {id:'x-sumo-squat',name:'Sumo Squat',muscle:'glutes',secondary:['quads'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
+  {id:'x-hip-thrust-paused',name:'Hip Thrust (Paused)',muscle:'glutes',secondary:['hamstrings'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
+  {id:'x-step-down',name:'Step-Down',muscle:'glutes',secondary:['quads'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-hyperextension',name:'Hyperextension',muscle:'lower-back',secondary:['glutes','hamstrings'],type:'ISOLATION',equipment:'BODYWEIGHT',region:'hip'},
+  {id:'x-weighted-back-extension',name:'Weighted Back Extension',muscle:'lower-back',secondary:['glutes','hamstrings'],type:'ISOLATION',equipment:'PLATE',region:'hip'},
+  {id:'x-superman',name:'Superman',muscle:'lower-back',secondary:['glutes'],type:'ISOLATION',equipment:'BODYWEIGHT',region:'hip'},
+  {id:'x-bird-dog',name:'Bird Dog',muscle:'lower-back',secondary:['abs'],type:'ISOLATION',equipment:'BODYWEIGHT',region:'hip'},
+  {id:'x-back-extension-machine',name:'Back Extension Machine',muscle:'lower-back',secondary:['glutes'],type:'ISOLATION',equipment:'MACHINE',region:'hip'},
+  {id:'x-seated-db-calf-raise',name:'Seated DB Calf Raise',muscle:'calves',type:'ISOLATION',equipment:'DUMBBELL',region:'calves'},
+  {id:'x-standing-db-calf-raise',name:'Standing DB Calf Raise',muscle:'calves',type:'ISOLATION',equipment:'DUMBBELL',region:'calves'},
+  {id:'x-calf-raise-machine',name:'Calf Raise Machine',muscle:'calves',type:'ISOLATION',equipment:'MACHINE',region:'calves'},
+  {id:'x-hack-squat-calf-raise',name:'Hack Squat Calf Raise',muscle:'calves',type:'ISOLATION',equipment:'MACHINE',region:'calves'},
+  {id:'x-bodyweight-calf-raise',name:'Bodyweight Calf Raise',muscle:'calves',type:'ISOLATION',equipment:'BODYWEIGHT',region:'calves'},
+  {id:'x-barbell-calf-raise',name:'Barbell Calf Raise',muscle:'calves',type:'ISOLATION',equipment:'BARBELL',region:'calves'},
+  {id:'x-tibialis-raise-weighted',name:'Tibialis Raise (Weighted)',muscle:'calves',type:'ISOLATION',equipment:'PLATE',region:'calves'},
+  {id:'x-hang-clean',name:'Hang Clean',muscle:'traps',secondary:['glutes','hamstrings','quads'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-clean-and-jerk',name:'Clean and Jerk',muscle:'quads',secondary:['glutes','front-delts','traps'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
+  {id:'x-snatch',name:'Snatch',muscle:'traps',secondary:['glutes','quads','front-delts'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-hang-power-snatch',name:'Hang Power Snatch',muscle:'traps',secondary:['glutes','hamstrings'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-kettlebell-clean',name:'Kettlebell Clean',muscle:'glutes',secondary:['hamstrings','traps'],type:'COMPOUND',equipment:'KETTLEBELL',region:'hip'},
+  {id:'x-kettlebell-snatch',name:'Kettlebell Snatch',muscle:'glutes',secondary:['front-delts','traps'],type:'COMPOUND',equipment:'KETTLEBELL',region:'hip'},
+  {id:'x-turkish-get-up',name:'Turkish Get-Up',muscle:'abs',secondary:['front-delts','glutes'],type:'COMPOUND',equipment:'KETTLEBELL'},
+  {id:'x-burpee',name:'Burpee',muscle:'quads',secondary:['chest','abs'],type:'COMPOUND',equipment:'BODYWEIGHT',region:'knee'},
+  {id:'x-man-maker',name:'Man Maker',muscle:'quads',secondary:['chest','front-delts'],type:'COMPOUND',equipment:'DUMBBELL',region:'knee'},
+  {id:'x-db-snatch',name:'DB Snatch',muscle:'glutes',secondary:['front-delts','traps'],type:'COMPOUND',equipment:'DUMBBELL',region:'hip'},
+  {id:'x-medicine-ball-slam',name:'Medicine Ball Slam',muscle:'abs',secondary:['lats'],type:'COMPOUND',equipment:'OTHER'},
+  {id:'x-wall-ball',name:'Wall Ball',muscle:'quads',secondary:['front-delts'],type:'COMPOUND',equipment:'OTHER',region:'knee'},
+  {id:'x-sled-pull',name:'Sled Pull',muscle:'hamstrings',secondary:['glutes'],type:'COMPOUND',equipment:'OTHER',region:'hip'},
+  {id:'x-yoke-carry',name:'Yoke Carry',muscle:'traps',secondary:['quads','abs'],type:'COMPOUND',equipment:'OTHER'},
+  {id:'x-atlas-stone',name:'Atlas Stone',muscle:'glutes',secondary:['lats','hamstrings'],type:'COMPOUND',equipment:'OTHER',region:'hip'},
+  {id:'x-log-press',name:'Log Press',muscle:'front-delts',secondary:['triceps'],type:'COMPOUND',equipment:'BARBELL'},
+  {id:'x-zercher-deadlift',name:'Zercher Deadlift',muscle:'hamstrings',secondary:['glutes','biceps'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
+  {id:'x-jefferson-deadlift',name:'Jefferson Deadlift',muscle:'glutes',secondary:['quads','hamstrings'],type:'COMPOUND',equipment:'BARBELL',region:'hip'},
+  {id:'x-landmine-squat',name:'Landmine Squat',muscle:'quads',secondary:['glutes'],type:'COMPOUND',equipment:'BARBELL',region:'knee'},
+  {id:'x-landmine-thruster',name:'Landmine Thruster',muscle:'quads',secondary:['front-delts'],type:'COMPOUND',equipment:'BARBELL',region:'knee'}
 ];
 
 const MUSCLE_NAMES={'chest':'Chest','lats':'Lats','traps':'Traps','front-delts':'Front Delts','side-delts':'Side Delts','rear-delts':'Rear Delts','biceps':'Biceps','triceps':'Triceps','forearms':'Forearms','abs':'Abs','quads':'Quads','hamstrings':'Hamstrings','glutes':'Glutes','lower-back':'Lower Back','calves':'Calves'};
@@ -1916,7 +2199,9 @@ function libEquip(ex){
   const hit=(key!=null&&lib.find(e=>e.id===key))||lib.find(e=>e.name===ex.name);
   return hit?hit.equipment:null;
 }
-function isBodyweightEx(ex){return libEquip(ex)==='BODYWEIGHT';}
+// Bands have no kg number either, so weight is optional for them too.
+function isCustomLift(ex){return !!(ex&&ex.libId&&(state.customExercises||[]).some(c=>c.id===ex.libId));}
+function isBodyweightEx(ex){const e=libEquip(ex);return e==='BODYWEIGHT'||e==='BAND';}
 // A top set counts as "complete" when reps are in. Weight is required for loaded
 // lifts, optional for bodyweight (blank kg = pure bodyweight).
 function topSetComplete(ex){
@@ -3864,7 +4149,7 @@ function renderToday(){
     if(ex===ssPickEx)cls+=' ss-picking';
     return `<div class="${cls}" data-ex-idx="${i}" onclick="${ex.skipped?`unskipExerciseAt(${i})`:`cardTap(${i})`}">
       <div class="ex-info">
-        <div class="ex-name">${esc(ex.name)}</div>
+        <div class="ex-name">${esc(ex.name)}${isCustomLift(ex)?'<span class="cm-badge">CM</span>':''}</div>
         <div class="ex-meta">${leftMeta}</div>
       </div>
       ${rightSets}
@@ -5109,7 +5394,23 @@ function deleteCustomExercise(id){
   filterLib();
   toast('Deleted');
 }
-function filterLib(){const q=document.getElementById('lib-search').value.toLowerCase();const filtered=getLibrary().filter(e=>e.name.toLowerCase().includes(q)||e.muscle.includes(q)||e.equipment.toLowerCase().includes(q));const sym=libMode==='swap'?'⇄':'+';document.getElementById('lib-results').innerHTML=filtered.map(e=>{const custom=e.custom?` <span style="color:var(--cobalt-bright);font-size:9px;letter-spacing:.15em">· CUSTOM</span>`:'';const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';return `<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(e.name)}${custom}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;}).join('');}
+// Your own exercises first, then every lift grouped by muscle. Duplicate names
+// (a couple of old ids share one) show once.
+const MUSCLE_ORDER=Object.keys(MUSCLE_NAMES);
+function filterLib(){
+  const q=document.getElementById('lib-search').value.toLowerCase().trim();
+  const seen=new Set();
+  const filtered=getLibrary().filter(e=>{
+    const k=e.name.toLowerCase();if(seen.has(k))return false;seen.add(k);
+    return !q||k.includes(q)||e.muscle.includes(q)||(MUSCLE_NAMES[e.muscle]||'').toLowerCase().includes(q)||e.equipment.toLowerCase().includes(q);
+  }).map((e,i)=>({e,i})).sort((a,b)=>((b.e.custom?1:0)-(a.e.custom?1:0))||(MUSCLE_ORDER.indexOf(a.e.muscle)-MUSCLE_ORDER.indexOf(b.e.muscle))||(a.i-b.i)).map(x=>x.e);
+  const sym=libMode==='swap'?'⇄':'+';
+  document.getElementById('lib-results').innerHTML=filtered.map(e=>{
+    const cm=e.custom?' <span class="cm-badge" title="Made by you">CM</span>':'';
+    const del=e.custom?`<button class="btn-ghost" onclick="event.stopPropagation();deleteCustomExercise('${e.id}')" style="color:var(--red);padding:4px 8px;font-size:10px">✕</button>`:'';
+    return `<div class="modal-row" onclick="openSetsReps('${e.id}','${libMode}')"><div><div class="name">${esc(e.name)}${cm}</div><div class="meta">${MUSCLE_NAMES[e.muscle]||e.muscle} · ${e.equipment}</div></div><div style="display:flex;align-items:center;gap:6px">${del}<div style="color:var(--cobalt-bright);font-size:22px;font-weight:700">${sym}</div></div></div>`;
+  }).join('')||'<div class="empty-state">No lift called that — make it with the button above</div>';
+}
 // Look at a split without switching to it: every day, every exercise.
 function openSplitOverview(id){
   const p=getProgramDef(id);if(!p)return;
