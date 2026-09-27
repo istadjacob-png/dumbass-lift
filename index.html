@@ -1105,7 +1105,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 
 /* ===== SUPERSET BLOCK — lifts done back to back, drawn as one unit ===== */
 .sw-wrap{position:relative;margin-bottom:8px}
-.sw-wrap>:last-child{margin-bottom:0!important;position:relative;z-index:1;touch-action:pan-y}
+.sw-wrap>:last-child{margin-bottom:0!important;position:relative;z-index:1}
 .sw-wrap.sw-moving>:last-child{transition:none}
 .sw-wrap.sw-back>:last-child{transition:transform .2s ease}
 .sw-under{position:absolute;inset:0;display:none;align-items:center;justify-content:space-between;padding:0 18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;font-weight:700;color:#FFF;text-transform:uppercase}
@@ -1680,7 +1680,7 @@ html,body{background:#FFFFFF;font-family:'Inter',sans-serif;font-weight:400;-web
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.10';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-09-27.11';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -5412,21 +5412,47 @@ function _swEnd(w,dx){
   setTimeout(()=>w.classList.remove('sw-back'),220);
   if(act){_swBlockClick=Date.now();buzz();setTimeout(()=>{try{new Function(act)();}catch(e){console.warn('[swipe]',e);}},10);}
 }
+// Fingers: touch events — the only thing iPhone Safari reliably reports for a
+// sideways drag (pointer events get cancelled). Mouse/pen: pointer events.
+function _swStart(t,x,y,id){
+  const w=t.closest&&t.closest('.sw-wrap');if(!w)return null;
+  if(t.closest('input,select,textarea'))return null;
+  return {w,x,y,dx:0,dir:0,id};
+}
+function _swDrag(x,y){
+  const dx=x-_sw.x,dy=y-_sw.y;
+  if(!_sw.dir){
+    if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)*1.2){_sw.dir=1;_sw.w.classList.add('sw-moving');}
+    else if(Math.abs(dy)>8){_sw=null;return false;}
+    else return false;
+  }
+  _sw.dx=_swMove(_sw.w,dx);
+  return true;
+}
+document.addEventListener('touchstart',e=>{
+  if(e.touches.length!==1){_sw=null;return;}
+  const t=e.touches[0];_sw=_swStart(e.target,t.clientX,t.clientY,'touch');
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  if(!_sw||_sw.id!=='touch')return;
+  const t=e.touches[0];if(!t)return;
+  if(_swDrag(t.clientX,t.clientY)&&e.cancelable)e.preventDefault();   // we own this drag: don't scroll
+},{passive:false});
+document.addEventListener('touchend',()=>{
+  if(!_sw||_sw.id!=='touch')return;
+  const s=_sw;_sw=null;
+  if(s.dir){_swBlockClick=Date.now();_swEnd(s.w,s.dx);}
+});
+document.addEventListener('touchcancel',()=>{if(_sw&&_sw.id==='touch'){const s=_sw;_sw=null;if(s.dir)_swEnd(s.w,0);}});
 document.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='touch')return;
   if(e.pointerType==='mouse'&&e.button!==0)return;
-  const w=e.target.closest&&e.target.closest('.sw-wrap');if(!w)return;
-  if(e.target.closest('input,select,textarea'))return;
-  _sw={w,x:e.clientX,y:e.clientY,dx:0,dir:0,id:e.pointerId};
+  _sw=_swStart(e.target,e.clientX,e.clientY,e.pointerId);
 },{passive:true});
 document.addEventListener('pointermove',e=>{
   if(!_sw||e.pointerId!==_sw.id)return;
-  const dx=e.clientX-_sw.x,dy=e.clientY-_sw.y;
-  if(!_sw.dir){
-    if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)*1.2){_sw.dir=1;_sw.w.classList.add('sw-moving');try{_sw.w.setPointerCapture(e.pointerId);}catch(_){}}
-    else if(Math.abs(dy)>8){_sw=null;return;}
-    else return;
-  }
-  _sw.dx=_swMove(_sw.w,dx);
+  const was=_sw.dir;
+  if(_swDrag(e.clientX,e.clientY)&&!was)try{_sw.w.setPointerCapture(e.pointerId);}catch(_){}
 });
 function _swUp(e){
   if(!_sw||e.pointerId!==_sw.id)return;
@@ -5434,7 +5460,7 @@ function _swUp(e){
   if(s.dir){_swBlockClick=Date.now();_swEnd(s.w,s.dx);}
 }
 document.addEventListener('pointerup',_swUp);
-document.addEventListener('pointercancel',e=>{if(_sw&&e.pointerId===_sw.id){const s=_sw;_sw=null;if(s.dir)_swEnd(s.w,0);}});
+document.addEventListener('pointercancel',e=>{if(_sw&&_sw.id!=='touch'&&e.pointerId===_sw.id){const s=_sw;_sw=null;if(s.dir)_swEnd(s.w,0);}});
 // A swipe must never also count as a tap on the card.
 document.addEventListener('click',e=>{if(Date.now()-_swBlockClick<350){e.stopPropagation();e.preventDefault();}},true);
 // Mac trackpad: two-finger sideways swipe arrives as wheel events.
