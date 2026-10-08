@@ -322,11 +322,11 @@ input,textarea{user-select:text}
 /* Set-today's-day control + picker */
 .set-today-btn{background:transparent;border:1px dashed var(--border);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;padding:8px 12px;border-radius:8px;cursor:pointer;margin:2px 0 14px;width:100%;text-align:left}
 .set-today-btn:active{transform:scale(.99)}
-#day-picker-list .dp-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--steel-dark);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
-#day-picker-list .dp-row:active{transform:scale(.99)}
+#day-picker-list .dp-row,#ssp-list .dp-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--steel-dark);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+#day-picker-list .dp-row:active,#ssp-list .dp-row:active{transform:scale(.99)}
 #day-picker-list .dp-row.active{border-color:var(--cobalt-bright);box-shadow:0 0 0 1px var(--cobalt-bright)}
-#day-picker-list .dp-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.02em;color:var(--text);line-height:1}
-#day-picker-list .dp-musc{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;font-weight:600;margin-top:3px}
+#day-picker-list .dp-name,#ssp-list .dp-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.02em;color:var(--text);line-height:1}
+#day-picker-list .dp-musc,#ssp-list .dp-musc{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;font-weight:600;margin-top:3px}
 #day-picker-list .dp-now{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.2em;color:var(--cobalt-bright);text-transform:uppercase;font-weight:700;border:1px solid var(--cobalt-bright);border-radius:5px;padding:4px 8px;flex-shrink:0}
 
 /* Prominent Today-view sync banner */
@@ -475,7 +475,7 @@ input,textarea{user-select:text}
 .protocol-box p:last-child{margin-bottom:0}
 .protocol-box p b{color:var(--text);font-weight:700}
 
-/* VOLUME (MEV / MAV / MRV) */
+/* VOLUME (weekly sets per muscle) */
 .vol-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .vol-summary .stat{background:var(--steel);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:border-color .15s,box-shadow .15s}
 .vol-summary .stat:active{transform:scale(.98)}
@@ -545,30 +545,28 @@ input,textarea{user-select:text}
 .vol-breakdown .b-share{flex:0 0 70px;height:6px;background:var(--steel-dark);border-radius:3px;overflow:hidden}
 .vol-breakdown .b-share .fill{height:100%;background:var(--cobalt-bright);border-radius:3px}
 .vol-card{background:var(--steel);border:1px solid var(--border);border-left:3px solid var(--steel-light);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.vol-card.under{border-left-color:var(--red)}
-.vol-card.mev{border-left-color:#e8b94a}
-.vol-card.mav{border-left-color:#5cd07a}
-.vol-card.over-mav{border-left-color:#e8b94a}
-.vol-card.over{border-left-color:var(--red)}
+.vol-card.low{border-left-color:#e8b94a}
+.vol-card.in{border-left-color:#5cd07a}
+.vol-card.high{border-left-color:#e8b94a}
+.vol-card.none{border-left-color:var(--steel-light)}
 .vol-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:10px}
 .vol-head .name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.02em;color:var(--text);line-height:1}
 .vol-head .sets{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.02em;line-height:1;font-variant-numeric:tabular-nums}
 .vol-head .sets .unit{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.25em;color:var(--text-faint);text-transform:uppercase;font-weight:700;margin-left:4px}
 .vol-bar{position:relative;height:8px;background:var(--steel-dark);border-radius:4px;overflow:hidden;margin-bottom:6px}
 .vol-bar .fill{position:absolute;top:0;left:0;height:100%;border-radius:4px;background:var(--steel-light);animation:fillBar .7s cubic-bezier(.2,.8,.2,1);transition:width .4s cubic-bezier(.2,.8,.2,1)}
-.vol-card.under .vol-bar .fill{background:var(--red)}
-.vol-card.mev .vol-bar .fill{background:#e8b94a}
-.vol-card.mav .vol-bar .fill{background:#5cd07a}
-.vol-card.over-mav .vol-bar .fill{background:#e8b94a}
-.vol-card.over .vol-bar .fill{background:var(--red)}
+.vol-card.low .vol-bar .fill{background:#e8b94a}
+.vol-card.in .vol-bar .fill{background:#5cd07a}
+.vol-card.high .vol-bar .fill{background:#e8b94a}
+.vol-bar .band{position:absolute;top:0;height:100%;background:rgba(92,208,122,.18)}
+.vol-indirect{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.15em;color:var(--text-faint);text-transform:uppercase;font-weight:600;margin-top:4px}
 .vol-bar .tick{position:absolute;top:-3px;width:1px;height:14px;background:var(--text-faint);opacity:.5}
 .vol-foot{display:flex;justify-content:space-between;align-items:center;font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;font-weight:600}
 .vol-foot .status{font-weight:700}
-.vol-foot .status.under{color:var(--red)}
-.vol-foot .status.mev{color:#e8b94a}
-.vol-foot .status.mav{color:#5cd07a}
-.vol-foot .status.over-mav{color:#e8b94a}
-.vol-foot .status.over{color:var(--red)}
+.vol-foot .status.low{color:#e8b94a}
+.vol-foot .status.in{color:#5cd07a}
+.vol-foot .status.high{color:#e8b94a}
+.vol-foot .status.none{color:var(--text-faint)}
 .vol-legend{margin-top:14px;background:var(--steel);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--text-mid);line-height:1.6}
 .vol-legend p{margin-bottom:4px}
 .vol-legend p:last-child{margin-bottom:0}
@@ -1380,10 +1378,10 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
     <div id="day-list"></div>
     <div class="protocol-box">
       <p><b>Priority order is law.</b> The muscle named first is trained first, when you are freshest.</p>
-      <p style="margin-top:10px"><button class="btn-ghost" onclick="resetActiveProgramToDefault()" style="color:var(--red);padding:0">Reset this split to defaults</button></p>
+      <p style="margin-top:10px;display:flex;gap:18px;flex-wrap:wrap"><button class="btn-ghost" onclick="openSplitEditor(state.activeProgramId)" style="color:var(--text);padding:0">✎ Edit this split</button><button class="btn-ghost" onclick="resetActiveProgramToDefault()" style="color:var(--red);padding:0">Reset this split to defaults</button></p>
     </div>
 
-    <div class="hist-section-label">Weekly Working Sets · MEV · MAV · MRV</div>
+    <div class="hist-section-label">Weekly sets per muscle</div>
     <div id="volume-summary" class="vol-summary"></div>
     <button id="past-week-toggle" class="past-week-toggle" onclick="togglePastWeek()"></button>
     <div id="volume-actuals" class="vol-actuals" style="display:none"></div>
@@ -1391,10 +1389,8 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
     <div id="volume-filters" class="lift-select"></div>
     <div id="volume-list"></div>
     <div class="vol-legend">
-      <p><b>MEV</b> Minimum Effective Volume — the floor. Below this you don't grow.</p>
-      <p><b>MAV</b> Maximum Adaptive Volume — the productive range. Live here.</p>
-      <p><b>MRV</b> Maximum Recoverable Volume — the ceiling. Past it you overreach.</p>
-      <p style="margin-top:8px;color:var(--text-faint);font-size:10px"><b>How it counts</b> Primary muscle = 1 set. Secondary muscle = 0.5 set (RP / Israetel standard for compound synergists).</p>
+      <p><b>Typical range</b> Most muscle-growth studies use about 10–20 hard sets per muscle per week. Fewer still works, just with less volume.</p>
+      <p style="margin-top:8px;color:var(--text-faint);font-size:10px"><b>How it counts</b> Only sets where the muscle is the main target count. Sets where it only helps (like lower back in a Romanian deadlift) are listed underneath, not added.</p>
     </div>
   </div>
 
@@ -1592,7 +1588,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
   <div class="modal sr-modal">
     <h2>EDIT <span class="accent">LIFT</span></h2>
     <div class="sr-exname" id="ee-name">Exercise</div>
-    <div class="sr-hint">Add or remove sets, pair it as a superset, swap it, or drop it. Tip: double-tap two lifts to superset them.</div>
+    <div class="sr-hint">Add or remove sets, superset it, swap it, or delete it. Tip: double-tap two lifts to superset them.</div>
     <div class="sr-row">
       <div class="sr-field">
         <div class="sr-flabel">Sets</div>
@@ -1608,6 +1604,13 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
         <input id="ee-reps" class="sr-reps-input" type="text" placeholder="e.g. 10" oninput="eeUpdateReps(this.value)">
       </div>
     </div>
+    <div id="ee-sets-wrap" style="display:none">
+      <div class="ss-pick-label">Sets change</div>
+      <div class="ss-pick" id="ee-sets-pick">
+        <button type="button" data-v="temp" onclick="eeSetSetsKind('temp')"><b>Just today</b><span>Back to normal next time</span></button>
+        <button type="button" data-v="perm" onclick="eeSetSetsKind('perm')"><b>Every week</b><span>Saved to your plan</span></button>
+      </div>
+    </div>
     <div id="ee-ss-wrap" style="display:none">
       <div class="ss-pick-label">Superset</div>
       <div class="ss-pick" id="ee-ss-pick">
@@ -1618,9 +1621,20 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
     <div class="sb-footer">
       <button class="btn-ghost" onclick="eeSwap()" style="color:var(--cobalt-bright)">⇄ Swap</button>
       <button class="btn-ghost" id="ee-ss-btn" onclick="eeSuperset()" style="color:var(--text)">+ Superset</button>
+      <button class="btn-ghost" id="ee-unlink-btn" onclick="eeUnlinkSuperset()" style="color:var(--text-dim);display:none">Unlink</button>
       <button class="btn-ghost" onclick="eeDelete()" style="color:var(--red)">Delete</button>
     </div>
     <button class="log-btn" onclick="closeExerciseEdit()">Done</button>
+  </div>
+</div>
+
+<!-- SUPERSET PICKER — pair with a lift already in today's workout -->
+<div class="modal-bg" id="ssp-modal" onclick="if(event.target.id==='ssp-modal')this.classList.remove('open')">
+  <div class="modal">
+    <h2>SUPER<span class="accent">SET</span></h2>
+    <div class="sr-hint">Tap a lift to do it back to back with this one. Add as many as you like.</div>
+    <div id="ssp-list"></div>
+    <button class="btn-ghost" onclick="sspLibrary()" style="width:100%;margin-top:10px;color:var(--cobalt-bright)">Pick a new lift →</button>
   </div>
 </div>
 
@@ -1636,7 +1650,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="modal-bg" id="day-picker-modal" onclick="if(event.target.id==='day-picker-modal')closeDayPicker()">
   <div class="modal">
     <h2>SET <span class="accent">TODAY</span></h2>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Off your weekday schedule? Pick the day you're actually training. It sticks and rolls forward on its own.</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">Pick the day you're training. It sticks and rolls forward on its own.</div>
     <div id="day-picker-list"></div>
   </div>
 </div>
@@ -1711,9 +1725,9 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 
 <div class="modal-bg" id="split-builder-modal" onclick="if(event.target.id==='split-builder-modal')closeSplitBuilder()">
   <div class="modal">
-    <h2>BUILD YOUR <span class="accent">SPLIT</span></h2>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">You decide everything: the name, the days, and the exercises on each day.</div>
-    <div class="sb-field">
+    <h2 id="sb-title">BUILD YOUR <span class="accent">SPLIT</span></h2>
+    <div id="sb-intro" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.1em;margin-bottom:14px;line-height:1.5">You decide everything: the name, the days, and the exercises on each day.</div>
+    <div class="sb-field" id="sb-name-field">
       <label class="sb-label">Split Name</label>
       <input class="modal-input" id="sb-name" type="text" placeholder="e.g. My Push Pull Legs" oninput="updateBuilderName(this.value)">
     </div>
@@ -1725,7 +1739,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
     </div>
     <div class="sb-footer">
       <button class="btn-ghost" onclick="closeSplitBuilder()" style="color:var(--text-dim)">CANCEL</button>
-      <button class="btn-primary" onclick="saveCustomSplit()" style="flex:1">CREATE SPLIT</button>
+      <button class="btn-primary" id="sb-save" onclick="saveCustomSplit()" style="flex:1">CREATE SPLIT</button>
     </div>
   </div>
 </div>
@@ -1761,7 +1775,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-09-27.19';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-10-08.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2406,24 +2420,25 @@ function topSetLabel(ts,ex){
   return `${kg||'—'}kg × ${reps}`;
 }
 
-// Weekly working-set landmarks (Israetel / Renaissance Periodization).
-// mev: floor · mav: productive band · mrv: ceiling.
-const VOLUME_LANDMARKS={
-  'chest':{mev:8,mav:[12,20],mrv:22},
-  'lats':{mev:10,mav:[14,22],mrv:25},
-  'traps':{mev:0,mav:[6,12],mrv:20},
-  'front-delts':{mev:0,mav:[6,8],mrv:12},
-  'side-delts':{mev:8,mav:[14,22],mrv:26},
-  'rear-delts':{mev:6,mav:[10,16],mrv:22},
-  'biceps':{mev:8,mav:[14,20],mrv:26},
-  'triceps':{mev:6,mav:[10,14],mrv:18},
-  'forearms':{mev:0,mav:[6,15],mrv:25},
-  'abs':{mev:0,mav:[16,20],mrv:25},
-  'quads':{mev:8,mav:[12,18],mrv:20},
-  'hamstrings':{mev:6,mav:[10,16],mrv:20},
-  'glutes':{mev:0,mav:[4,12],mrv:16},
-  'lower-back':{mev:0,mav:[4,8],mrv:14},
-  'calves':{mev:8,mav:[12,16],mrv:20}
+// Typical weekly range of direct sets per muscle. Most hypertrophy studies
+// land around 10–20 hard sets/week; muscles that get plenty of work from other
+// lifts (opt) have no minimum — zero direct sets there is fine, not "low".
+const VOLUME_RANGES={
+  'chest':{lo:10,hi:20},
+  'lats':{lo:10,hi:20},
+  'traps':{lo:0,hi:12,opt:true},
+  'front-delts':{lo:0,hi:12,opt:true},
+  'side-delts':{lo:10,hi:20},
+  'rear-delts':{lo:6,hi:16},
+  'biceps':{lo:8,hi:20},
+  'triceps':{lo:8,hi:20},
+  'forearms':{lo:0,hi:12,opt:true},
+  'abs':{lo:0,hi:16,opt:true},
+  'quads':{lo:10,hi:20},
+  'hamstrings':{lo:8,hi:16},
+  'glutes':{lo:0,hi:16,opt:true},
+  'lower-back':{lo:0,hi:10,opt:true},
+  'calves':{lo:8,hi:16}
 };
 
 const PROGRAMS=[
@@ -2866,9 +2881,9 @@ const PROGRAMS=[
     id:'rp-5day',
     name:'5-Day Hypertrophy',
     author:'Volume landmarks',
-    description:'Evidence-based hypertrophy at MEV→MAV→MRV. Push / Pull / Legs / Upper / Lower. Built for natural growth.',
+    description:'Push / Pull / Legs / Upper / Lower. 10–20 sets per muscle each week.',
     schedule:[
-      {dayNum:1,name:'PUSH',muscles:'Chest · Shoulders · Triceps',subtitle:'Compounds first, isolations to MRV',type:'train',exercises:[
+      {dayNum:1,name:'PUSH',muscles:'Chest · Shoulders · Triceps',subtitle:'Compounds first, then isolations',type:'train',exercises:[
         {libId:'inc-bench',name:'Incline Bench Press',targetSets:3,targetReps:'6-10',primary:true,tag:'PRIMARY'},
         {libId:'machine-press',name:'Machine Chest Press',targetSets:3,targetReps:'8-12'},
         {libId:'cable-crossover',name:'Cable Crossover',targetSets:3,targetReps:'12-15'},
@@ -2987,8 +3002,9 @@ function getActiveProgram(){return getProgramDef(state.activeProgramId||PROGRAMS
 // Weekday helpers — map schedule slot 0..6 to Mon..Sun
 const WEEKDAYS=['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
 const WEEKDAYS_SHORT=['MON','TUE','WED','THU','FRI','SAT','SUN'];
-function weekdayLabel(idx){return WEEKDAYS[((idx%7)+7)%7];}
-function weekdayShort(idx){return WEEKDAYS_SHORT[((idx%7)+7)%7];}
+// Days are numbered (Day 1, Day 2 …), not tied to weekdays.
+function weekdayLabel(idx){return 'DAY '+(idx+1);}
+function weekdayShort(idx){return String(idx+1);}
 function ymd(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function daysBetween(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);}
 // Today's slot in the schedule.
@@ -3006,7 +3022,7 @@ function todayScheduleIdx(){
 }
 // Pin which schedule day is "today"; auto-advances each calendar day after.
 function setTodayDay(idx){
-  state.dayAnchor={date:ymd(), idx:idx};
+  delete state.dayAnchor;
   loadDay(idx);
   save();
   closeDayPicker();
@@ -3026,8 +3042,8 @@ function clearTodayAnchor(){
 }
 function openDayPicker(){
   const sched=getActiveSchedule();
-  const realToday=todayScheduleIdx();
-  const pinned=!!(state.dayAnchor&&state.dayAnchor.date);
+  const realToday=state.currentDayIdx;
+  const pinned=false;
   document.getElementById('day-picker-list').innerHTML=sched.map((day,i)=>{
     const now=i===realToday?'<span class="dp-now">TODAY</span>':'';
     return `<div class="dp-row${i===realToday?' active':''}" onclick="setTodayDay(${i})"><div class="dp-info"><div class="dp-name">${day.name}</div><div class="dp-musc">${day.type==='rest'?'Rest day':(day.muscles||'')}</div></div>${now}</div>`;
@@ -3160,6 +3176,7 @@ function upsertLiveExercise(ex){
   const snap={
     libId:ex.libId,name:ex.name,
     targetSets:ex.targetSets,targetReps:ex.targetReps,
+    planSets:ex.planSets!=null?ex.planSets:undefined,
     primary:ex.primary||false,tag:ex.tag||null,
     topSet:{kg:ex.topSet&&ex.topSet.kg||'',reps:ex.topSet&&ex.topSet.reps||''},
     topLogged:!!ex.topLogged,
@@ -3194,7 +3211,7 @@ function restoreLiveSessionIntoToday(){
     if(m){
       ex.topSet={kg:(m.topSet&&m.topSet.kg)||'',reps:(m.topSet&&m.topSet.reps)||''};
       ex.completedSets=m.completedSets||0;
-      if(Array.isArray(m.sets)){ex.sets=m.sets.map(r=>({kg:r.kg||'',reps:r.reps||'',done:!!r.done}));if(ex.sets.length>(ex.targetSets||0))ex.targetSets=ex.sets.length;}
+      if(Array.isArray(m.sets)){ex.sets=m.sets.map(r=>({kg:r.kg||'',reps:r.reps||'',done:!!r.done}));if(ex.sets.length>(ex.targetSets||0)){if(m.planSets!=null)ex.planSets=m.planSets;ex.targetSets=ex.sets.length;}}
       if(!ex.skipped)ex.done=ex.completedSets>=(ex.targetSets||0)&&(ex.targetSets||0)>0;
       ex.topLogged=(typeof m.topLogged==='boolean')?m.topLogged:!!(m.topSet&&m.topSet.kg);
     }
@@ -3304,7 +3321,7 @@ function syncTodayToSchedule(){
   if(!day)return;
   // "Just today" supersets stay out of the plan: a lift added only for the
   // superset is left out, and a temporary link isn't saved.
-  const out=state.today.exercises.filter(ex=>!ex.tempAdd).map(ex=>({libId:ex.libId,name:ex.name,targetSets:ex.targetSets,targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,ss:(ex.ss&&!ex.ssTemp)?ex.ss:null}));
+  const out=state.today.exercises.filter(ex=>!ex.tempAdd).map(ex=>({libId:ex.libId,name:ex.name,targetSets:(ex.planSets!=null?ex.planSets:ex.targetSets),targetReps:ex.targetReps,primary:ex.primary||false,tag:ex.tag||null,ss:(ex.ss&&!ex.ssTemp)?ex.ss:null}));
   out.forEach(ex=>{if(ex.ss&&out.filter(e=>e.ss===ex.ss).length<2)ex.ss=null;});
   day.exercises=out;
 }
@@ -3916,13 +3933,26 @@ function dismissIntro(){state.introSeen=true;save();document.getElementById('int
 
 function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';state.historyOpen='';renderProgress();}if(name==='profile')renderProfile();if(name==='program'){renderProgram();renderVolume();}if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
 
-// A day is DONE when you hit Finish on it this week (Monday reset, same as the
-// weekly volume) — or, for splits that aren't 7 days long, within the last
-// cycle. Order doesn't matter: train Thursday's day on Wednesday and it counts.
-function dayCompletedRecently(day,len){
+// A day is DONE when it was finished in the current cycle. A cycle starts the
+// moment you start Day 1 (first set logged), so starting Day 1 clears every
+// other "done" from the round before.
+function cycleStartMs(){
+  const sched=getActiveSchedule()||[];
+  const first=sched.find(d=>d&&d.type!=='rest');
+  if(!first)return 0;
+  let t0=0;
+  (state.history||[]).forEach(h=>{
+    if(!h||!h.date||h.programId!==state.activeProgramId||h.dayNum!==first.dayNum)return;
+    if(h.partial&&!(_liveFresh(h)&&(h.exercises||[]).some(e=>(e.completedSets||0)>0)))return;
+    const t=Date.parse(h.date)||0;if(t>t0)t0=t;
+  });
+  if(t0)return t0;
+  // Day 1 never done on this split: only the last cycle-length of days counts.
+  const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((sched.length||7)-1));return d.getTime();
+}
+function dayCompletedRecently(day,len,since){
   if(day.type==='rest')return false;
-  let since=weekStartMs();
-  if(len!==7){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(len-1));since=d.getTime();}
+  if(since==null)since=cycleStartMs();
   return (state.history||[]).some(h=>h&&!h.partial&&h.programId===state.activeProgramId&&h.dayNum===day.dayNum&&h.date&&Date.parse(h.date)>=since);
 }
 function renderProgram(){
@@ -3942,28 +3972,35 @@ function renderProgram(){
       ${sourceLink}
     `;
   }
-  const realToday=todayScheduleIdx();
+  const since=cycleStartMs();
   document.getElementById('day-list').innerHTML=sched.map((day,i)=>{
     const isToday=i===state.currentDayIdx;
-    const isRealToday=i===realToday;
-    const isDone=dayCompletedRecently(day,sched.length);
+    const isDone=dayCompletedRecently(day,sched.length,since);
     const cls=`day-card${isToday?' today':''}${isDone?' done':''}${day.type==='rest'?' rest':''}`;
     let icon;
     if(day.type==='rest') icon='<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>';
     else if(isDone) icon='<svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M5 12l5 5 9-11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     else icon='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
     let labelTxt;
-    if(isDone) labelTxt=(isRealToday?'TODAY':weekdayLabel(i))+' · DONE';
-    else if(isToday) labelTxt=isRealToday?'TODAY':'SELECTED';
-    else labelTxt=isRealToday?weekdayLabel(i)+' · TODAY':weekdayLabel(i);
+    if(isDone) labelTxt=weekdayLabel(i)+' · DONE';
+    else if(isToday) labelTxt=weekdayLabel(i)+' · TODAY';
+    else labelTxt=weekdayLabel(i);
     return `<div class="${cls}" onclick="switchToDay(${i})"><div class="num">${weekdayShort(i)}</div><div class="day-info"><div class="d-label">${labelTxt}</div><div class="d-name">${day.name}</div><div class="d-muscles">${day.muscles}</div></div><div class="play-btn">${icon}</div></div>`;
   }).join('');
 }
 
+// Weekly sets per muscle: a set counts for the muscle it mainly trains.
+// Muscles that only help (secondary) are tracked apart in counts._ind as
+// {muscle:{liftName:sets}} so the card can say where they got worked — they
+// are never added to the main number.
+function _addSets(counts,lib,name,sets){
+  counts[lib.muscle]=(counts[lib.muscle]||0)+sets;
+  if(Array.isArray(lib.secondary)){
+    counts._ind=counts._ind||{};
+    lib.secondary.forEach(m=>{const o=counts._ind[m]=counts._ind[m]||{};o[name]=(o[name]||0)+sets;});
+  }
+}
 function computeWeeklySets(){
-  // Volume model: primary muscle gets 1 set per logged set.
-  // Secondary muscles get 0.5 sets (RP-school standard for synergist work
-  // in compound exercises — Israetel/Helms convention; EMG-supported).
   const counts={};
   getActiveSchedule().forEach(day=>{
     if(day.type==='rest'||!day.exercises)return;
@@ -3971,17 +4008,14 @@ function computeWeeklySets(){
       const lib=getLibrary().find(l=>l.id===ex.libId);
       if(!lib)return;
       const sets=parseInt(ex.targetSets)||0;
-      counts[lib.muscle]=(counts[lib.muscle]||0)+sets;
-      if(Array.isArray(lib.secondary)){
-        lib.secondary.forEach(s=>{counts[s]=(counts[s]||0)+sets*0.5;});
-      }
+      if(sets>0)_addSets(counts,lib,ex.name||lib.name,sets);
     });
   });
   return counts;
 }
 
 // Actually-completed sets across the last N days. Mirrors the planned-vs-actual
-// math: primary muscle 1×, secondary 0.5×, count completedSets (sets done before a skip still count).
+// math: a set counts for the muscle it mainly trains; completedSets (sets done before a skip still count).
 // Monday 00:00 (local) of the current calendar week — the honest "this week" reset.
 function weekStartMs(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
 function _thisWeekRange(){const s=new Date(weekStartMs());const e=new Date();const f=d=>d.toLocaleDateString('en',{month:'short',day:'numeric'});return f(s)+' – '+f(e);}
@@ -3997,10 +4031,7 @@ function computeActualSetsSince(sinceMs){
       if(!lib)return;
       const sets=parseInt(ex.completedSets)||0;
       if(sets<=0)return;
-      counts[lib.muscle]=(counts[lib.muscle]||0)+sets;
-      if(Array.isArray(lib.secondary)){
-        lib.secondary.forEach(s=>{counts[s]=(counts[s]||0)+sets*0.5;});
-      }
+      _addSets(counts,lib,ex.name||lib.name,sets);
     });
   });
   return counts;
@@ -4026,15 +4057,14 @@ function computeRegionBreakdown(muscleKeys){
   return totals;
 }
 
-function classifyVolume(sets,lm){
-  if(sets<lm.mev)return'under';
-  if(sets<lm.mav[0])return'mev';
-  if(sets<=lm.mav[1])return'mav';
-  if(sets<=lm.mrv)return'over-mav';
-  return'over';
+// Plain facts, no coaching: under the typical range, in it, or over it.
+function classifyVolume(sets,r){
+  if(sets===0&&r.opt)return'none';
+  if(sets<r.lo)return'low';
+  if(sets<=r.hi)return'in';
+  return'high';
 }
-
-const VOLUME_STATUS_LABEL={'under':'Below MEV','mev':'At MEV','mav':'In MAV','over-mav':'Above MAV','over':'Past MRV'};
+const VOLUME_STATUS_LABEL={'low':'Low volume','in':'Typical range','high':'High volume','none':'No direct sets'};
 
 const MUSCLE_GROUPS=[
   {key:'all',label:'All'},
@@ -4060,15 +4090,11 @@ const MUSCLE_GROUPS=[
   {key:'core',label:'Core',muscles:['abs']}
 ];
 let volumeFilter='all';
-let volumeStatusFilter='all'; // 'all' | 'under' | 'ideal' | 'over'
+let volumeStatusFilter='all'; // 'all' | 'low' | 'in' | 'high'
 function setVolumeFilter(k){volumeFilter=k;renderVolume();}
 function setVolumeStatusFilter(s){volumeStatusFilter=(volumeStatusFilter===s?'all':s);renderVolume();}
 
-function statusBucket(cls){
-  if(cls==='under'||cls==='mev')return'under';
-  if(cls==='mav')return'ideal';
-  return'over';
-}
+function statusBucket(cls){return cls==='none'?'in':cls;}
 
 function renderVolume(){
   const counts=computeWeeklySets();
@@ -4081,13 +4107,13 @@ function renderVolume(){
   const muscleStatus={};
   let under=0,ideal=0,over=0;
   order.forEach(m=>{
-    const lm=VOLUME_LANDMARKS[m];if(!lm)return;
+    const lm=VOLUME_RANGES[m];if(!lm)return;
     const sets=counts[m]||0;
     const cls=classifyVolume(sets,lm);
     const bucket=statusBucket(cls);
     muscleStatus[m]={cls,bucket,sets};
-    if(bucket==='under')under++;
-    else if(bucket==='ideal')ideal++;
+    if(bucket==='low')under++;
+    else if(bucket==='in')ideal++;
     else over++;
   });
 
@@ -4095,41 +4121,39 @@ function renderVolume(){
     const ms=muscleStatus[m];if(!ms)return false;
     return volumeStatusFilter==='all'||ms.bucket===volumeStatusFilter;
   }).map(m=>{
-    const lm=VOLUME_LANDMARKS[m];
+    const lm=VOLUME_RANGES[m];
     const {cls,sets}=muscleStatus[m];
-    const scaleMax=Math.max(lm.mrv+4,sets+2);
+    const scaleMax=Math.max(lm.hi+6,sets+2);
     const fillPct=Math.min(100,Math.round((sets/scaleMax)*100));
-    const mevPct=Math.round((lm.mev/scaleMax)*100);
-    const mav0Pct=Math.round((lm.mav[0]/scaleMax)*100);
-    const mav1Pct=Math.round((lm.mav[1]/scaleMax)*100);
-    const mrvPct=Math.round((lm.mrv/scaleMax)*100);
-    const range=`MEV ${lm.mev} · MAV ${lm.mav[0]}–${lm.mav[1]} · MRV ${lm.mrv}`;
+    const loPct=Math.round((lm.lo/scaleMax)*100);
+    const hiPct=Math.round((lm.hi/scaleMax)*100);
+    const range=lm.lo>0?`Typical ${lm.lo}–${lm.hi} sets`:`Typical up to ${lm.hi} sets`;
+    const ind=(counts._ind&&counts._ind[m])||{};
+    const indTxt=Object.keys(ind).map(n=>`${esc(n)} ${ind[n]}`).join(' · ');
     return `<div class="vol-card ${cls}">
       <div class="vol-head">
         <span class="name">${MUSCLE_NAMES[m]||m}</span>
         <span class="sets">${fmtSets(sets)}<span class="unit">sets</span></span>
       </div>
       <div class="vol-bar">
+        <div class="band" style="left:${loPct}%;width:${hiPct-loPct}%"></div>
         <div class="fill" style="width:${fillPct}%"></div>
-        ${lm.mev>0?`<div class="tick" style="left:${mevPct}%"></div>`:''}
-        <div class="tick" style="left:${mav0Pct}%"></div>
-        <div class="tick" style="left:${mav1Pct}%"></div>
-        <div class="tick" style="left:${mrvPct}%"></div>
       </div>
       <div class="vol-foot">
         <span>${range}</span>
         <span class="status ${cls}">${VOLUME_STATUS_LABEL[cls]}</span>
       </div>
+      ${indTxt?`<div class="vol-indirect">Also helps in: ${indTxt}</div>`:''}
     </div>`;
   }).join('');
 
   document.getElementById('volume-summary').innerHTML=`
-    <div class="stat under${volumeStatusFilter==='under'?' active':''}" onclick="setVolumeStatusFilter('under')"><div class="l">Push more</div><div class="v">${under}</div></div>
-    <div class="stat ideal${volumeStatusFilter==='ideal'?' active':''}" onclick="setVolumeStatusFilter('ideal')"><div class="l">In the band</div><div class="v">${ideal}</div></div>
-    <div class="stat over${volumeStatusFilter==='over'?' active':''}" onclick="setVolumeStatusFilter('over')"><div class="l">Ease off</div><div class="v">${over}</div></div>
+    <div class="stat under${volumeStatusFilter==='low'?' active':''}" onclick="setVolumeStatusFilter('low')"><div class="l">Low volume</div><div class="v">${under}</div></div>
+    <div class="stat ideal${volumeStatusFilter==='in'?' active':''}" onclick="setVolumeStatusFilter('in')"><div class="l">Typical</div><div class="v">${ideal}</div></div>
+    <div class="stat over${volumeStatusFilter==='high'?' active':''}" onclick="setVolumeStatusFilter('high')"><div class="l">High volume</div><div class="v">${over}</div></div>
   `;
 
-  // Past-week actual vs planned — did you slack off?
+  // This week: what's been logged next to what's planned.
   renderPastWeekActuals(order, counts);
 
   let breakdownHtml='';
@@ -4176,7 +4200,7 @@ function renderPastWeekActuals(order, plannedCounts){
   el.style.display='';
   if(sessions===0){
     el.className='vol-actuals empty';
-    el.innerHTML=`<div class="va-head"><div class="va-title">THIS WEEK · ${_thisWeekRange()}</div><div class="va-sub">so far</div></div><div class="va-empty">Nothing logged yet this week — go train.</div>`;
+    el.innerHTML=`<div class="va-head"><div class="va-title">THIS WEEK · ${_thisWeekRange()}</div><div class="va-sub">so far</div></div><div class="va-empty">Nothing logged yet this week.</div>`;
     return;
   }
   el.className='vol-actuals';
@@ -4190,7 +4214,7 @@ function renderPastWeekActuals(order, plannedCounts){
     shown++;
     totalPlan+=plan; totalAct+=act;
     const pct=plan>0?Math.round((act/plan)*100):(act>0?999:0);
-    const cls=plan===0?'gray':(pct>=95?'green':pct>=70?'amber':'red');
+    const cls=plan===0?'gray':(pct>=100?'green':'gray');
     const barPct=Math.min(100,Math.round(plan>0?(act/plan)*100:0));
     const pctLabel=plan===0?'bonus':(pct+'%');
     return `<div class="va-row ${cls}">
@@ -4201,14 +4225,9 @@ function renderPastWeekActuals(order, plannedCounts){
     </div>`;
   }).join('');
   const overall=totalPlan>0?Math.round((totalAct/totalPlan)*100):0;
-  // Pace-aware: don't shame you mid-week. Compare what you've done against how
-  // far into the week you are (Mon→now), not against the full week's plan.
-  const dowIdx=(new Date().getDay()+6)%7;            // Mon=0 … Sun=6
-  const elapsedFrac=(dowIdx+1)/7;                      // fraction of the week elapsed
-  const expected=totalPlan*elapsedFrac;
-  const paceRatio=expected>0?(totalAct/expected):(totalAct>0?1:0);
-  const grade=paceRatio>=0.9?'green':paceRatio>=0.6?'amber':'red';
-  const verdict=paceRatio>=0.9?'ON PACE':paceRatio>=0.6?'KEEP GOING':'BEHIND PACE';
+  // Just the number — no verdict on how you're doing.
+  const grade='gray';
+  const verdict='OF PLAN';
   el.innerHTML=`
     <div class="va-head">
       <div><div class="va-title">THIS WEEK · SO FAR</div><div class="va-range">${_thisWeekRange()} · ${sessions} session${sessions===1?'':'s'}</div></div>
@@ -4295,14 +4314,7 @@ function renderToday(){
   renderSyncBanner();
   if(t.type==='rest'){showView('rest');return;}
   try{renderAccountability();}catch(e){}
-  const isRealToday=(state.currentDayIdx===todayScheduleIdx());
-  // weekdayLabel(t.dayNum-1) just maps the split's rotating day-slot onto
-  // Mon-Sun by index — only actually the calendar weekday when the schedule
-  // is exactly 7 slots long. Most splits (e.g. a 6-day rotation) drift out
-  // of sync with real weekdays within a couple cycles, so "today" must use
-  // the real Date, not the slot index.
-  const wd=isRealToday?WEEKDAYS[(new Date().getDay()+6)%7]:weekdayLabel(t.dayNum-1);
-  document.getElementById('today-eyebrow').textContent=isRealToday?`${wd} · TODAY`:wd;
+  document.getElementById('today-eyebrow').textContent=`${weekdayLabel(state.currentDayIdx||0)} · TODAY`;
   const nameParts=t.name.split(' & ');
   document.getElementById('today-title').innerHTML=nameParts.length===2?`<span style="white-space:nowrap">${esc(nameParts[0])} &amp;</span> <span class="accent">${esc(nameParts[1])}</span>`:`<span class="accent">${esc(t.name)}</span>`;
   const exs=t.exercises;
@@ -4347,6 +4359,7 @@ function renderToday(){
     const inlineHtml=ex.skipped?'':`<div class="inline-log" id="inline-${i}">
       <div class="sl-grid" id="setgrid-${i}">${setGridHtml(ex,i)}</div>
       <div class="il-actions">
+        <button class="il-act" onclick="event.stopPropagation();addSetToday(${i})">+ Add set</button>
         <button class="il-act" onclick="event.stopPropagation();skipExerciseAt(${i})">— ${ex.completedSets>0?'Skip rest':'Skip'}</button>
       </div>
     </div>`;
@@ -4371,7 +4384,7 @@ function renderToday(){
     }else{listHtml+=cardHtml(ex,i);i++;}
   }
   document.getElementById('exercise-list').innerHTML=listHtml;
-  if(ssFlashId){const b=document.querySelector(`.ss-block[data-ss="${ssFlashId}"]`);if(b){b.classList.add('flash');try{b.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}}ssFlashId=null;}
+  if(ssFlashId){const b=document.querySelector(`.ss-block[data-ss="${ssFlashId}"]`);if(b)b.classList.add('flash');ssFlashId=null;}
   if(_openExName){const _newIdx=exs.findIndex(e=>e.name===_openExName);if(_newIdx>=0){const _op=document.getElementById('inline-'+_newIdx);if(_op)_op.classList.add('show');}}
   const btn=document.getElementById('complete-btn');
   const addBtn=document.getElementById('add-ex-btn');
@@ -4402,7 +4415,9 @@ function cardTap(i){
   const now=Date.now();
   if(_lastTap.i===i&&now-_lastTap.t<320){
     _lastTap={i:-1,t:0};
+    const y=window.scrollY;
     toggleInlineLog(i);            // put the log panel back how it was
+    window.scrollTo(0,y);
     ssDoubleTap(i);
     return;
   }
@@ -4423,6 +4438,12 @@ function ssDoubleTap(i){
   if(ssPickEx===exs[i]){ssPickEx=null;_ssPickPaint();return;}
   const a=ssPickEx,b=exs[i];ssPickEx=null;
   if(a.ss&&a.ss===b.ss){_ssPickPaint();toast('Already a superset');return;}
+  ssJoin(a,b);
+}
+// Put lift b into a's superset (making one if a has none). Any number of lifts
+// can share a superset. Keeps the page where it is — no jumping.
+function ssJoin(a,b){
+  const exs=state.today.exercises;
   // b leaves any superset it was in (a group of one isn't a superset).
   if(b.ss){const old=b.ss;b.ss=null;const left=exs.filter(e=>e.ss===old);if(left.length<2)left.forEach(e=>{e.ss=null;e.ssTemp=false;});}
   if(!a.ss){a.ss='ss-'+Date.now().toString(36);a.ssTemp=true;}
@@ -4433,8 +4454,11 @@ function ssDoubleTap(i){
   exs.splice(at,0,b);
   ssFlashId=a.ss;
   document.querySelectorAll('.inline-log.show').forEach(p=>p.classList.remove('show'));
+  const y=window.scrollY;
   syncTodayToSchedule();save();buzz();renderToday();
-  toast(b.ssTemp?'Superset · just today (Edit to keep it)':'Superset added · every week');
+  window.scrollTo(0,y);
+  const n=exs.filter(e=>e.ss===a.ss).length;
+  toast((n>2?`Superset · ${n} lifts`:'Superset')+(b.ssTemp?' · just today (Edit to keep it)':' · every week'));
 }
 function ssLetters(exs){
   const m={};let n=0;
@@ -4485,8 +4509,9 @@ function ssHop(i){
     const panel=document.getElementById('inline-'+nxt);if(!panel)return;
     document.querySelectorAll('.inline-log.show').forEach(p=>{if(p!==panel)p.classList.remove('show');});
     panel.classList.add('show');
-    const card=document.querySelector(`.exercise[data-ex-idx="${nxt}"]`);
-    try{(card||panel).scrollIntoView({block:'start',behavior:'smooth'});}catch(e){}
+    const card=document.querySelector(`.exercise[data-ex-idx="${nxt}"]`)||panel;
+    const r=card.getBoundingClientRect();
+    if(r.top<60||r.top>window.innerHeight-160){try{card.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(e){}}
   },260);
   const n=state.today.exercises[nxt];
   toast(pos===1?`Round done · rest, then ${n.name}`:`Next: ${n.name}`);
@@ -4581,6 +4606,18 @@ function logSet(i,s){
   save();
   refreshSetLog(i);
   if(ex.ss&&justLogged)ssHop(i);
+}
+// One extra set, just for today. Edit → "Every week" keeps it in the plan.
+function addSetToday(i){
+  const ex=state.today.exercises[i];if(!ex)return;
+  const cur=parseInt(ex.targetSets)||1;if(cur>=12){toast('12 sets max');return;}
+  if(ex.planSets==null)ex.planSets=cur;
+  ex.targetSets=cur+1;
+  ensureSets(ex);deriveFromSets(ex);
+  if(ex.completedSets>0)upsertLiveExercise(ex);
+  syncTodayToSchedule();save();buzz();
+  refreshSetLog(i);
+  toast('Extra set · just today (Edit to keep it)');
 }
 // Patch one exercise's rows + card instead of re-rendering the list (keeps the
 // panel open and doesn't replay the list's entrance animation).
@@ -4929,7 +4966,10 @@ function openExerciseEdit(i){
   document.getElementById('ee-name').textContent=ex.name;
   document.getElementById('ee-sets').value=ex.targetSets||3;
   document.getElementById('ee-reps').value=ex.targetReps||'';
-  document.getElementById('ee-ss-btn').textContent=ex.ss?'Unlink superset':'+ Superset';
+  document.getElementById('ee-ss-btn').textContent=ex.ss?'+ Add lift':'+ Superset';
+  document.getElementById('ee-unlink-btn').style.display=ex.ss?'':'none';
+  _eeOrigSets=(ex.planSets!=null)?ex.planSets:(parseInt(ex.targetSets)||3);_eeSetsPerm=false;
+  eePaintSetsPick();
   document.getElementById('ee-ss-wrap').style.display=ex.ss?'':'none';
   if(ex.ss)ssMarkPick('ee-ss-pick',ssGroupIsTemp(ex.ss)?'temp':'perm');
   document.getElementById('edit-ex-modal').classList.add('open');
@@ -4944,12 +4984,33 @@ function eeBumpSets(d){
   el.value=v;
   eeUpdateSets(v);
 }
+// A sets change is "just today" unless you pick "every week": planSets keeps
+// what the plan says, so tomorrow's copy of this day is untouched.
+let _eeOrigSets=3,_eeSetsPerm=false;
+function eePaintSetsPick(){
+  const ex=state.today.exercises[state.currentExerciseIdx];if(!ex)return;
+  const changed=(parseInt(ex.targetSets)||0)!==_eeOrigSets||ex.planSets!=null||_eeSetsPerm;
+  document.getElementById('ee-sets-wrap').style.display=changed?'':'none';
+  if(changed)ssMarkPick('ee-sets-pick',ex.planSets!=null?'temp':'perm');
+}
+function eeSetSetsKind(kind){
+  const ex=state.today.exercises[state.currentExerciseIdx];if(!ex)return;
+  _eeSetsPerm=kind==='perm';
+  if(kind==='temp'){if(ex.planSets==null)ex.planSets=_eeOrigSets;}
+  else delete ex.planSets;
+  ssMarkPick('ee-sets-pick',kind);
+  syncTodayToSchedule();save();
+  toast(kind==='temp'?'Sets changed just for today':'Sets saved to your plan');
+}
 function eeUpdateSets(v){
   const ex=state.today.exercises[state.currentExerciseIdx];if(!ex)return;
+  if(ex.planSets==null&&!_eeSetsPerm)ex.planSets=_eeOrigSets;
   ex.targetSets=Math.max(1,Math.min(12,parseInt(v)||1));
+  if(ex.planSets!=null&&ex.planSets===ex.targetSets)delete ex.planSets;
   ensureSets(ex);deriveFromSets(ex);
   if(ex.completedSets>0)upsertLiveExercise(ex);
   const el=document.getElementById('ee-sets');if(el&&String(el.value)!==String(ex.targetSets)&&document.activeElement!==el)el.value=ex.targetSets;
+  eePaintSetsPick();
   syncTodayToSchedule();save();
 }
 function eeUpdateReps(v){
@@ -4961,16 +5022,31 @@ function eeSwap(){
   document.getElementById('edit-ex-modal').classList.remove('open');
   swapExerciseAt(state.currentExerciseIdx);
 }
+function eeUnlinkSuperset(){
+  const exs=state.today.exercises,ex=exs[state.currentExerciseIdx];if(!ex||!ex.ss)return;
+  document.getElementById('edit-ex-modal').classList.remove('open');
+  const id=ex.ss;ex.ss=null;ex.ssTemp=false;
+  // A superset of one isn't a superset — unlink the partner too.
+  const left=exs.filter(e=>e.ss===id);if(left.length<2)left.forEach(e=>{e.ss=null;e.ssTemp=false;});
+  syncTodayToSchedule();save();renderToday();toast('Removed from superset');
+}
+// "+ Superset": today's other lifts first (one tap), or any lift from the library.
 function eeSuperset(){
   const exs=state.today.exercises,ex=exs[state.currentExerciseIdx];if(!ex)return;
   document.getElementById('edit-ex-modal').classList.remove('open');
-  if(ex.ss){
-    const id=ex.ss;ex.ss=null;ex.ssTemp=false;
-    // A superset of one isn't a superset — unlink the partner too.
-    const left=exs.filter(e=>e.ss===id);if(left.length<2)left.forEach(e=>{e.ss=null;e.ssTemp=false;});
-    syncTodayToSchedule();save();renderToday();toast('Superset unlinked');
-    return;
-  }
+  const others=exs.map((e,k)=>({e,k})).filter(o=>o.e!==ex&&!o.e.skipped&&!(ex.ss&&o.e.ss===ex.ss));
+  document.getElementById('ssp-list').innerHTML=others.length
+    ?others.map(o=>`<div class="dp-row" onclick="sspPick(${o.k})"><div class="dp-info"><div class="dp-name">${esc(o.e.name)}</div><div class="dp-musc">${o.e.ss?'In another superset':sxr(o.e,' × ')}</div></div></div>`).join('')
+    :'<div class="sr-hint">No other lifts today.</div>';
+  document.getElementById('ssp-modal').classList.add('open');
+}
+function sspPick(k){
+  const exs=state.today.exercises,a=exs[state.currentExerciseIdx],b=exs[k];
+  document.getElementById('ssp-modal').classList.remove('open');
+  if(a&&b)ssJoin(a,b);
+}
+function sspLibrary(){
+  document.getElementById('ssp-modal').classList.remove('open');
   libMode='superset';
   document.getElementById('lib-title').innerHTML='PAIR <span class="accent">WITH</span>';
   document.getElementById('lib-search').value='';libFamily=null;filterLib();
@@ -5991,7 +6067,8 @@ function filterLib(){
 }
 // Look at a split without switching to it: every day, every exercise.
 function openSplitOverview(id){
-  const p=getProgramDef(id);if(!p)return;
+  const _d=getProgramDef(id);if(!_d)return;
+  const p=Object.assign({},_d,{schedule:(state.programs&&state.programs[id])||_d.schedule});
   const isActive=p.id===state.activeProgramId;
   const train=p.schedule.filter(d=>d.type==='train').length,rest=p.schedule.length-train;
   const days=p.schedule.map((d,i)=>d.type==='rest'
@@ -6006,7 +6083,8 @@ function openSplitOverview(id){
     <div class="so-meta">${esc(p.author||'')} · ${train} training days · ${rest} rest · ${totalSets} sets a week</div>
     <div class="so-desc">${esc(p.description||'')}</div>
     ${days}
-    ${isActive?'<div class="so-current">You\'re on this split</div>':`<button class="btn-primary" style="width:100%;margin-top:12px" onclick="closeSplitOverview();switchProgram('${p.id}')">Use this split →</button>`}`;
+    ${isActive?'<div class="so-current">You\'re on this split</div>':`<button class="btn-primary" style="width:100%;margin-top:12px" onclick="closeSplitOverview();switchProgram('${p.id}')">Use this split →</button>`}
+    <button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--text)" onclick="openSplitEditor('${p.id}')">✎ Edit this split</button>`;
   document.getElementById('split-overview-modal').classList.add('open');
   const m=document.querySelector('#split-overview-modal .modal');if(m)m.scrollTop=0;
 }
@@ -6033,6 +6111,7 @@ function openProgramPicker(){
       <div class="pc-desc">${p.description}</div>
       <div class="pc-actions">
         <button class="pc-look" onclick="event.stopPropagation();openSplitOverview('${p.id}')">Just look</button>
+        <button class="pc-look" onclick="event.stopPropagation();openSplitEditor('${p.id}')">Edit</button>
         ${isActive?'':`<button class="pc-use" onclick="event.stopPropagation();switchProgram('${p.id}')">Use this split →</button>`}
       </div>
     </div>`;
@@ -6054,7 +6133,25 @@ function closeProgramModal(){document.getElementById('program-modal').classList.
 function closeProgramModalBg(e){if(e.target.id==='program-modal')closeProgramModal();}
 
 let splitBuilder={name:'',days:[]};
+// Edit any split — premade or your own — before using it or while on it.
+// Changes go to your copy of the split; "Reset this split to defaults" undoes them.
+function openSplitEditor(id){
+  const p=getProgramDef(id);if(!p)return;
+  const sched=(state.programs&&state.programs[id])||p.schedule;
+  splitBuilder={editId:id,name:p.name,days:sched.map(d=>({name:d.name,rest:d.type==='rest',exercises:(d.exercises||[]).map(e=>Object.assign({},e)),muscles:d.muscles,subtitle:d.subtitle}))};
+  ['program-modal','split-overview-modal'].forEach(m=>{const el=document.getElementById(m);if(el)el.classList.remove('open');});
+  _sbChrome(true,id===state.activeProgramId);
+  document.getElementById('split-builder-modal').classList.add('open');
+  renderSplitBuilder();
+}
+function _sbChrome(edit,active){
+  document.getElementById('sb-title').innerHTML=edit?'EDIT <span class="accent">SPLIT</span>':'BUILD YOUR <span class="accent">SPLIT</span>';
+  document.getElementById('sb-intro').textContent=edit?'Change days, swap or remove lifts, and set sets and reps. Tap a lift to change its sets.':'You decide everything: the name, the days, and the exercises on each day.';
+  document.getElementById('sb-name-field').style.display=edit?'none':'';
+  document.getElementById('sb-save').textContent=edit?(active?'SAVE':'SAVE & USE'):'CREATE SPLIT';
+}
 function openSplitBuilder(){
+  _sbChrome(false,false);
   splitBuilder={name:'',days:[
     {name:'',rest:false,exercises:[]},
     {name:'',rest:false,exercises:[]},
@@ -6117,7 +6214,26 @@ function removeBuilderDay(i){
   renderSplitBuilder();
 }
 function updateBuilderName(v){splitBuilder.name=v;}
+function saveEditedSplit(){
+  const id=splitBuilder.editId;
+  if(!splitBuilder.days.some(d=>!d.rest)){toast('Need at least one training day');return;}
+  const schedule=splitBuilder.days.map((d,i)=>{
+    const exs=d.rest?[]:(d.exercises||[]).map(e=>({libId:e.libId,name:e.name,targetSets:e.targetSets,targetReps:e.targetReps,primary:e.primary||false,tag:e.tag||null,ss:e.ss||null}));
+    exs.forEach(e=>{if(e.ss&&exs.filter(x=>x.ss===e.ss).length<2)e.ss=null;});
+    const auto=exs.length?autoDayLabel(exs):null;
+    return {dayNum:i+1,name:((d.name||'').trim()||(d.rest?'REST':'DAY '+(i+1))).toUpperCase(),
+      muscles:d.rest?'Recovery':(d.muscles||(auto?auto.muscles:'')),subtitle:d.subtitle||'',type:d.rest?'rest':'train',exercises:exs};
+  });
+  if(!state.programs)state.programs={};
+  state.programs[id]=schedule;
+  closeSplitBuilder();
+  if(id!==state.activeProgramId){save();switchProgram(id);toast('Split saved · you’re on it now');return;}
+  loadDay(Math.min(state.currentDayIdx||0,schedule.length-1));
+  save();renderToday();renderProgram();renderVolume();
+  toast('Split saved');
+}
 function saveCustomSplit(){
+  if(splitBuilder.editId){saveEditedSplit();return;}
   const name=(splitBuilder.name||'').trim();
   if(!name){toast('Give your split a name');return;}
   const trainCount=splitBuilder.days.filter(d=>!d.rest).length;
@@ -6324,9 +6440,6 @@ const IMPORT_TEMPLATES={
 // else is detected in the title.
 const CHANNEL_PROFILES={
   samsulek:{name:'Sam Sulek',volume:'high',defaultFocus:'chest',note:'high-volume bro split'},
-  renaissanceperiodization:{name:'Renaissance Periodization',volume:'moderate',defaultFocus:'ppl',note:'science-based, moderate volume'},
-  rpstrength:{name:'Renaissance Periodization',volume:'moderate',defaultFocus:'ppl',note:'science-based, moderate volume'},
-  drmikeisraetel:{name:'Dr. Mike Israetel',volume:'moderate',defaultFocus:'ppl',note:'science-based, moderate volume'},
   jeffnippard:{name:'Jeff Nippard',volume:'moderate',defaultFocus:'upper',note:'science-based, moderate volume'},
   chrisbumstead:{name:'Chris Bumstead',volume:'classic',defaultFocus:'chest',note:'classic bodybuilding'},
   cbum:{name:'Chris Bumstead',volume:'classic',defaultFocus:'chest',note:'classic bodybuilding'}
@@ -6853,7 +6966,7 @@ function computeAccountability(){
     missedCount++;
     if(catchUpIdx===-1){catchUpIdx=idx;catchUpName=slot.name||'';missedName=(typeof weekdayLabel==='function')?weekdayLabel((d.getDay()+6)%7):'';}
   }
-  const missedPrev=missedCount>0;
+  const missedPrev=false;   // days aren't weekdays anymore, so there's no "missed" day
   // Next upcoming training day (for the rest screen's "tomorrow" line)
   let nextTrainName='';
   for(let i=1;i<=len;i++){
@@ -6868,9 +6981,8 @@ function computeAccountability(){
   const weekDates=new Set();
   { const d=new Date();d.setHours(0,0,0,0);const mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));
     for(let x=new Date(mon);x<=d;x.setDate(x.getDate()+1))weekDates.add(ymd(x)); }
-  let doneThisWeek=[...done].filter(dt=>weekDates.has(dt)).length;
-  // Today's session is still "partial" until you finish it — credit it once you've logged real work.
-  if(trainedToday&&!done.has(todayKey)&&weekDates.has(todayKey))doneThisWeek++;
+  const _since=cycleStartMs();
+  let doneThisWeek=sched.filter(s=>s&&dayCompletedRecently(s,len,_since)).length;
   doneThisWeek=Math.min(doneThisWeek,weekTotal);
   return {todayIsRest,trainedToday,streak,missedPrev,missedName,missedCount,catchUpIdx,catchUpName,nextTrainName,doneThisWeek,weekTotal};
 }
@@ -6919,7 +7031,7 @@ function renderAccountability(){
   if(!el)return;
   const a=computeAccountability();
   if(a.todayIsRest){el.style.display='none';return;}
-  const wk=`${a.doneThisWeek}/${a.weekTotal} this week`;
+  const wk=`${a.doneThisWeek}/${a.weekTotal} days done`;
   // No streak — it makes no sense with programmed rest days. Just neutral
   // weekly progress, and a quiet "done" once today is logged.
   let cls='acct',ico='',title='',sub='';
