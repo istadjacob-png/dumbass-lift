@@ -1787,7 +1787,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-10-20.2';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-10-20.3';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -2432,24 +2432,27 @@ function topSetLabel(ts,ex){
   return `${kg||'—'}kg × ${reps}`;
 }
 
-// Typical weekly range of direct sets per muscle. Most hypertrophy studies
-// land around 10–20 hard sets/week; muscles that get plenty of work from other
-// lifts (opt) have no minimum — zero direct sets there is fine, not "low".
+// Typical weekly range of sets per muscle, counted the way the research does
+// (Pelland et al. 2024 dose-response meta-regression): a set counts 1 for the
+// muscle a lift mainly trains and ½ for muscles that help (squats → glutes,
+// rows → biceps). Growth keeps rising past ~10 sets/week with shrinking
+// returns, so ~10–20 is the usual target. Muscles that get plenty from other
+// lifts (opt) have no minimum.
 const VOLUME_RANGES={
   'chest':{lo:10,hi:20},
   'lats':{lo:10,hi:20},
-  'traps':{lo:0,hi:12,opt:true},
-  'front-delts':{lo:0,hi:12,opt:true},
+  'traps':{lo:0,hi:16,opt:true},
+  'front-delts':{lo:0,hi:16,opt:true},
   'side-delts':{lo:10,hi:20},
-  'rear-delts':{lo:6,hi:16},
+  'rear-delts':{lo:6,hi:20},
   'biceps':{lo:8,hi:20},
   'triceps':{lo:8,hi:20},
-  'forearms':{lo:0,hi:12,opt:true},
+  'forearms':{lo:0,hi:16,opt:true},
   'abs':{lo:0,hi:16,opt:true},
   'quads':{lo:10,hi:20},
-  'hamstrings':{lo:8,hi:16},
-  'glutes':{lo:0,hi:16,opt:true},
-  'lower-back':{lo:0,hi:10,opt:true},
+  'hamstrings':{lo:8,hi:20},
+  'glutes':{lo:6,hi:20},
+  'lower-back':{lo:0,hi:12,opt:true},
   'calves':{lo:8,hi:16}
 };
 
@@ -4003,15 +4006,21 @@ function renderProgram(){
   }).join('');
 }
 
-// Weekly sets per muscle: a set counts for the muscle it mainly trains.
-// Muscles that only help (secondary) are tracked apart in counts._ind as
-// {muscle:{liftName:sets}} so the card can say where they got worked — they
-// are never added to the main number.
+// Weekly sets per muscle: 1 per set for the muscle a lift mainly trains,
+// ½ per set for muscles that help (secondary). The ½ sets are also kept in
+// counts._ind as {muscle:{liftName:halfSets}} so the card can show where
+// they came from.
+const SECONDARY_CREDIT=0.5;
 function _addSets(counts,lib,name,sets){
   counts[lib.muscle]=(counts[lib.muscle]||0)+sets;
   if(Array.isArray(lib.secondary)){
     counts._ind=counts._ind||{};
-    lib.secondary.forEach(m=>{const o=counts._ind[m]=counts._ind[m]||{};o[name]=(o[name]||0)+sets;});
+    lib.secondary.forEach(m=>{
+      if(m===lib.muscle)return;
+      const h=sets*SECONDARY_CREDIT;
+      counts[m]=(counts[m]||0)+h;
+      const o=counts._ind[m]=counts._ind[m]||{};o[name]=(o[name]||0)+h;
+    });
   }
 }
 function computeWeeklySets(){
@@ -4078,7 +4087,7 @@ function classifyVolume(sets,r){
   if(sets<=r.hi)return'in';
   return'high';
 }
-const VOLUME_STATUS_LABEL={'low':'Low volume','in':'Typical range','high':'High volume','none':'No direct sets'};
+const VOLUME_STATUS_LABEL={'low':'Low volume','in':'Typical range','high':'High volume','none':'Not trained'};
 
 const MUSCLE_GROUPS=[
   {key:'all',label:'All'},
@@ -4143,7 +4152,7 @@ function renderVolume(){
     const hiPct=Math.round((lm.hi/scaleMax)*100);
     const range=lm.lo>0?`Typical ${lm.lo}–${lm.hi} sets`:`Typical up to ${lm.hi} sets`;
     const ind=(counts._ind&&counts._ind[m])||{};
-    const indTxt=Object.keys(ind).map(n=>`${esc(n)} ${ind[n]}`).join(' · ');
+    const indTxt=Object.keys(ind).map(n=>`${esc(n)} ${fmtSets(ind[n])}`).join(' · ');
     return `<div class="vol-card ${cls}">
       <div class="vol-head">
         <span class="name">${MUSCLE_NAMES[m]||m}</span>
@@ -4157,7 +4166,7 @@ function renderVolume(){
         <span>${range}</span>
         <span class="status ${cls}">${VOLUME_STATUS_LABEL[cls]}</span>
       </div>
-      ${indTxt?`<div class="vol-indirect">Also helps in: ${indTxt}</div>`:''}
+      ${indTxt?`<div class="vol-indirect">Half sets from: ${indTxt}</div>`:''}
     </div>`;
   }).join('');
 
