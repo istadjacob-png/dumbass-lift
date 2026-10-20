@@ -37,8 +37,13 @@ html.dark [stroke="#E4E4E4"]{stroke:#2A2A2A}
 html.dark [stop-color="#FF3300"]{stop-color:#5AC8FA}
 .theme-card{padding:0!important}
 .theme-row{width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;padding:16px 18px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
-.theme-sw{width:46px;height:26px;border:1.5px solid var(--text);position:relative;display:block}
+.theme-sw{flex-shrink:0;width:46px;height:26px;border:1.5px solid var(--text);position:relative;display:block}
 .theme-sw i{position:absolute;top:3px;left:3px;width:17px;height:17px;background:var(--text);transition:left .18s}
+.theme-sw.on{background:var(--acc);border-color:var(--acc)}
+.theme-sw.on i{left:23px;background:var(--gFFFFFF)}
+.theme-row .tr-text{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding-right:12px}
+.theme-row .tr-sub{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;letter-spacing:.02em;text-transform:none;color:var(--text-dim);line-height:1.4}
+.theme-row+.theme-row{border-top:1px solid var(--border-soft)}
 html.dark .theme-sw{background:var(--acc);border-color:var(--acc)}
 html.dark .theme-sw i{left:23px;background:#0A0A0A}
 
@@ -84,6 +89,7 @@ input,textarea{user-select:text}
 
 /* === STAGGER ENTRY for list children inside an active view === */
 .view.active .exercise,.view.active .day-card,.view.active .vol-card,.view.active .hist-day{animation:fadeUp .42s cubic-bezier(.2,.8,.2,1) backwards}
+#exercise-list.still .exercise{animation:none}
 .view.active .exercise:nth-child(2),.view.active .day-card:nth-child(2),.view.active .vol-card:nth-child(2),.view.active .hist-day:nth-child(2){animation-delay:.04s}
 .view.active .exercise:nth-child(3),.view.active .day-card:nth-child(3),.view.active .vol-card:nth-child(3),.view.active .hist-day:nth-child(3){animation-delay:.08s}
 .view.active .exercise:nth-child(4),.view.active .day-card:nth-child(4),.view.active .vol-card:nth-child(4),.view.active .hist-day:nth-child(4){animation-delay:.12s}
@@ -209,7 +215,7 @@ input,textarea{user-select:text}
 .ex-log-btn.done{background:var(--gFFFFFF);color:var(--text-dim);border-color:var(--border-soft)}
 .exercise.current .ex-log-btn{background:var(--gFFFFFF);color:var(--g000000);border-color:var(--gFFFFFF)}
 .exercise.current .ex-log-btn.done{background:transparent;color:var(--gFFFFFF);border-color:var(--gFFFFFF)}
-.inline-log{max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease,opacity .18s ease,margin .22s ease;margin:0 0 0 0}
+.inline-log{max-height:0;overflow:hidden;opacity:0;margin:0 0 0 0}
 .inline-log.show{max-height:1400px;opacity:1;margin:-4px 0 10px}
 .il-hint{font-family:'JetBrains Mono',monospace;font-size:9.5px;line-height:1.4;color:var(--text-faint);margin:0 0 8px;letter-spacing:.03em}
 .il-row{display:flex;align-items:flex-end;gap:8px;padding:0 2px}
@@ -1111,6 +1117,9 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 .sl-head span{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.2em;color:var(--text-faint);text-transform:uppercase;font-weight:700;text-align:center}
 .sl-row{margin-bottom:6px}
 .sl-n{font-family:'Bebas Neue',sans-serif;font-size:22px;text-align:center;color:var(--text)}
+.sl-n.top{font-size:15px;letter-spacing:.04em}
+.sl-tick{grid-column:2/4;height:44px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--border-soft);border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint)}
+.sl-row.done .sl-tick{border-style:solid;color:var(--text-dim)}
 .sl-in{width:100%;box-sizing:border-box;height:44px;border:1px solid var(--border-soft);border-radius:2px;background:var(--gFFFFFF);text-align:center;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--g000000);-moz-appearance:textfield;-webkit-appearance:none}
 .sl-in::placeholder{color:var(--gB5B5B5)}
 .sl-in:focus{outline:none;border-color:var(--g000000)}
@@ -1504,6 +1513,9 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
       <button class="theme-row" onclick="toggleDark()">
         <span>Dark mode</span><span class="theme-sw" id="theme-sw"><i></i></span>
       </button>
+      <button class="theme-row" onclick="toggleLogMode()">
+        <span class="tr-text"><span>Top set only</span><span class="tr-sub" id="logmode-sub">Off: type weight &amp; reps for every set.</span></span><span class="theme-sw" id="logmode-sw"><i></i></span>
+      </button>
     </div>
 
     <div class="profile-card">
@@ -1775,7 +1787,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-10-08.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-10-20.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3153,7 +3165,9 @@ function ensureLiveSession(){
 }
 // kg lifted: every logged set when we have them, else top set × set count (older data).
 function exVolume(e){
-  if(Array.isArray(e.sets))return e.sets.filter(r=>r.done).reduce((a,r)=>a+(parseFloat(r.kg)||0)*(parseInt(r.reps)||0),0);
+  // Sets ticked without numbers (top-set-only mode) count as the top set.
+  const t=e.topSet||{};
+  if(Array.isArray(e.sets))return e.sets.filter(r=>r.done).reduce((a,r)=>a+(String(r.reps||'').trim()?(parseFloat(r.kg)||0)*(parseInt(r.reps)||0):(parseFloat(t.kg)||0)*(parseInt(t.reps)||0)),0);
   return (parseFloat(e.topSet&&e.topSet.kg)||0)*(parseInt(e.topSet&&e.topSet.reps)||0)*(parseInt(e.completedSets)||0);
 }
 function liveExerciseKey(ex){return (ex.libId||'')+'::'+(ex.name||'');}
@@ -3931,7 +3945,7 @@ function load(){try{const raw=localStorage.getItem('dumbass_state');if(raw){let 
 }
 function dismissIntro(){state.introSeen=true;save();document.getElementById('intro').classList.add('hidden');renderToday();}
 
-function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';state.historyOpen='';renderProgress();}if(name==='profile')renderProfile();if(name==='program'){renderProgram();renderVolume();}if(name==='today')renderToday();if(name==='rest')renderRest();window.scrollTo(0,0);}
+function showView(name){if(name==='today'&&state.today&&state.today.type==='rest')name='rest';document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));const navName=name==='rest'?'today':name;const btn=document.querySelector(`.nav-item[data-view="${navName}"]`);if(btn)btn.classList.add('active');if(name==='history')renderHistory();if(name==='progress'){state.progLiftView='grid';state.historyOpen='';renderProgress();}if(name==='profile')renderProfile();if(name==='program'){renderProgram();renderVolume();}if(name==='today'){_todayNav=true;renderToday();}if(name==='rest')renderRest();window.scrollTo(0,0);}
 
 // A day is DONE when it was finished in the current cycle. A cycle starts the
 // moment you start Day 1 (first set logged), so starting Day 1 clears every
@@ -4263,13 +4277,24 @@ function findCompletedSessionForDay(dayNum){
 function unlockDay(){ _dayUnlocked=true; renderToday(); toast('Editing unlocked'); }
 
 // Inline top-set logging — log right on the card, no separate screen ("optimal focus").
+let _todayNav=false;
+// Run fn without the page moving under your finger: whatever card you touched
+// stays exactly where it was on screen, even if panels above it open/close.
+function exCard(i){return document.querySelector(`.exercise[data-ex-idx="${i}"]`);}
+function keepPlace(getEl,fn){
+  const a=getEl(),t0=a?a.getBoundingClientRect().top:null;
+  fn();
+  const b=getEl();
+  if(t0!=null&&b){const d=b.getBoundingClientRect().top-t0;if(d)window.scrollBy(0,d);}
+}
 function toggleInlineLog(i){
   const panel=document.getElementById('inline-'+i);
   if(!panel)return;
-  const open=panel.classList.contains('show');
-  document.querySelectorAll('.inline-log.show').forEach(p=>{if(p!==panel)p.classList.remove('show');});
-  if(open){panel.classList.remove('show');}
-  else{panel.classList.add('show'); const kg=document.getElementById('il-kg-'+i); if(kg)setTimeout(()=>{try{kg.focus();kg.select();}catch(e){}},60);}
+  keepPlace(()=>exCard(i),()=>{
+    const open=panel.classList.contains('show');
+    document.querySelectorAll('.inline-log.show').forEach(p=>{if(p!==panel)p.classList.remove('show');});
+    panel.classList.toggle('show',!open);
+  });
 }
 function logInline(i){
   const ex=state.today&&state.today.exercises&&state.today.exercises[i]; if(!ex)return;
@@ -4383,7 +4408,10 @@ function renderToday(){
       listHtml+=ssBlockHtml(ex.ss,idxs,ssL[ex.ss],cardHtml);
     }else{listHtml+=cardHtml(ex,i);i++;}
   }
-  document.getElementById('exercise-list').innerHTML=listHtml;
+  const _list=document.getElementById('exercise-list');
+  // Only animate the cards in when you arrive on Today — not on every tap.
+  _list.classList.toggle('still',!_todayNav);_todayNav=false;
+  _list.innerHTML=listHtml;
   if(ssFlashId){const b=document.querySelector(`.ss-block[data-ss="${ssFlashId}"]`);if(b)b.classList.add('flash');ssFlashId=null;}
   if(_openExName){const _newIdx=exs.findIndex(e=>e.name===_openExName);if(_newIdx>=0){const _op=document.getElementById('inline-'+_newIdx);if(_op)_op.classList.add('show');}}
   const btn=document.getElementById('complete-btn');
@@ -4415,9 +4443,7 @@ function cardTap(i){
   const now=Date.now();
   if(_lastTap.i===i&&now-_lastTap.t<320){
     _lastTap={i:-1,t:0};
-    const y=window.scrollY;
     toggleInlineLog(i);            // put the log panel back how it was
-    window.scrollTo(0,y);
     ssDoubleTap(i);
     return;
   }
@@ -4444,6 +4470,7 @@ function ssDoubleTap(i){
 // can share a superset. Keeps the page where it is — no jumping.
 function ssJoin(a,b){
   const exs=state.today.exercises;
+  const _b0=exCard(exs.indexOf(b)),_t0=_b0?_b0.getBoundingClientRect().top:null;
   // b leaves any superset it was in (a group of one isn't a superset).
   if(b.ss){const old=b.ss;b.ss=null;const left=exs.filter(e=>e.ss===old);if(left.length<2)left.forEach(e=>{e.ss=null;e.ssTemp=false;});}
   if(!a.ss){a.ss='ss-'+Date.now().toString(36);a.ssTemp=true;}
@@ -4454,9 +4481,10 @@ function ssJoin(a,b){
   exs.splice(at,0,b);
   ssFlashId=a.ss;
   document.querySelectorAll('.inline-log.show').forEach(p=>p.classList.remove('show'));
-  const y=window.scrollY;
   syncTodayToSchedule();save();buzz();renderToday();
-  window.scrollTo(0,y);
+  // Keep the lift you just double-tapped pinned under your finger.
+  const _b1=exCard(exs.indexOf(b));
+  if(_t0!=null&&_b1){const d=_b1.getBoundingClientRect().top-_t0;if(d)window.scrollBy(0,d);}
   const n=exs.filter(e=>e.ss===a.ss).length;
   toast((n>2?`Superset · ${n} lifts`:'Superset')+(b.ssTemp?' · just today (Edit to keep it)':' · every week'));
 }
@@ -4505,14 +4533,11 @@ function ssHop(i){
   if(st.allDone){toast('Superset done');return;}
   const nxt=st.up;if(nxt<0||nxt===i)return;
   const pos=idxs.indexOf(nxt)+1;
-  setTimeout(()=>{
-    const panel=document.getElementById('inline-'+nxt);if(!panel)return;
+  const panel=document.getElementById('inline-'+nxt);
+  if(panel)keepPlace(()=>exCard(nxt),()=>{
     document.querySelectorAll('.inline-log.show').forEach(p=>{if(p!==panel)p.classList.remove('show');});
     panel.classList.add('show');
-    const card=document.querySelector(`.exercise[data-ex-idx="${nxt}"]`)||panel;
-    const r=card.getBoundingClientRect();
-    if(r.top<60||r.top>window.innerHeight-160){try{card.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(e){}}
-  },260);
+  });
   const n=state.today.exercises[nxt];
   toast(pos===1?`Round done · rest, then ${n.name}`:`Next: ${n.name}`);
 }
@@ -4558,6 +4583,7 @@ function deriveFromSets(ex){
 function setSuggestion(ex,s){
   for(let k=s-1;k>=0;k--){const r=ex.sets[k];if(r&&(r.kg||r.reps))return {kg:r.kg||'',reps:r.reps||''};}
   const prev=prevSessionEx(ex);
+  if(prev&&topSetOnly()&&prev.topSet&&(prev.topSet.kg||prev.topSet.reps))return {kg:prev.topSet.kg||'',reps:prev.topSet.reps||''};
   if(prev){
     const ps=Array.isArray(prev.sets)?(prev.sets.filter(r=>r.done)[s]||prev.sets.filter(r=>r.done).slice(-1)[0]):null;
     if(ps)return {kg:ps.kg||'',reps:ps.reps||''};
@@ -4567,12 +4593,22 @@ function setSuggestion(ex,s){
 }
 function setGridHtml(ex,i){
   const bw=isBodyweightEx(ex);
+  const top=topSetOnly();
   const rows=ex.sets.map((r,s)=>{
+    // Top-set-only: first row takes weight & reps, the rest are just a tick.
+    if(top&&s>0){
+      const had=r.done&&String(r.reps||'').trim();
+      return `<div class="sl-row${r.done?' done':''}">
+      <span class="sl-n">${s+1}</span>
+      <span class="sl-tick" onclick="event.stopPropagation();logSet(${i},${s})">${had?esc(topSetLabel(r,ex)):(r.done?'Set done':'Tick when done')}</span>
+      <button class="sl-ok" onclick="event.stopPropagation();logSet(${i},${s})" title="${r.done?'Undo this set':'Log this set'}">✓</button>
+    </div>`;
+    }
     const sug=setSuggestion(ex,s);
     const kgPh=sug.kg||(bw?'BW':'kg');
     const rPh=sug.reps||'reps';
     return `<div class="sl-row${r.done?' done':''}">
-      <span class="sl-n">${s+1}</span>
+      <span class="sl-n${top?' top':''}">${top?'TOP':s+1}</span>
       <input class="sl-in" id="sl-kg-${i}-${s}" type="number" inputmode="decimal" placeholder="${esc(String(kgPh))}" data-sug="${esc(String(sug.kg||''))}" value="${esc(String(r.kg||''))}" autocomplete="off" onclick="event.stopPropagation()" oninput="setField(${i},${s},'kg',this.value)">
       <input class="sl-in" id="sl-reps-${i}-${s}" type="number" inputmode="numeric" placeholder="${esc(String(rPh))}" data-sug="${esc(String(sug.reps||''))}" value="${esc(String(r.reps||''))}" autocomplete="off" onclick="event.stopPropagation()" oninput="setField(${i},${s},'reps',this.value)" onkeydown="if(event.key==='Enter'){this.blur();logSet(${i},${s})}">
       <button class="sl-ok" onclick="event.stopPropagation();logSet(${i},${s})" title="${r.done?'Undo this set':'Log this set'}">✓</button>
@@ -4591,6 +4627,7 @@ function logSet(i,s){
   ensureSets(ex);
   const r=ex.sets[s];if(!r)return;
   if(r.done){r.done=false;}
+  else if(topSetOnly()&&s>0){r.done=true;buzz();}
   else{
     const kgEl=document.getElementById(`sl-kg-${i}-${s}`),rEl=document.getElementById(`sl-reps-${i}-${s}`);
     const kg=((kgEl&&kgEl.value)||(kgEl&&kgEl.dataset.sug)||'').trim();
@@ -5191,7 +5228,7 @@ function renderProgHistory(){
             const isPr=prSet.has(ex.name);
             const key=(ex.libId||'')+'::'+(ex.name||'');
             let setsHtml;
-            if(Array.isArray(ex.sets)&&ex.sets.some(r=>r.done)){
+            if(Array.isArray(ex.sets)&&ex.sets.some(r=>r.done)&&ex.sets.filter(r=>r.done).every(r=>String(r.reps||'').trim())){
               setsHtml=ex.sets.filter(r=>r.done).map((r,k)=>`<div class="hd-set"><span class="sn">SET ${k+1}</span><span class="sv">${topSetLabel(r,ex).toUpperCase()}</span></div>`).join('');
             }else if(ex.topSet&&(ex.topSet.reps||ex.topSet.kg)){
               // Older sessions only stored the heaviest set + how many sets were done.
@@ -6822,7 +6859,22 @@ function toggleDark(){
   const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',on?'#0A0A0A':'#FFFFFF');
   buzz();
 }
+// How sets are logged: 'all' = weight & reps on every set (default),
+// 'top' = weight & reps once for the heaviest set, the other sets are just ticked.
+function topSetOnly(){return state.logMode==='top';}
+function renderLogMode(){
+  const on=topSetOnly();
+  const sw=document.getElementById('logmode-sw');if(sw)sw.classList.toggle('on',on);
+  const sub=document.getElementById('logmode-sub');
+  if(sub)sub.textContent=on?'On: type weight & reps once for your heaviest set, then just tick the other sets.':'Off: type weight & reps for every set.';
+}
+function toggleLogMode(){
+  state.logMode=topSetOnly()?'all':'top';
+  save();renderLogMode();buzz();
+  toast(topSetOnly()?'Top set only · tick the other sets':'Logging every set');
+}
 function renderProfile(){
+  renderLogMode();
   try{ var _bl=document.getElementById('build-line'); if(_bl)_bl.textContent='Build '+APP_BUILD; }catch(e){}
   document.getElementById('profile-name').value=state.userName||'';
   const st=profileStats();
