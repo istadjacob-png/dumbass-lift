@@ -1787,7 +1787,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-10-20.4';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-10-27.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -4442,7 +4442,7 @@ function renderToday(){
 
 // === SUPERSET BLOCK ===
 // Back-to-back lifts drawn as one unit: A1 → A2 on a rail, a round tracker in
-// the header, and logging a set hops you straight to the next lift in the round.
+// the header. Logging a set never opens another lift or scrolls — you pick.
 let ssFlashId=null;
 // DOUBLE-TAP TO SUPERSET: double-tap a lift (it turns orange), double-tap
 // another and the two become a superset. Double-tap the orange one to cancel.
@@ -4535,22 +4535,6 @@ function ssRefresh(id){
   const head=block.querySelector('.ss-head');if(head)head.innerHTML=ssHeadHtml(id,idxs);
   block.classList.toggle('all-done',st.allDone);
 }
-// After a set in a superset: close this lift, open the next one in the round.
-function ssHop(i){
-  const ex=state.today.exercises[i];if(!ex||!ex.ss)return;
-  const idxs=ssIdxs(ex.ss),st=ssState(idxs);
-  if(st.allDone){toast('Superset done');return;}
-  const nxt=st.up;if(nxt<0||nxt===i)return;
-  const pos=idxs.indexOf(nxt)+1;
-  const panel=document.getElementById('inline-'+nxt);
-  if(panel)keepPlace(()=>exCard(nxt),()=>{
-    document.querySelectorAll('.inline-log.show').forEach(p=>{if(p!==panel)p.classList.remove('show');});
-    panel.classList.add('show');
-  });
-  const n=state.today.exercises[nxt];
-  toast(pos===1?`Round done · rest, then ${n.name}`:`Next: ${n.name}`);
-}
-
 // Small tap feedback when a set is logged: native haptics in the iPhone app,
 // vibrate() on Android browsers, nothing elsewhere.
 function buzz(){
@@ -4646,12 +4630,10 @@ function logSet(i,s){
     r.kg=kg;r.reps=reps;r.done=true;
     buzz();
   }
-  const justLogged=r.done;
   deriveFromSets(ex);
   if(ex.completedSets>0)upsertLiveExercise(ex);else removeLiveExercise(ex);
   save();
   refreshSetLog(i);
-  if(ex.ss&&justLogged)ssHop(i);
 }
 // One extra set, just for today. Edit → "Every week" keeps it in the plan.
 function addSetToday(i){
