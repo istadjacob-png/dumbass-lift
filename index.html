@@ -1787,7 +1787,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-10-27.1';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-10-27.2';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3652,6 +3652,7 @@ function _authMsg(e){
   if(/too-many-requests/.test(c))return 'Too many tries. Wait a minute and try again.';
   if(/weak-password/.test(c))return 'Use at least 6 characters.';
   if(/invalid-email/.test(c))return 'That email looks invalid.';
+  if(/reset-unavailable/.test(c))return 'Password reset isn’t available yet. Make a new account or ask support.';
   if(/operation-not-allowed|configuration-not-found/i.test(c))return 'Accounts are switched off right now. Try again later.';
   return 'Something went wrong. Try again.';
 }
@@ -7164,7 +7165,7 @@ registerSW().then(reg=>{if(reg&&reg.pushManager)reg.pushManager.getSubscription(
 ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, getDocs, deleteDoc, collection, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, getDocs, deleteDoc, collection, onSnapshot, writeBatch, runTransaction, getDocFromServer } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 const app = initializeApp({
@@ -7176,9 +7177,11 @@ const app = initializeApp({
   appId: "1:941172987533:web:dca8398f89afa9e59fb4c4"
 });
 // Offline cache: writes made without signal are queued and sent later.
+// Long polling: Safari stalls Firestore's default streaming connection, so
+// after the first read every later read and live update hung.
 let db;
-try{ db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
-catch(e){ db = initializeFirestore(app, {}); }
+try{ db = initializeFirestore(app, { experimentalForceLongPolling: true, localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+catch(e){ db = initializeFirestore(app, { experimentalForceLongPolling: true }); }
 // initializeAuth (not getAuth) — getAuth pulls in popup/iframe code that hangs inside the iPhone app.
 const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] });
 
@@ -7187,18 +7190,107 @@ const sessRef = (uid, id) => doc(db, "users", uid, "sessions", id);
 const sessCol = uid => collection(db, "users", uid, "sessions");
 let unsubs = [];
 
+// ---- Fallback while Firebase logins are switched off on this project ----
+// The account lives in one `accounts/{emailKey}` doc (salted PBKDF2 password,
+// checked on the device). Workouts go in its `lift` field, settings in
+// `liftProfile`. The live rules keep email/salt/pwHash unchangeable.
+const ACCT = "dumbass_acct_session";
+let acct = null; try{ acct = JSON.parse(localStorage.getItem(ACCT) || "null"); }catch(e){}
+const isAcct = uid => typeof uid === "string" && uid.indexOf("acct:") === 0;
+const acctRef = uid => doc(db, "accounts", uid.slice(5));
+const acctUser = () => acct ? { uid: "acct:" + acct.key, email: acct.email } : null;
+const authOff = e => /configuration-not-found|operation-not-allowed/i.test((e && (e.code || e.message)) || "");
+// Read from the server, falling back to the offline copy when there is no signal.
+const acctGet = ref => getDocFromServer(ref).catch(() => getDoc(ref));
+const authErr = code => { const e = new Error(code); e.code = code; return e; };
+let authCbs = [], fbUser = null;
+const emit = () => { const u = acctUser() || fbUser; authCbs.forEach(cb => cb(u)); };
+function setAcct(a){ acct = a; try{ a ? localStorage.setItem(ACCT, JSON.stringify(a)) : localStorage.removeItem(ACCT); }catch(e){} emit(); }
+
+async function acctSignIn(email, pw){
+  const key = await _emailKey(email), s = await acctGet(doc(db, "accounts", key));
+  if (!s.exists()) throw authErr("auth/user-not-found");
+  const d = s.data();
+  if (await _pbkdf2(pw, d.salt) !== d.pwHash) throw authErr("auth/wrong-password");
+  setAcct({ key, email }); return "acct:" + key;
+}
+async function acctSignUp(email, pw){
+  const key = await _emailKey(email), ref = doc(db, "accounts", key);
+  if ((await acctGet(ref)).exists()) throw authErr("auth/email-already-in-use");
+  const salt = _b64(crypto.getRandomValues(new Uint8Array(16)));
+  await setDoc(ref, { email, salt, pwHash: await _pbkdf2(pw, salt), lift: "{}", liftProfile: "", liftM: 0, updatedAt: Date.now() });
+  setAcct({ key, email }); return "acct:" + key;
+}
+// Workouts in the doc: {id: {json, date, deleted, _m}}. Accounts made before
+// September only have the old `state` field, so read their workouts from that.
+function acctSessions(d){
+  let m = {}; try{ m = JSON.parse(d.lift || "{}") || {}; }catch(e){}
+  if (!d.lift && d.state){ try{ (JSON.parse(d.state).history || []).forEach(h => { if (h && h.date) m[sessionId(h)] = { json: JSON.stringify(h), date: h.date, deleted: false, _m: 0 }; }); }catch(e){} }
+  return m;
+}
+function acctProfile(d){
+  if (d.liftProfile) return { profile: d.liftProfile, _m: d.liftM || 0 };
+  if (d.state){ try{ const st = JSON.parse(d.state); return { profile: JSON.stringify(profileOf(st)), _m: st._lastModified || 0 }; }catch(e){} }
+  return null;
+}
+// Writes made in the same moment go up together in one transaction.
+let pend = null;
+function acctQueue(uid, fn){
+  if (!pend){
+    pend = { uid, fns: [], waits: [] };
+    setTimeout(() => {
+      const job = pend; pend = null;
+      runTransaction(db, async t => {
+        const s = await t.get(acctRef(job.uid)); if (!s.exists()) throw new Error("no account");
+        const d = s.data(), out = { sessions: acctSessions(d), profile: d.liftProfile || "", m: d.liftM || 0 };
+        job.fns.forEach(f => f(out));
+        const lift = JSON.stringify(out.sessions);
+        if (lift.length >= 800000) throw new Error("account full");
+        t.update(acctRef(job.uid), { lift, liftProfile: out.profile, liftM: out.m, updatedAt: Date.now() });
+      }).then(() => job.waits.forEach(w => w[0]()), e => job.waits.forEach(w => w[1](e)));
+    }, 0);
+  }
+  pend.fns.push(fn);
+  return new Promise((res, rej) => pend.waits.push([res, rej]));
+}
+
 window.__cloud = {
-  onAuth: cb => onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email || "" } : null)),
-  signUp: async (email, pw) => (await createUserWithEmailAndPassword(auth, email, pw)).user.uid,
-  signIn: async (email, pw) => (await signInWithEmailAndPassword(auth, email, pw)).user.uid,
-  signOut: () => signOut(auth),
-  resetPassword: email => sendPasswordResetEmail(auth, email),
-  getProfile: async uid => { const s = await getDoc(userRef(uid)); return s.exists() ? s.data() : null; },
-  getSessions: async uid => (await getDocs(sessCol(uid))).docs.map(d => ({ id: d.id, data: d.data() })),
-  putProfile: (uid, data) => setDoc(userRef(uid), data),
-  putSession: (uid, id, data) => setDoc(sessRef(uid, id), data),
+  onAuth: cb => { authCbs.push(cb); cb(acctUser() || fbUser); },
+  signUp: async (email, pw) => {
+    try{ return (await createUserWithEmailAndPassword(auth, email, pw)).user.uid; }
+    catch(e){ if (authOff(e)) return acctSignUp(email, pw); throw e; }
+  },
+  signIn: async (email, pw) => {
+    try{ return (await signInWithEmailAndPassword(auth, email, pw)).user.uid; }
+    catch(e){ if (authOff(e)) return acctSignIn(email, pw); throw e; }
+  },
+  signOut: async () => { if (acct){ setAcct(null); return; } await signOut(auth); },
+  resetPassword: async email => {
+    try{ await sendPasswordResetEmail(auth, email); }
+    catch(e){ if (authOff(e)) throw authErr("reset-unavailable"); throw e; }
+  },
+  getProfile: async uid => {
+    if (isAcct(uid)){ const s = await acctGet(acctRef(uid)); return s.exists() ? acctProfile(s.data()) : null; }
+    const s = await getDoc(userRef(uid)); return s.exists() ? s.data() : null;
+  },
+  getSessions: async uid => {
+    if (isAcct(uid)){ const s = await acctGet(acctRef(uid)); const m = s.exists() ? acctSessions(s.data()) : {}; return Object.keys(m).map(id => ({ id, data: m[id] })); }
+    return (await getDocs(sessCol(uid))).docs.map(d => ({ id: d.id, data: d.data() }));
+  },
+  putProfile: (uid, data) => isAcct(uid) ? acctQueue(uid, o => { o.profile = data.profile; o.m = data._m || Date.now(); }) : setDoc(userRef(uid), data),
+  putSession: (uid, id, data) => isAcct(uid) ? acctQueue(uid, o => { o.sessions[id] = data; }) : setDoc(sessRef(uid, id), data),
   subscribe: (uid, onProfile, onSessions) => {
     unsubs.forEach(u => { try{ u(); }catch(e){} });
+    if (isAcct(uid)){
+      unsubs = [onSnapshot(acctRef(uid), s => {
+        if (s.metadata.hasPendingWrites || !s.exists()) return;
+        const d = s.data(), p = acctProfile(d), m = acctSessions(d);
+        if (p) onProfile(p);
+        const ch = Object.keys(m).map(id => ({ id, data: m[id] }));
+        if (ch.length) onSessions(ch);
+      }, e => console.warn("[cloud] account", e))];
+      return;
+    }
     unsubs = [
       onSnapshot(userRef(uid), s => { if (!s.metadata.hasPendingWrites && s.exists()) onProfile(s.data()); }, e => console.warn("[cloud] profile", e)),
       onSnapshot(sessCol(uid), q => {
@@ -7210,6 +7302,13 @@ window.__cloud = {
   unsubscribe: () => { unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; },
   // Apple requires in-app account deletion: wipe every doc, then the login itself.
   deleteAccount: async pw => {
+    if (acct){
+      // The rules never allow deleting the doc itself, so empty it instead.
+      const s = await acctGet(acctRef("acct:" + acct.key));
+      if (!s.exists() || await _pbkdf2(pw, s.data().salt) !== s.data().pwHash) throw authErr("auth/wrong-password");
+      await setDoc(acctRef("acct:" + acct.key), { lift: "{}", liftProfile: "", liftM: 0, state: "", updatedAt: Date.now() }, { merge: true });
+      setAcct(null); return;
+    }
     const u = auth.currentUser; if (!u) throw new Error("not signed in");
     await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw));
     const docs = (await getDocs(sessCol(u.uid))).docs;
@@ -7222,6 +7321,7 @@ window.__cloud = {
   // One-time move of accounts made before real logins existed.
   legacyRead: async key => { const s = await getDoc(doc(db, "accounts", key)); return s.exists() ? s.data() : null; },
 };
+onAuthStateChanged(auth, u => { fbUser = u ? { uid: u.uid, email: u.email || "" } : null; if (!acct) emit(); });
 window.dispatchEvent(new Event('dumbass:sync-ready'));
 </script>
 </body>
