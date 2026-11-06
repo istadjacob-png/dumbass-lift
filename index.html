@@ -1787,7 +1787,7 @@ html,body{background:var(--gFFFFFF);font-family:'Inter',sans-serif;font-weight:4
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_BUILD='2026-10-27.2';  // bump on every deploy — drives auto-update
+const APP_BUILD='2026-11-06.1';  // bump on every deploy — drives auto-update
 const LIBRARY=[
   {id:'flat-bench',name:'Flat Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'middle',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle flat, feet planted, shoulder blades tucked and down.',cues:['Bar touches mid-chest at nipple line','Drive feet through floor for leg drive','Elbows at ~45° to torso','2 seconds down · pause · explode up']}},
   {id:'inc-bench',name:'Incline Bench Press',muscle:'chest',secondary:['triceps','front-delts'],region:'upper',type:'COMPOUND',equipment:'BARBELL',form:{primary:'Bench angle 30–45° (not higher — shifts to front delts).',cues:['Feet planted, shoulder blades tucked','Bar touches upper chest (below collarbone)','Drive bar in slight arc back over shoulders','Focus contraction on upper chest']}},
@@ -3665,13 +3665,19 @@ async function _tryLegacyLogin(email,pw){
   if(!old||!old.salt)return 'none';
   if(await _pbkdf2(pw,old.salt)!==old.pwHash)return 'wrong';
   let ls=null; try{ ls=JSON.parse(old.state||'null'); }catch(e){}
-  if(ls){
+  let lift={}; try{ lift=JSON.parse(old.lift||'{}')||{}; }catch(e){}
+  // Settings: the newer of the `liftProfile` field and the old `state` blob.
+  let lp=null, lpM=0; try{ if(old.liftProfile){ lp=JSON.parse(old.liftProfile); lpM=old.liftM||0; } }catch(e){}
+  if(ls&&(ls._lastModified||0)>lpM){ lp=profileOf(ls); lpM=ls._lastModified||0; }
+  if(ls||lp||Object.keys(lift).length){
     snapshotBackup&&snapshotBackup();
     const tmp=_meta; _meta={known:{},profile:'',first:true};
-    _mergeRemoteSessions((ls.history||[]).filter(h=>h&&h.date).map(h=>({id:sessionId(h),data:{json:JSON.stringify(h),deleted:false}})));
-    if((ls._lastModified||0)>(state._lastModified||0)){
+    const docs=Object.keys(lift).filter(id=>lift[id]&&!lift[id].deleted&&lift[id].json).map(id=>({id,data:lift[id]}));
+    ((ls&&ls.history)||[]).filter(h=>h&&h.date).forEach(h=>{ const id=sessionId(h); if(!lift[id]) docs.push({id,data:{json:JSON.stringify(h),deleted:false}}); });
+    _mergeRemoteSessions(docs);
+    if(lp&&lpM>(state._lastModified||0)){
       const keep={}; PROFILE_SKIP.forEach(k=>{ if(k in state) keep[k]=state[k]; });
-      state=Object.assign(profileOf(ls),keep);
+      state=Object.assign(lp,keep);
     }
     _meta=tmp;
     _suppressCloudPush=true; try{ save(); }finally{ _suppressCloudPush=false; }
@@ -6949,6 +6955,12 @@ try{
 
 // Cloud sync kicks in after Firebase module reports ready. Will pull-on-load if syncCode is set.
 window.addEventListener('dumbass:sync-ready',()=>{cloudInitOnLoad();});
+window.addEventListener('dumbass:relogin',e=>{
+  openLogin('login');
+  const em=document.getElementById('login-email'); if(em)em.value=(e.detail&&e.detail.email)||'';
+  const err=document.getElementById('login-error'); if(err)err.textContent='Log in once more to move to your new account. Your workouts stay on this phone.';
+  setTimeout(()=>{const p=document.getElementById('login-pw');if(p)p.focus();},120);
+});
 if(window.__cloud)cloudInitOnLoad();
 try{ localStorage.removeItem('dumbass_account'); }catch(e){}  // old pre-Auth login
 
@@ -7323,6 +7335,16 @@ window.__cloud = {
 };
 onAuthStateChanged(auth, u => { fbUser = u ? { uid: u.uid, email: u.email || "" } : null; if (!acct) emit(); });
 window.dispatchEvent(new Event('dumbass:sync-ready'));
+// Once real logins are switched on, a device still on the old account store
+// logs in once more so it moves over. A throwaway password tells us if they're on.
+if (acct){
+  const email = acct.email;
+  signInWithEmailAndPassword(auth, email, "probe-" + Math.random().toString(36).slice(2)).then(() => {}, e => {
+    if (authOff(e) || /network|too-many/i.test(e && e.code || "")) return;
+    setAcct(null);
+    window.dispatchEvent(new CustomEvent('dumbass:relogin', { detail: { email } }));
+  });
+}
 </script>
 </body>
 </html>
